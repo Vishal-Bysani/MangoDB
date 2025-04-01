@@ -60,3 +60,86 @@ nav {
 .nav-button-div:hover {
     background-color: rgb(61, 61, 61);
 }
+
+.search-container {
+    position: relative;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1001;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-result-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    color: #333;
+    background-color: #181818;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background-color: rgb(61, 61, 61);
+}
+
+.search-result-content {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-family: sans-serif;
+    font-weight: bolder;
+    display: flex;
+    align-items: center;
+}
+
+.search-result-image {
+    width: 40px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 15px;
+    border-radius: 2px;
+}
+
+.search-result-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+
+.search-result-actors {
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.search-result-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.search-result-year {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.75);
+    margin-top: 2px;
+}
+
+.search-result-info {
+    display: flex;
+    flex: 1;
+}
+
+.search-result-rating {
+    margin-left: auto;
+    font-weight: bold;
+    color: #f5c518;
+}
