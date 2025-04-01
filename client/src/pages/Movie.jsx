@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
-const Movie = () => {}
+const Movie = () => {
+    const { movieId } = useParams();
+    return <span>MovieId {movieId}</span>
+}
 
 export default Movie;

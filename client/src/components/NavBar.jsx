@@ -20,7 +20,7 @@ const Navbar = () => {
   ];
 
   // TODO: Properly integrate with API
-  const getMatchingMovies = (text) => {
+  const getMatchingItems = (text) => {
     const matches = mockMovies.filter(movie => 
       movie.title.toLowerCase().includes(text.toLowerCase())
     );
@@ -38,7 +38,7 @@ const Navbar = () => {
         movie.title.toLowerCase().includes(text.toLowerCase())
       ));
     } else {
-      setMatchingList(getMatchingMovies(text));
+      setMatchingList(getMatchingItems(text));
     }
     setSearchText(text);
   };
