@@ -45,6 +45,7 @@ nav {
     background-color: transparent;
     border: none;
     color: white;
+    font-weight: bolder;
     cursor: pointer;
     padding: 8px 16px;
     font-size: 14px;
