@@ -2,30 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { apiUrl } from "../config/config";
 import "../css/Login.css";
+import { getLoggedIn } from "../api"
 
 const Login = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
         const checkStatus = async () => {
-            try {
-                // TODO: Activate the below code
-
-                // const response = await fetch(`${apiUrl}/isLoggedIn`, {
-                //   method: "GET",
-                //   credentials: "include",
-                // });
-                // const data = await response.json();
-
-                const data = { loggedIn: false };
-
-                if (data.loggedIn) {
-                    navigate("/dashboard");
-                }
-            } catch (err) {
-                console.error("Error checking authentication status:", err);
-                navigate("/login");
-            }
+            getLoggedIn().then(loggedIn => { if (loggedIn) navigate("/dashboard"); });
         };
         checkStatus();
     }, []);

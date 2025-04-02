@@ -22,6 +22,7 @@ nav {
     width: 45px;
     padding: 0px 24px;
     transform: scale(1.5, 1);
+    cursor: pointer;
 }
 
 .search-input {
