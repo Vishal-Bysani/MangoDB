@@ -4,7 +4,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import Movie from "./pages/Movie";
+import Item from "./pages/Item";
 import Artist from "./pages/Artist";
 import NotFound from "./pages/Notfound";
 
@@ -16,7 +16,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<Profile />} />
-      <Route path="/movie/:movieId" element={<Movie />} />
+      <Route path="/item/:itemId" element={<Item />} />
       <Route path="/artist" element={<Artist />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

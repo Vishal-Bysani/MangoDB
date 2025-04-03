@@ -18,8 +18,8 @@ const Navbar = () => {
     if (text.trim() === "") {
       setMatchingList([]);
     } else if(searchText !== "" && text.toLowerCase().startsWith(searchText.toLowerCase())) {
-      setMatchingList(matchingList.filter(movie => 
-        movie.title.toLowerCase().startsWith(text.toLowerCase())
+      setMatchingList(matchingList.filter(item => 
+        item.title.toLowerCase().startsWith(text.toLowerCase())
       ));
     } else {
       setMatchingList(getMatchingItems(text));
@@ -27,10 +27,10 @@ const Navbar = () => {
     setSearchText(text);
   };
 
-  const handleResultClick = (movieId) => {
-    navigate(`/movie/${movieId}`);
+  const handleResultClick = (itemId) => {
     setSearchText("");
     setMatchingList([]);
+    navigate(`/item/${itemId}`);
   };
 
   useEffect(() => {
@@ -89,16 +89,16 @@ const Navbar = () => {
           {/* Search results dropdown */}
           {matchingList.length > 0 && (
             <div className="search-results">
-              {matchingList.slice(0, 5).map(movie => (
+              {matchingList.slice(0, 5).map(item => (
                 <div 
-                  key={movie.id} 
+                  key={item.id} 
                   className="search-result-item"
-                  onClick={() => handleResultClick(movie.id)}
+                  onClick={() => handleResultClick(item.id)}
                 >
                   <div className="search-result-content">
                     <img 
-                      src={movie.image} 
-                      alt={movie.title} 
+                      src={item.image} 
+                      alt={item.title} 
                       className="search-result-image" 
                       onError={(e) => {
                         e.target.onerror = null;
@@ -107,12 +107,12 @@ const Navbar = () => {
                     />
                     <div className="search-result-info">
                       <div className="search-result-text">
-                        <div className="search-result-title">{movie.title}</div>
-                        <div className="search-result-year">{movie.year}</div>
-                        <div className="search-result-actors">{movie.actors.slice(0, 2).join(", ")}</div>
+                        <div className="search-result-title">{item.title}</div>
+                        <div className="search-result-year">{item.startYear}</div>
+                        <div className="search-result-actors">{item.actors.slice(0, 2).join(", ")}</div>
                       </div>
                     </div>
-                    <div className="search-result-rating">{movie.rating} ⭐</div>
+                    <div className="search-result-rating">{item.rating} ⭐</div>
                   </div>
                 </div>
               ))}
