@@ -172,10 +172,13 @@ const Item = () => {
                     <div className="item-sidebar">
                         <div className="rating-section">
                             <div className="mangodb-rating">
-                                <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '160px'}} >ROTTEN-MANGOES</h4>
-                                <div className="star-rating">
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '10px'}}>
-                                        <span className="rating-value">{item.rating}</span>
+                                <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '160px'}} >
+                                </h4>
+                                <div className="star-rating" style={{display: 'flex'}}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px'}}>
+                                    <img src="/rotten-mangoes.png" alt="Logo" style={{width: "30px"}}>
+                                    </img>
+                                        <span className="rating-value" style={{fontSize: '24px'}}>96%</span>
                                     </div>
                                 </div>
                             </div>
@@ -198,7 +201,7 @@ const Item = () => {
                                             { item.user_rating ? (
                                                 <>
                                                     <span className="star-outline">★</span>
-                                                    <span style={{ fontSize: '18px', color: 'white', fontWeight: 'bold'}}>{item.user_rating}/10</span>
+                                                    <span style={{ fontSize: '20px', color: 'white', fontWeight: 'bold'}}>{item.user_rating}/10</span>
                                                 </>
                                             ) : (
                                                 <>
@@ -232,7 +235,7 @@ const Item = () => {
                                     className="search-result-image" 
                                     onError={(e) => {
                                         e.target.onerror = null;
-                                        e.target.src = "/imdb-logo.svg"; // Fallback image
+                                        e.target.src = "/mangodb-logo.png"; // Fallback image
                                     }}
                                 />
                             </div>

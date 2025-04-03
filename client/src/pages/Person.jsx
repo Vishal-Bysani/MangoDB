@@ -70,7 +70,7 @@ const Person = () => {
                                 className="person-image"
                                 onError={(e) => {
                                     e.target.onerror = null;
-                                    e.target.src = "/imdb-logo.svg";
+                                    e.target.src = "/mangodb-logo.png";
                                 }}
                             />
                             <div className="person-description">
@@ -107,7 +107,7 @@ const Person = () => {
                                             alt={item.title}
                                             onError={(e) => {
                                                 e.target.onerror = null;
-                                                e.target.src = "/imdb-logo.svg";
+                                                e.target.src = "/mangodb-logo.png";
                                             }}
                                         />
                                         <h4>{item.title}</h4>

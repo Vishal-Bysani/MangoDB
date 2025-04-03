@@ -75,7 +75,7 @@ const Navbar = () => {
     <nav>
       <div className="nav-container">
         <div>
-          <img src="/imdb-logo.svg" alt="Logo" className="nav-logo" onClick={() => navigate("/")}></img>
+          <img src="/mangodb-logo.png" alt="Logo" className="nav-logo" onClick={() => navigate("/")}></img>
         </div>
         <div className="search-container" ref={searchContainerRef}>
           <input 
@@ -102,7 +102,7 @@ const Navbar = () => {
                       className="search-result-image" 
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "/imdb-logo.svg"; // Fallback image
+                        e.target.src = "/mangodb-logo.png"; // Fallback image
                       }}
                     />
                     <div className="search-result-info">

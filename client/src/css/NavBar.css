@@ -14,14 +14,16 @@ nav {
 
 .nav-container {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     align-items: center;
+    margin-top: 12px;
+    margin-bottom: 12px;
 }
 
 .nav-logo {
-    width: 45px;
+    width: 120px;
     padding: 0px 24px;
-    transform: scale(1.5, 1);
+    transform: scale(1, 1);
     cursor: pointer;
 }
 
@@ -31,7 +33,8 @@ nav {
     border: 1px solid #444;
     background-color: #222;
     color: white;
-    width: 600px;
+    width: 800px;
+    height: 50px;
 }
 
 .search-input::placeholder {
@@ -49,7 +52,7 @@ nav {
     font-weight: bolder;
     cursor: pointer;
     padding: 8px 16px;
-    font-size: 14px;
+    font-size: 20px;
 }
 
 .nav-button-div {

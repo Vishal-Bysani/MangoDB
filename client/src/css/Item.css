@@ -8,7 +8,7 @@ body {
   color: #fff;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 80px;
+  margin-top: 120px;
   padding: 20px;
 }
 
@@ -188,18 +188,18 @@ body {
 
 .star {
   color: #f5c518;
-  font-size: 24px;
+  font-size: 30px;
 }
 
 .rating-value {
   font-weight: 700;
-  font-size: 16px;
+  font-size: 20px;
   margin-top: 5px;
 }
 
 .rating-count {
   font-weight: 500;
-  font-size: 14px;
+  font-size: 18px;
   margin-top: 6px;
 }
 
@@ -221,7 +221,7 @@ body {
 }
 
 .star-outline {
-  font-size: 24px;
+  font-size: 30px;
 }
 
 .popularity-score {
