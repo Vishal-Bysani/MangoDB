@@ -179,4 +179,71 @@ const submitReview = async (rating) => {
     console.log("Received review: " + rating)
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview };
+const getPersonDetails = async (personId) => {
+    // TODO
+    const mockPersonDb = [
+        {
+            id: 101,
+            name: "Christian Bale",
+            roles: ["Actor"],
+            imageLink: "https://m.media-amazon.com/images/M/MV5BMTkxMzk4MjQ4MF5BMl5BanBnXkFtZTcwMzExODQxOA@@._V1_QL75_UX190_CR0,0,190,281_.jpg",
+            description: "Christian Charles Philip Bale is an English actor. Known for his versatility and physical transformations for his roles, he has been a leading man in films of several genres.",
+            knownFor: [
+                { itemId: 1, title: "The Dark Knight", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", year: 2008 },
+                { itemId: 6, title: "Schindler's List", rating: 8.9, imageLink: "https://m.media-amazon.com/images/M/MV5BMTg3MDc4ODgyOF5BMl5BanBnXkFtZTgwNzY1ODIyNjM@._V1_QL75_UX190_CR0,10,190,281_.jpg", year: 1993 },
+                { itemId: 9, title: "Inception", rating: 8.8, imageLink: "https://m.media-amazon.com/images/M/MV5BMjExMjkwNTQ0Nl5BMl5BanBnXkFtZTcwNTY0OTk1Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2010 }
+            ],
+            dateOfBirth: "1974-01-30",
+            dateOfDeath: null,
+            popularity: 95,
+            awards: [
+                { awardId: 1, organizationName: "Academy Awards", yearReceived: 2011, item: { itemId: 1, title: "The Dark Knight" } },
+                { awardId: 2, organizationName: "Golden Globe Awards", yearReceived: 2011, item: { itemId: 1, title: "The Dark Knight" } }
+            ]
+        },
+        {
+            id: 102,
+            name: "Heath Ledger",
+            roles: ["Actor"],
+            imageLink: "https://m.media-amazon.com/images/M/MV5BMTI2NTY0NzA4MF5BMl5BanBnXkFtZTYwMjE1MDE0._V1_QL75_UX190_CR0,0,190,281_.jpg",
+            description: "Heath Andrew Ledger was an Australian actor and music video director. After performing roles in several Australian television and film productions during the 1990s, Ledger moved to the United States in 1998 to further develop his film career.",
+            knownFor: [
+                { itemId: 1, title: "The Dark Knight", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", year: 2008 },
+                { itemId: 3, title: "The Italian Job", rating: 7.0, imageLink: "https://m.media-amazon.com/images/M/MV5BMjJjNzc5YjAtZjU2Ni00ZjVkLTkzYmItM2E2NDM0NWE1YmJhXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2003 },
+                { itemId: 4, title: "Zodiac", rating: 7.7, imageLink: "https://m.media-amazon.com/images/M/MV5BNDFkMTRkZmQtM2I0NC00NjJjLWJlMDctNTNiZWYxYzhjZDZiXkEyXkFqcGc@._V1_QL75_UY281_CR0,0,190,281_.jpg", year: 2007 }
+            ],
+            dateOfBirth: "1979-04-04",
+            dateOfDeath: "2008-01-22",
+            popularity: 98,
+            awards: [
+                { awardId: 3, organizationName: "Academy Awards", yearReceived: 2009, item: { itemId: 1, title: "The Dark Knight" } },
+                { awardId: 4, organizationName: "Golden Globe Awards", yearReceived: 2009, item: { itemId: 1, title: "The Dark Knight" } }
+            ]
+        },
+        {
+            id: 201,
+            name: "Marlon Brando",
+            roles: ["Actor", "Director", "Producer"],
+            imageLink: "https://m.media-amazon.com/images/M/MV5BMTg3MDYyMDE5OF5BMl5BanBnXkFtZTcwNjgyNTEzNA@@._V1_QL75_UY207_CR64,0,140,207_.jpg",
+            description: "Marlon Brando Jr. was an American actor and film director. He is credited with bringing realism to film acting.",
+            knownFor: [
+                { itemId: 2, title: "The Godfather", rating: 9.2, imageLink: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY281_CR4,0,190,281_.jpg", year: 1972 },
+                { itemId: 6, title: "Schindler's List", rating: 8.9, imageLink: "https://m.media-amazon.com/images/M/MV5BMTg3MDc4ODgyOF5BMl5BanBnXkFtZTgwNzY1ODIyNjM@._V1_QL75_UX190_CR0,10,190,281_.jpg", year: 1993 },
+                { itemId: 7, title: "1917", rating: 8.3, imageLink: "https://m.media-amazon.com/images/M/MV5BYzkxZjg2NDQtMGVjMy00NWZkLTk0ZDEtZWE3NDYwYjAyMTg1XkEyXkFqcGc@._V1_QL75_UX190_CR0,10,190,281_.jpg", year: 2019 }
+            ],
+            dateOfBirth: "1924-04-03",
+            dateOfDeath: "2004-07-01",
+            popularity: 97,
+            awards: [
+                { awardId: 5, organizationName: "Academy Awards", yearReceived: 1973, item: { itemId: 2, title: "The Godfather" } },
+                { awardId: 6, organizationName: "Golden Globe Awards", yearReceived: 1973, item: { itemId: 2, title: "The Godfather" } }
+            ]
+        }
+    ]
+    const matches = mockPersonDb.filter(person =>
+        person.id === parseInt(personId)
+    )
+    return matches[0];
+}
+
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails };

@@ -1,0 +1,131 @@
+.people-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: 80px;
+}
+
+.person-header-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.person-header {
+    flex: 1;
+}
+
+.person-title {
+    font-size: 44px;
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.person-metadata {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.person-sidebar {
+    width: 300px;
+    margin-left: 20px;
+}
+
+.rating-section {
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.popularity-score {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.person-content {
+    display: flex;
+    gap: 30px;
+}
+
+.person-main {
+    flex: 1;
+}
+
+.person-image {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.person-description {
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.known-for-container {
+    margin-top: 30px;
+}
+
+.known-for-title {
+    font-size: 30px;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.known-for-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.known-for-item {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.known-for-item:hover {
+    transform: scale(1.05);
+}
+
+.known-for-item img {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.known-for-item h4 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.known-for-item p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.awards-container {
+    margin-top: 30px;
+}
+
+.awards-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.award-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid white;
+}
+
+.award-item h4 {
+    margin: 0 0 5px 0;
+}
+
+.award-item p {
+    margin: 0;
+    color: #666;
+}
