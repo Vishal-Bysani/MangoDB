@@ -1,15 +1,49 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { getLoggedIn, getItemDetails } from "../api";
+import { getLoggedIn, getItemDetails, submitRating, submitReview } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/Item.css"
 
+const Popup = ({ isOpen, onClose, children }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="popup-overlay" onClick={onClose}>
+        <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+            <button className="popup-close-btn" onClick={onClose}>×</button>
+            {children}
+        </div>
+        </div>
+    );
+};
 
 const Item = () => {
     const navigate = useNavigate();
     const { itemId } = useParams();
     const [item, setItem] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isRatingPopupOpen, setIsRatingPopupOpen] = useState(false);
+    const [rating, setRating] = useState(0);
+    const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
+    const [userReviewText, setUserReviewText] = useState("");
+    const [hoverRating, setHoverRating] = useState(0);
+
+    // const openPopup = () => {
+    //     setIsRatingPopupOpen(true);
+    // };
+
+    // const closePopup = () => {
+    //     setIsRatingPopupOpen(false);
+    // };
+
+    // const handleRating = (value) => {
+    //     setRating(value);
+    // };
+
+    // const handleSubmit = () => {
+    //     console.log("Rating submitted:", rating);
+    //     closePopup();
+    // };
 
     useEffect(() => {
         const checkStatus = async () => {
@@ -25,6 +59,7 @@ const Item = () => {
             setLoading(true);
             const data = await getItemDetails(itemId);
             setItem(data);
+            if (data.user_rating) setRating(data.user_rating);
             setLoading(false);
         };
         fetchItemDetails();
@@ -41,7 +76,67 @@ const Item = () => {
     return (
         <>
             <Navbar />
+
+            <Popup isOpen={isRatingPopupOpen} onClose={() => setIsRatingPopupOpen(false)}>
+                <div className="popup-header">
+                    <p style={{textAlign: 'center'}}>RATE THIS</p>
+                    <h2 >{item.title}</h2>
+                </div>
+                <div className="popup-body">
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                        {[...Array(10)].map((_, index) => 
+                            ( <span key={index} style={{
+                                        cursor: 'pointer',
+                                        fontSize: '30px',
+                                        padding: '5px',
+                                        color: index < (hoverRating || rating) ? '#FFD700' : '#FFD700',
+                                        opacity: index < (hoverRating || rating) ? 1 : 0.3
+                                    }}
+                                    onMouseEnter={() => setHoverRating(index + 1)}
+                                    onMouseLeave={() => setHoverRating(0)}
+                                    onClick={() => setRating(index + 1)}
+                                > ★ </span> )
+                        )}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(rating); item.user_rating = rating;}}>
+                            Rate
+                        </button>
+                    </div>
+                </div>
+            </Popup>
+
+            <Popup isOpen={isReviewPopupOpen} onClose={() => setIsReviewPopupOpen(false)}>
+                <div className="popup-header">
+                    <p style={{textAlign: 'center'}}>GIVE REVIEW</p>
+                    <h2 >{item.title}</h2>
+                </div>
+                <div className="popup-body">
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                        <textarea 
+                            className="review-input" 
+                            placeholder="Review"
+                            value={userReviewText}
+                            onChange={(e) => setUserReviewText(e.target.value)}
+                        />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <button className="submit-rate-button" onClick={() => {setIsReviewPopupOpen(false); submitReview(userReviewText);}}>
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </Popup>
+
             <div className="item-page">
+                {item.type === "tvseries" && (
+                    <>
+                        <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/episodes`)}>
+                            <p style={{textDecoration: 'none'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Episode Guide</p>
+                            <p className="forward-arrow" style={{marginLeft: '10px', marginTop: '19px'}}></p>
+                        </div>
+                    </>
+                )}
                 <div className="item-header-container">
                     <div className="item-header">
                         <h1 className="item-title">{item.title}</h1>
@@ -70,25 +165,48 @@ const Item = () => {
                                     <span>{item.duration%60}m</span>
                                 </>
                             )}
+                            <span>&nbsp;·&nbsp;</span>
+                            <span>{item.country}</span>
                         </div>
                     </div>
                     <div className="item-sidebar">
                         <div className="rating-section">
-                            <div className="imdb-rating">
-                                <h4 style={{fontSize: '15px', fontWeight: 'bold'}} >IMDb RATING</h4>
+                            <div className="mangodb-rating">
+                                <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '160px'}} >ROTTEN-MANGOES</h4>
                                 <div className="star-rating">
-                                    <span className="star">★</span>
-                                    <span className="rating-value">{item.rating}/10</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '10px'}}>
+                                        <span className="rating-value">{item.rating}</span>
+                                    </div>
                                 </div>
-                                <span className="votes">{item.imdb_votes}</span>
+                            </div>
+                            <div className="mangodb-rating">
+                                <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '150px'}} >PUBLIC RATING</h4>
+                                <div className="star-rating">
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        <span className="star">★</span>
+                                        <span className="rating-value">{item.rating}/10</span>
+                                    </div>
+                                    <span className="rating-count">{parseInt(item.numRating) > 1000000 ? ( Math.floor(parseInt(item.numRating)/100000)/10 + ' M') : ( parseInt(item.numRating) > 1000 ? (  Math.floor(parseInt(item.numRating)/100)/10 + ' K') : (item.numRating) )}</span>
+                                </div>
                             </div>
                             
                             <div className="your-rating">
-                                <h4 style={{fontSize: '15px', fontWeight: 'bold'}} >YOUR RATING</h4>
+                                <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '120px'}} >YOUR RATING</h4>
                                 <div className="rate-button">
                                     <button className="rate-button">
-                                        <span className="star-outline">☆</span>
-                                        <span style={{ fontSize: '16px', marginTop: '5px' }}>Rate</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} onClick={() => setIsRatingPopupOpen(true)}>
+                                            { item.user_rating ? (
+                                                <>
+                                                    <span className="star-outline">★</span>
+                                                    <span style={{ fontSize: '18px', color: 'white', fontWeight: 'bold'}}>{item.user_rating}/10</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="star-outline">☆</span>
+                                                    <span style={{ fontSize: '16px', marginTop: '5px' }}>Rate</span>
+                                                </>
+                                            )}
+                                        </div>
                                     </button>
                                 </div>
                             </div>
@@ -119,17 +237,21 @@ const Item = () => {
                                 />
                             </div>
                             <div className="item-trailer">
-                                <div className="play-button">
-                                    <span className="play-icon">▶</span>
-                                    <span>Play trailer</span>
-                                    <span className="trailer-duration"></span>
-                                </div>
+                                <iframe 
+                                    width="100%" 
+                                    height="100%" 
+                                    src={item.trailerLink.replace('watch?v=', 'embed/')} 
+                                    title="YouTube video player" 
+                                    frameBorder="0px" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowFullScreen
+                                ></iframe>
                             </div>
                         </div>
 
                         <div className="item-genres">
                             {item.tags.map((tag, index) => (
-                                <span key={index} className="genre-tag">{tag}</span>
+                                <span key={index} className="genre-tag" onClick={() => navigate(`/tag/${tag.id}`)}>{tag.name}</span>
                             ))}
                         </div>
 
@@ -140,17 +262,38 @@ const Item = () => {
                         <div className="item-crew">
                             <div className="crew-section">
                                 <h3>Director</h3>
-                                <p>{item.director}</p>
+                                <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.director.id}`)}>{item.director.name}</p>
                             </div>
                             
-                            <div className="crew-section">
-                                <h3>Writers</h3>
-                                <p>{item.writers.join(" · ")}</p>
-                            </div>
+                            { item.writers.length > 0 && (
+                                <div className="crew-section">
+                                    <h3>Writers</h3>
+                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.writers[0].id}`)}>{item.writers[0].name}</p>
+                                    { item.writers.slice(1, 5).map(writer => (
+                                        <>
+                                            <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
+                                        </>
+                                    ))}
+                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/item/${item.id}/writers`)}></p>
+                                </div>
+                            )}
                             
+                            { item.actors.length > 0 && (
+                                <div className="crew-section">
+                                    <h3>Stars</h3>
+                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.actors[0].id}`)}>{item.actors[0].name}</p>
+                                    { item.actors.slice(1, 5).map(actor => (
+                                        <>
+                                            <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
+                                        </>
+                                    ))}
+                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/item/${item.id}/actors`)}></p>
+                                </div>
+                            )}
+
                             <div className="crew-section">
-                                <h3>Stars</h3>
-                                <p>{item.actors.slice(0, 5).join(" · ")}</p>
+                                <h3>Production Company</h3>
+                                <p className="crew-name" style={{marginLeft: '16px'}}>{item.productionCompany}</p>
                             </div>
                         </div>
                     </div>
@@ -159,13 +302,17 @@ const Item = () => {
                 </div>
 
                 <div>
-                    <h2 className="review-container-title">User Reviews</h2>
+                    <div style={{display: 'flex'}}>
+                        <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
+                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`)}></p>
+                        <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={() => setIsReviewPopupOpen(true)}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
+                    </div>
                     <div className="review-container">
                         {item.reviews.slice(0,3).map(review => (
                             <div key={review.id} className="review">
                                 <div className="review-rating">
-                                    <span className="star-outline">☆</span>
-                                    {review.rating}/5
+                                    <span className="star-outline" style={{marginRight: '8px'}}>☆</span>
+                                    {review.rating}/10
                                 </div>
                                 <div className="review-text">
                                     {review.text}

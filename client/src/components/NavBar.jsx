@@ -80,7 +80,7 @@ const Navbar = () => {
         <div className="search-container" ref={searchContainerRef}>
           <input 
             type="text" 
-            placeholder="Search IMDb" 
+            placeholder="Search MangoDb" 
             className="search-input"
             value={searchText}
             onChange={handleSearchChange}

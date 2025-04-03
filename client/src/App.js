@@ -5,8 +5,10 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Item from "./pages/Item";
-import Artist from "./pages/Artist";
+import ItemReviews from "./pages/ItemReviews";
+import Person from "./pages/Person";
 import NotFound from "./pages/Notfound";
+import Tag from "./pages/Tag"
 
 function App() {
   return (
@@ -17,7 +19,9 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/item/:itemId" element={<Item />} />
-      <Route path="/artist" element={<Artist />} />
+      <Route path="/item/:itemId/reviews" element={<ItemReviews />} />
+      <Route path="/person/:personId" element={<Person />} />
+      <Route path="/tag/:tagId" element={<Tag />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -27,20 +27,37 @@ const getItemDetails = async (itemId) => {
             type: "movie",
             contentRating: "12A",
             rating: 9.0,
+            numRating: 1434004,
             duration: 152,
             user_rating: 4.8,
             popularity: 98,
-            tags: ["Action", "Crime", "Drama", "Thriller"],
-            director: "Christopher Nolan",
-            writers: ["Jonathan Nolan", "Christopher Nolan"],
-            actors: ["Christian Bale", "Heath Ledger", "Aaron Eckhart", "Michael Caine"],
+            tags: [
+                { id: 1001, name: "Action" },
+                { id: 1002, name: "Crime" },
+                { id: 1003, name: "Drama" },
+                { id: 1004, name: "Thriller" }
+            ],
+            director: { id: 301, name: "Christopher Nolan" },
+            writers: [
+                { id: 302, name: "Jonathan Nolan" },
+                { id: 303, name: "Christopher Nolan" }
+            ],
+            actors: [
+                { id: 101, name: "Christian Bale" },
+                { id: 102, name: "Heath Ledger" },
+                { id: 103, name: "Aaron Eckhart" },
+                { id: 104, name: "Michael Caine" }
+            ],
             image: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
             description: "Batman has a new foe, the Joker, who is an accomplished criminal hell-bent on decimating Gotham City. Together with Gordon and Harvey Dent, Batman struggles to thwart the Joker before it is too late.",
             reviews: [
-                { id: 3, rating: 5, text: "The Perfect Movie" },
-                { id: 4, rating: 4, text: "Best Action Movie Ever" }
+                { id: 3, rating: 5, text: "The Perfect Movie", user_id: 1001 },
+                { id: 4, rating: 4, text: "Best Action Movie Ever", user_id: 1002 }
             ],
-            recommended_movies: [2, 4, 6] // IDs of recommended items
+            recommended_movies: [2, 4, 6],
+            productionCompany: "Warner Bros. Pictures",
+            country: "United States",
+            trailerLink: "https://www.youtube.com/watch?v=EXeTwQWrcwY"
         },
         {
             id: 2,
@@ -50,20 +67,35 @@ const getItemDetails = async (itemId) => {
             type: "movie",
             contentRating: "15",
             rating: 9.2,
+            numRating: 400040,
             duration: 175,
-            user_rating: 4.9,
+            user_rating: null,
             popularity: 99,
-            tags: ["Crime", "Drama"],
-            director: "Francis Ford Coppola",
-            writers: ["Mario Puzo", "Francis Ford Coppola"],
-            actors: ["Marlon Brando", "Al Pacino", "James Caan", "Robert Duvall"],
+            tags: [
+                { id: 1002, name: "Crime" },
+                { id: 1003, name: "Drama" }
+            ],
+            director: { id: 401, name: "Francis Ford Coppola" },
+            writers: [
+                { id: 402, name: "Mario Puzo" },
+                { id: 403, name: "Francis Ford Coppola" }
+            ],
+            actors: [
+                { id: 201, name: "Marlon Brando" },
+                { id: 202, name: "Al Pacino" },
+                { id: 203, name: "James Caan" },
+                { id: 204, name: "Robert Duvall" }
+            ],
             image: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY281_CR4,0,190,281_.jpg",
             description: "Don Vito Corleone, head of a mafia family, decides to hand over his empire to his youngest son, Michael. However, his decision unintentionally puts the lives of his loved ones in grave danger.",
             reviews: [
-                { id: 5, rating: 5, text: "The greatest film ever made" },
-                { id: 6, rating: 5, text: "A cinematic masterpiece" }
+                { id: 5, rating: 5, text: "The greatest film ever made", user_id: 1003 },
+                { id: 6, rating: 5, text: "A cinematic masterpiece", user_id: 1004 }
             ],
-            recommended_items: [1, 3, 7]
+            recommended_items: [1, 3, 7],
+            productionCompany: "Paramount Pictures",
+            country: "United States",
+            trailerLink: "https://www.youtube.com/watch?v=sY1S34973zA"
         },
         {
             id: 8,
@@ -73,20 +105,35 @@ const getItemDetails = async (itemId) => {
             type: "tvseries",
             contentRating: "15",
             rating: 9.0,
+            numRating: 1600040,
             duration: 22,
             user_rating: 4.8,
             popularity: 95,
-            tags: ["Comedy", "Drama"],
-            director: "Greg Daniels",
-            writers: ["Greg Daniels", "Ricky Gervais", "Stephen Merchant"],
-            actors: ["Steve Carell", "Jenna Fischer", "John Krasinski"],
+            tags: [
+                { id: 1005, name: "Comedy" },
+                { id: 1003, name: "Drama" }
+            ],
+            director: { id: 501, name: "Greg Daniels" },
+            writers: [
+                { id: 502, name: "Greg Daniels" },
+                { id: 503, name: "Ricky Gervais" },
+                { id: 504, name: "Stephen Merchant" }
+            ],
+            actors: [
+                { id: 801, name: "Steve Carell" },
+                { id: 802, name: "Jenna Fischer" },
+                { id: 803, name: "John Krasinski" }
+            ],
             image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg",
             description: "A mockumentary on a group of typical office workers, where the workday consists of ego clashes, inappropriate behavior, and tedium.",
             reviews: [
-                { id: 7, rating: 5, text: "One of the best TV shows ever made" },
-                { id: 8, rating: 5, text: "Pure comedy gold" }
+                { id: 7, rating: 5, text: "One of the best TV shows ever made", user_id: 1005 },
+                { id: 8, rating: 5, text: "Pure comedy gold", user_id: 1006 }
             ],
-            recommended_items: [2, 4, 6]
+            recommended_items: [2, 4, 6],
+            productionCompany: "NBC Universal Television",
+            country: "United States",
+            trailerLink: "https://www.youtube.com/watch?v=-C2z-nshFts"
         }
     ];
 
@@ -122,4 +169,14 @@ const getMatchingItems = cache((text) => {
     return matches;
 })
 
-export { getLoggedIn, getItemDetails, getMatchingItems };
+const submitRating = async (rating) => {
+    // TODO
+    console.log("Received rating: " + rating)
+}
+
+const submitReview = async (rating) => {
+    // TODO
+    console.log("Received review: " + rating)
+}
+
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview };
