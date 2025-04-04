@@ -28,23 +28,6 @@ const Item = () => {
     const [userReviewText, setUserReviewText] = useState("");
     const [hoverRating, setHoverRating] = useState(0);
 
-    // const openPopup = () => {
-    //     setIsRatingPopupOpen(true);
-    // };
-
-    // const closePopup = () => {
-    //     setIsRatingPopupOpen(false);
-    // };
-
-    // const handleRating = (value) => {
-    //     setRating(value);
-    // };
-
-    // const handleSubmit = () => {
-    //     console.log("Rating submitted:", rating);
-    //     closePopup();
-    // };
-
     useEffect(() => {
         const checkStatus = async () => {
             getLoggedIn().then(loggedIn => { 
@@ -59,18 +42,28 @@ const Item = () => {
             setLoading(true);
             const data = await getItemDetails(itemId);
             setItem(data);
-            if (data.user_rating) setRating(data.user_rating);
+            if (data && data.user_rating) setRating(data.user_rating);
             setLoading(false);
         };
         fetchItemDetails();
     }, [itemId]);
 
     if (loading) {
-        return <div className="loading">Loading...</div>;
+        return (
+            <>
+                <Navbar />
+                <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
+            </>
+        )
     }
 
     if (!item) {
-        return <div className="error">Item not found</div>;
+        return (
+            <>
+                <Navbar />
+                <div className="error" style={{marginTop: '120px'}}>Item {itemId} details not found</div>
+            </>
+        );
     }
 
     return (
@@ -99,7 +92,7 @@ const Item = () => {
                         )}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(rating); item.user_rating = rating;}}>
+                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(rating);}}>
                             Rate
                         </button>
                     </div>
@@ -113,15 +106,31 @@ const Item = () => {
                 </div>
                 <div className="popup-body">
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                        {[...Array(10)].map((_, index) => 
+                            ( <span key={index} style={{
+                                        cursor: 'pointer',
+                                        fontSize: '30px',
+                                        padding: '5px',
+                                        color: index < (hoverRating || rating) ? '#FFD700' : '#FFD700',
+                                        opacity: index < (hoverRating || rating) ? 1 : 0.3
+                                    }}
+                                    onMouseEnter={() => setHoverRating(index + 1)}
+                                    onMouseLeave={() => setHoverRating(0)}
+                                    onClick={() => setRating(index + 1)}
+                                > ★ </span> )
+                        )}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                         <textarea 
                             className="review-input" 
                             placeholder="Review"
                             value={userReviewText}
+                            required
                             onChange={(e) => setUserReviewText(e.target.value)}
                         />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {setIsReviewPopupOpen(false); submitReview(userReviewText);}}>
+                        <button className="submit-rate-button" onClick={() => {if (userReviewText.length > 0) {setIsReviewPopupOpen(false); submitReview(userReviewText);} else {alert("Review cannot be empty");}}}>
                             Submit
                         </button>
                     </div>
@@ -172,9 +181,7 @@ const Item = () => {
                     <div className="item-sidebar">
                         <div className="rating-section">
                             <div className="mangodb-rating">
-                                <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '160px'}} >
-                                </h4>
-                                <div className="star-rating" style={{display: 'flex'}}>
+                                <div className="star-rating" style={{display: 'flex', margin: '20px'}}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px'}}>
                                     <img src="/rotten-mangoes.png" alt="Logo" style={{width: "30px"}}>
                                     </img>
@@ -189,7 +196,7 @@ const Item = () => {
                                         <span className="star">★</span>
                                         <span className="rating-value">{item.rating}/10</span>
                                     </div>
-                                    <span className="rating-count">{parseInt(item.numRating) > 1000000 ? ( Math.floor(parseInt(item.numRating)/100000)/10 + ' M') : ( parseInt(item.numRating) > 1000 ? (  Math.floor(parseInt(item.numRating)/100)/10 + ' K') : (item.numRating) )}</span>
+                                    <span className="rating-count">{parseInt(item.numRating) >= 1000000 ? ( Math.floor(parseInt(item.numRating)/100000)/10 + ' M') : ( parseInt(item.numRating) >= 1000 ? (  Math.floor(parseInt(item.numRating)/100)/10 + ' K') : (item.numRating) )}</span>
                                 </div>
                             </div>
                             
@@ -198,10 +205,10 @@ const Item = () => {
                                 <div className="rate-button">
                                     <button className="rate-button">
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} onClick={() => setIsRatingPopupOpen(true)}>
-                                            { item.user_rating ? (
+                                            { rating > 0 ? (
                                                 <>
                                                     <span className="star-outline">★</span>
-                                                    <span style={{ fontSize: '20px', color: 'white', fontWeight: 'bold'}}>{item.user_rating}/10</span>
+                                                    <span style={{ fontSize: '20px', color: 'white', fontWeight: 'bold'}}>{rating}/10</span>
                                                 </>
                                             ) : (
                                                 <>
@@ -232,7 +239,6 @@ const Item = () => {
                                 <img 
                                     src={item.image} 
                                     alt={item.title} 
-                                    className="search-result-image" 
                                     onError={(e) => {
                                         e.target.onerror = null;
                                         e.target.src = "/mangodb-logo.png"; // Fallback image
@@ -244,8 +250,8 @@ const Item = () => {
                                     width="100%" 
                                     height="100%" 
                                     src={item.trailerLink.replace('watch?v=', 'embed/')} 
-                                    title="YouTube video player" 
-                                    frameBorder="0px" 
+                                    title="YouTube video player"
+                                    frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                     allowFullScreen
                                 ></iframe>
@@ -277,7 +283,7 @@ const Item = () => {
                                             <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
                                         </>
                                     ))}
-                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/item/${item.id}/writers`)}></p>
+                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {listId: item.writers.map(writer => writer.id), title: item.title}})}></p>
                                 </div>
                             )}
                             
@@ -290,7 +296,7 @@ const Item = () => {
                                             <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
                                         </>
                                     ))}
-                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/item/${item.id}/actors`)}></p>
+                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {listId: item.actors.map(actor => actor.id), title: item.title}})}></p>
                                 </div>
                             )}
 
@@ -307,14 +313,14 @@ const Item = () => {
                 <div>
                     <div style={{display: 'flex'}}>
                         <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
-                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`)}></p>
+                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`, {state: {title: item.title}})}></p>
                         <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={() => setIsReviewPopupOpen(true)}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
                     </div>
                     <div className="review-container">
                         {item.reviews.slice(0,3).map(review => (
                             <div key={review.id} className="review">
                                 <div className="review-rating">
-                                    <span className="star-outline" style={{marginRight: '8px'}}>☆</span>
+                                    <span className="star-outline" style={{marginRight: '8px'}}>★</span>
                                     {review.rating}/10
                                 </div>
                                 <div className="review-text">

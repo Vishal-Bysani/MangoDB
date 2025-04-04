@@ -134,16 +134,47 @@ const getItemDetails = async (itemId) => {
             productionCompany: "NBC Universal Television",
             country: "United States",
             trailerLink: "https://www.youtube.com/watch?v=-C2z-nshFts"
+        },
+        {
+            id: 11,
+            title: "American Psycho",
+            startYear: 2000,
+            endYear: null,
+            type: "movie",
+            contentRating: "18",
+            rating: 7.6,
+            numRating: 1000000,
+            duration: 102,
+            user_rating: null,
+            popularity: 90,
+            tags: [
+                { id: 1002, name: "Crime" },
+                { id: 1003, name: "Drama" }
+            ],
+            director: { id: 601, name: "Mary Harron" },
+            writers: [
+                { id: 602, name: "Bret Easton Ellis" },
+                { id: 603, name: "Mary Harron" }
+            ],
+            actors: [
+                { id: 101, name: "Christian Bale" },
+                { id: 902, name: "Willem Dafoe" }
+            ],
+            image: "https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg",
+            description: "A wealthy New York investment banker who is a psychopath and serial killer.",
+            reviews: [
+                { id: 9, rating: 7.6, text: "A dark and disturbing film that explores the dark side of wealth and ambition.", user_id: 1007 }
+            ],
+            recommended_items: [1, 2, 3],
+            productionCompany: "Warner Bros. Pictures",
+            country: "United States",
+            trailerLink: "https://www.youtube.com/watch?v=81mibtQWWBg"
         }
     ];
 
     try {
         const item = mockItemDB.find(item => item.id === parseInt(itemId));
-        if (item) {
-            return item;
-        } else {
-            throw new Error("Item not found");
-        }
+        return item;
     } catch (err) {
         console.error("Error retrieving item details:", err);
         return null;
@@ -162,11 +193,18 @@ const getMatchingItems = cache((text) => {
         { id: 7, title: "1917", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BYzkxZjg2NDQtMGVjMy00NWZkLTk0ZDEtZWE3NDYwYjAyMTg1XkEyXkFqcGc@._V1_QL75_UX190_CR0,10,190,281_.jpg", startYear: 2019, endYear: null, rating: 8.3, actors: ["George MacKay", "Dean-Charles Chapman"] },
         { id: 8, title: "The Office", type: "tvseries", image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", startYear: 2005, endYear: 2013, rating: 9.0, actors: ["Steve Carell", "Jenna Fischer", "John Krasinski"] },
         { id: 9, title: "Inception", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BMjExMjkwNTQ0Nl5BMl5BanBnXkFtZTcwNTY0OTk1Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", startYear: 2010, endYear: null, rating: 8.8, actors: ["Leonardo DiCaprio", "Joseph Gordon-Levitt"] },
+        { id: 10, title: "The Dark Knight Rises", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BMTk4ODQzNDY3Ml5BMl5BanBnXkFtZTcwODA0NTM4Nw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", startYear: 2012, endYear: null, rating: 8.4, actors: ["Christian Bale", "Tom Hardy"] },
+        { id: 11, title: "American Psycho", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg", startYear: 2000, endYear: null, rating: 7.6, actors: ["Christian Bale", "Willem Dafoe"] },
     ]
-    const matches = mockItems.filter(item => 
-        item.title.toLowerCase().startsWith(text.toLowerCase())
-    );
-    return matches;
+    try {
+        const matches = mockItems.filter(item => 
+            item.title.toLowerCase().startsWith(text.toLowerCase())
+        );
+        return matches;
+    } catch (err) {
+        console.error("Error retrieving matching items:", err);
+        return null;
+    }
 })
 
 const submitRating = async (rating) => {
@@ -191,7 +229,8 @@ const getPersonDetails = async (personId) => {
             knownFor: [
                 { itemId: 1, title: "The Dark Knight", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", year: 2008 },
                 { itemId: 6, title: "Schindler's List", rating: 8.9, imageLink: "https://m.media-amazon.com/images/M/MV5BMTg3MDc4ODgyOF5BMl5BanBnXkFtZTgwNzY1ODIyNjM@._V1_QL75_UX190_CR0,10,190,281_.jpg", year: 1993 },
-                { itemId: 9, title: "Inception", rating: 8.8, imageLink: "https://m.media-amazon.com/images/M/MV5BMjExMjkwNTQ0Nl5BMl5BanBnXkFtZTcwNTY0OTk1Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2010 }
+                { itemId: 9, title: "Inception", rating: 8.8, imageLink: "https://m.media-amazon.com/images/M/MV5BMjExMjkwNTQ0Nl5BMl5BanBnXkFtZTcwNTY0OTk1Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2010 },
+                { itemId: 11, title: "American Psycho", rating: 7.6, imageLink: "https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2000 }
             ],
             dateOfBirth: "1974-01-30",
             dateOfDeath: null,
@@ -240,10 +279,196 @@ const getPersonDetails = async (personId) => {
             ]
         }
     ]
-    const matches = mockPersonDb.filter(person =>
-        person.id === parseInt(personId)
-    )
-    return matches[0];
+    try {
+        const matches = mockPersonDb.find(person =>
+            person.id === parseInt(personId)
+        );
+        return matches;
+    } catch (err) {
+        console.error("Error retrieving person details:", err);
+        return null;
+    }
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails };
+const getPersonHeaders = async (personIdList) => {
+    // TODO
+    const mockPersonDb = [
+        {
+            id: 101,
+            name: "Christian Bale",
+            roles: ["Actor"],
+            imageLink: "https://m.media-amazon.com/images/M/MV5BMTkxMzk4MjQ4MF5BMl5BanBnXkFtZTcwMzExODQxOA@@._V1_QL75_UX190_CR0,0,190,281_.jpg",
+            description: "Christian Charles Philip Bale is an English actor. Known for his versatility and physical transformations for his roles, he has been a leading man in films of several genres."
+        },
+        {
+            id: 102,
+            name: "Heath Ledger",
+            roles: ["Actor"],
+            imageLink: "https://m.media-amazon.com/images/M/MV5BMTI2NTY0NzA4MF5BMl5BanBnXkFtZTYwMjE1MDE0._V1_QL75_UX190_CR0,0,190,281_.jpg",
+            description: "Heath Andrew Ledger was an Australian actor and music video director. After performing roles in several Australian television and film productions during the 1990s, Ledger moved to the United States in 1998 to further develop his film career."
+        },
+        {
+            id: 201,
+            name: "Marlon Brando",
+            roles: ["Actor", "Director", "Producer"],
+            imageLink: "https://m.media-amazon.com/images/M/MV5BMTg3MDYyMDE5OF5BMl5BanBnXkFtZTcwNjgyNTEzNA@@._V1_QL75_UY207_CR64,0,140,207_.jpg",
+            description: "Marlon Brando Jr. was an American actor and film director. He is credited with bringing realism to film acting."
+        }
+    ]
+    try {
+        const matches = mockPersonDb.filter(person =>
+            personIdList.includes(person.id)
+        );
+        return matches;
+    } catch (err) {
+        console.error("Error retrieving person headers:", err);
+        return null;
+    }
+}
+
+const getItemReviews = async (itemId, page = 1, limit = 10) => {
+    const mockReviewDb = [
+        {
+            itemId: 1,
+            title: "The Dark Knight",
+            reviews: [
+                {
+                    reviewId: 1,
+                    userId: 101,
+                    username: "joker_fan",
+                    rating: 9.5,
+                    text: "Heath Ledger's performance as the Joker is absolutely legendary. The movie redefined what a superhero film could be.",
+                    date: "2023-05-15"
+                },
+                {
+                    reviewId: 2,
+                    userId: 102,
+                    username: "batman_forever",
+                    rating: 8.0,
+                    text: "While the action sequences are incredible, some of the plot points feel a bit contrived. Still, a solid entry in the Batman franchise.",
+                    date: "2023-06-20"
+                },
+                {
+                    reviewId: 3,
+                    userId: 103,
+                    username: "cinema_buff",
+                    rating: 9.8,
+                    text: "A masterpiece of cinema. Brando's performance as Don Corleone is simply unforgettable. The cinematography and score are perfect.",
+                    date: "2023-04-10"
+                },
+                {
+                    reviewId: 4,
+                    userId: 104,
+                    username: "movie_critic",
+                    rating: 9.0,
+                    text: "The Godfather stands the test of time as one of the greatest films ever made. The family dynamics and moral complexity are brilliantly portrayed.",
+                    date: "2023-07-05"
+                },
+                {
+                    reviewId: 5,
+                    userId: 105,
+                    username: "movie_lover",
+                    rating: 8.5,
+                    text: "A must-watch for any fan of the genre. The Dark Knight is a masterpiece of storytelling and character development.",
+                    date: "2023-08-15"
+                },
+                {
+                    reviewId: 6,
+                    userId: 106,
+                    username: "movie_lover",
+                    rating: 8.5,
+                    text: "A must-watch for any fan of the genre. The Dark Knight is a masterpiece of storytelling and character development.",
+                    date: "2023-08-15"
+                },
+                {
+                    reviewId: 7,
+                    userId: 107,
+                    username: "movie_lover",
+                    rating: 8.5,
+                    text: "The Dark Knight is a masterpiece of storytelling and character development.",
+                    date: "2023-08-15"
+                },
+                {
+                    reviewId: 8,
+                    userId: 108,
+                    username: "movie_lover",
+                    rating: 8.5,
+                    text: "Very good movie",
+                    date: "2023-08-15"
+                },
+                {
+                    reviewId: 9,
+                    userId: 109,
+                    username: "movie_lover",
+                    rating: 8.5,
+                    text: "The Dark Knight is a masterpiece of storytelling and character development.",
+                    date: "2023-08-15"
+                },
+                {
+                    reviewId: 10,
+                    userId: 110,
+                    username: "movie_lover",
+                    rating: 8.5,
+                    text: "The Dark Knight is a masterpiece of storytelling and character development.",
+                    date: "2023-08-15"
+                },
+                {
+                    reviewId: 11,
+                    userId: 111,
+                    username: "movie_lover",
+                    rating: 8.5,
+                    text: "The Dark Knight is a masterpiece of storytelling and character development.",
+                    date: "2023-08-15"
+                },
+                {
+                    reviewId: 12,
+                    userId: 112,
+                    username: "movie_lover",
+                    rating: 8.5,
+                    text: "The Dark Knight is a masterpiece of storytelling and character development.",
+                    date: "2023-08-15"
+                }
+            ]
+        },
+        {
+            itemId: 2,
+            title: "The Godfather",
+            reviews: [
+                {
+                    reviewId: 3,
+                    userId: 103,
+                    username: "cinema_buff",
+                    rating: 9.8,
+                    text: "A masterpiece of cinema. Brando's performance as Don Corleone is simply unforgettable. The cinematography and score are perfect.",
+                    date: "2023-04-10"
+                },
+                {
+                    reviewId: 4,
+                    userId: 104,
+                    username: "movie_critic",
+                    rating: 9.0,
+                    text: "The Godfather stands the test of time as one of the greatest films ever made. The family dynamics and moral complexity are brilliantly portrayed.",
+                    date: "2023-07-05"
+                }
+            ]
+        }
+    ];
+    try {
+        const match = mockReviewDb.find(review => parseInt(review.itemId) === parseInt(itemId));
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        const paginatedReviews = match.reviews.slice(startIndex, endIndex);
+        return {
+            title: match.title,
+            totalReviews: match.reviews.length,
+            currentPage: page,
+            totalPages: Math.ceil(match.reviews.length / limit),
+            reviews: paginatedReviews,
+        };
+    } catch (err) {
+        console.error("Error retrieving item reviews:", err);
+        return null;
+    }
+}
+
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders };
