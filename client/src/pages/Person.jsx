@@ -30,7 +30,12 @@ const Person = () => {
     }, [personId]);
 
     if (loading) {
-        return <div className="loading">Loading...</div>;
+        return (
+            <>
+                <Navbar />
+                <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
+            </>
+        )
     }
 
     if (!person) {

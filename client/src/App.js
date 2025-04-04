@@ -9,6 +9,7 @@ import ItemReviews from "./pages/ItemReviews";
 import Person from "./pages/Person";
 import NotFound from "./pages/Notfound";
 import Tag from "./pages/Tag"
+import ListPersons from "./pages/ListPersons";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <Route path="/item/:itemId/reviews" element={<ItemReviews />} />
       <Route path="/person/:personId" element={<Person />} />
       <Route path="/tag/:tagId" element={<Tag />} />
+      <Route path="/items/:itemId/list-persons/:role/" element={<ListPersons />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

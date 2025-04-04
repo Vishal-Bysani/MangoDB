@@ -16,7 +16,7 @@
 }
 
 .person-title {
-    font-size: 44px;
+    font-size: 50px;
     display: flex;
     margin-bottom: 10px;
 }
@@ -24,6 +24,7 @@
 .person-metadata {
     color: #666;
     margin-bottom: 20px;
+    font-size: 20px;
 }
 
 .person-sidebar {
@@ -61,6 +62,7 @@
 .person-description {
     margin-bottom: 30px;
     line-height: 1.6;
+    font-size: 20px;
 }
 
 .known-for-container {
@@ -110,8 +112,10 @@
 }
 
 .awards-title {
-    font-size: 24px;
+    font-size: 30px;
+    text-align: left;
     margin-bottom: 20px;
+    margin-top: 40px;
 }
 
 .award-item {

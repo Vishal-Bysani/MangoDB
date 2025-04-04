@@ -2,19 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { apiUrl } from "../config/config";
 import "../css/NavBar.css";
-import { getMatchingItems } from "../api"
+import { getMatchingItems, getLoggedIn } from "../api"
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
   const [searchText, setSearchText] = useState(""); // State for search text
   const [matchingList, setMatchingList] = useState([]); // State for matching results
+  const [hideSearch, setHideSearch] = useState(false);
   const searchContainerRef = useRef(null);
 
   const handleSearchChange = (e) => {
     const text = e.target.value;
     setSearchText(text);
-    
+    setHideSearch(false);
+
     if (text.trim() === "") {
       setMatchingList([]);
     } else if(searchText !== "" && text.toLowerCase().startsWith(searchText.toLowerCase())) {
@@ -36,15 +38,7 @@ const Navbar = () => {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        // TODO: Activate the below code
-
-        // const response = await fetch(`${apiUrl}/isLoggedIn`, {
-        //   method: "GET",
-        //   credentials: "include",
-        // });
-        // const data = await response.json();
-
-        const data = {loggedIn: false};
+        const data = await getLoggedIn();
 
         if (data.loggedIn) {
           setLoggedIn(true);
@@ -61,7 +55,7 @@ const Navbar = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
-        setMatchingList([]);
+        setHideSearch(true);
       }
     };
 
@@ -87,7 +81,7 @@ const Navbar = () => {
           />
           
           {/* Search results dropdown */}
-          {matchingList.length > 0 && (
+          {!hideSearch && matchingList.length > 0 && (
             <div className="search-results">
               {matchingList.slice(0, 5).map(item => (
                 <div 
