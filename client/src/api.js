@@ -1,32 +1,43 @@
 import { cache } from "react";
+import { apiUrl } from "./config/config.js";
 
 const getLoggedIn = async () => {
     try {
-        // TODO: Activate the below code
-        
-        // const response = await fasyncetch(`${apiUrl}/isLoggedIn`, {
-            //   method: "GET",
-            //   credentials: "include",
-            // });
-            // const data = await response.json();
-
-        const data = { loggedIn: true, userName: "Atharva" };
-        return data;
+        const response = await fetch(`${apiUrl}/isLoggedIn`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+        });
+        return response.json();
     } catch (err) {
         console.error("Error checking authentication status:", err);
     }
 }
 
 const logoutUser = async () => {
-    try {
-        // TODO: Activate the below code
-        // const response = await fetch(`${apiUrl}/logout`, {
-        //       method: "GET",
-        //       credentials: "include",
-        // });
-    } catch (err) {
+    fetch(`${apiUrl}/logout`, {
+        method: "POST",
+        credentials: "include",
+    }).then(response => {
+        if (response.status !== 200) {
+            throw new Error("Failed to log out");
+        }
+    }).catch(err => {
         console.error("Error logging out:", err);
-    }
+    });
+}
+
+const loginUser = async (email, password) => {
+    return fetch(`${apiUrl}/login`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+    });
 }
 
 const getItemDetails = async (itemId) => {
@@ -521,4 +532,4 @@ const getFilteredItems = async ({personId = null, genreId = null, minRating = nu
     ];
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems };
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser };

@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { apiUrl } from "../config/config";
 import "../css/Login.css";
-import { getLoggedIn } from "../api"
+import { getLoggedIn, loginUser } from "../api";
 
 const Login = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
         const checkStatus = async () => {
-            getLoggedIn().then(loggedIn => { if (loggedIn) navigate("/dashboard"); });
+            getLoggedIn().then(loggedInData => {
+                if (loggedInData.loggedIn) navigate("/dashboard");
+            });
         };
         checkStatus();
     }, []);
@@ -29,30 +31,13 @@ const Login = () => {
         e.preventDefault();
         setError("");
 
-        try {
-            //   TODO: Activate this code
-            //   const response = await fetch(`${apiUrl}/login`, {
-            //     method: "POST",
-            //     headers: {
-            //       "Content-Type": "application/json",
-            //     },
-            //     body: JSON.stringify(formData),
-            //     credentials: "include",
-            //   });
-
-            //   const data = await response.json();
-            const response = {status: 400};
-            const data = { message: "Login functionality under development" };
-
+        loginUser(formData.email, formData.password).then(response => {
             if (response.status === 200) {
                 navigate("/dashboard");
             } else {
-                setError(data.message || "Login failed.");
+                setError(response.json().then(data => data.message));
             }
-        } catch (err) {
-            setError("An error occurred. Please try again.");
-            console.error("Login error:", err);
-        }
+        });
     };
 
     return (
