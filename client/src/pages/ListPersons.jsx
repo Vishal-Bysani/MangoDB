@@ -11,30 +11,32 @@ const ListPersons = () => {
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState("");
     const location = useLocation();
-
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    
     useEffect(() => {
         const checkStatus = async () => {
-            getLoggedIn().then(loggedIn => {
-                if (!loggedIn) navigate("/login");
+            getLoggedIn().then(data => {
+                if (!data.loggedIn) navigate("/login");
+                setLoggedInData(data);
             });
         };
         checkStatus();
     }, [navigate]);
 
     useEffect(() => {
-        const fetchPersons = async () => {
-            const data = await getPersonHeaders(location.state.listId);
-            setPersons(data);
-            setLoading(false);
-            setTitle(location.state.title);
-        };
-        fetchPersons();
+        // const fetchPersons = async () => {
+        //     const data = await getPersonHeaders(location.state.listId);
+        // };
+        setPersons(location.state.personHeaders);
+        setLoading(false);
+        setTitle(location.state.title);
+        // fetchPersons();
     }, [location.state]);
 
     if (loading) {
         return (
             <>
-                <Navbar />
+                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
                 <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
             </>
         )
@@ -51,13 +53,20 @@ const ListPersons = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
             <div className="list-persons-page">
                 <p className="list-persons-title" onClick={() => navigate(`/item/${itemId}`)} style={{cursor: 'pointer'}}>{role.charAt(0).toUpperCase() + role.slice(1)} | {title}</p>
                 <div className="list-persons-container">
                     {persons.map(person => (
                         <div className="list-person-card" key={person.id}>
-                            <img src={person.imageLink} alt={person.name} />
+                            <img 
+                                src={person.imageLink} 
+                                alt={person.name}
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = "/mangodb-logo.png";
+                                }}
+                            />
                             <div className="list-person-card-info">
                                 <p className="list-person-card-name" onClick={() => navigate(`/person/${person.id}`)} style={{cursor: 'pointer'}}>{person.name}</p>
                                 <p className="list-person-card-description">{person.description}</p>

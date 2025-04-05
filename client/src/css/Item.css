@@ -420,6 +420,19 @@ body {
   border-bottom: 5px solid #f5c518;
 }
 
+.backward-arrow {
+  width: 8px;
+  height: 8px;
+  border-right: 5px solid white;
+  border-bottom: 5px solid white;
+  transform: rotate(135deg);
+}
+
+.backward-arrow:hover {
+  border-right: 5px solid #f5c518;
+  border-bottom: 5px solid #f5c518;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;

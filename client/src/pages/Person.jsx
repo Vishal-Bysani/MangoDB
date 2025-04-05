@@ -3,17 +3,20 @@ import { useNavigate, useParams } from "react-router";
 import { getLoggedIn, getPersonDetails } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/Person.css";
+import ListItemThumbnail from "../components/ListItemThumbnail";
 
 const Person = () => {
     const { personId } = useParams();
     const navigate = useNavigate();
     const [person, setPerson] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
 
     useEffect(() => {
         const checkStatus = async () => {
-            getLoggedIn().then(loggedIn => { 
-                if (!loggedIn) navigate("/login"); 
+            getLoggedIn().then(data => { 
+                if (!data.loggedIn) navigate("/login"); 
+                setLoggedInData(data);
             });
         };
         checkStatus();
@@ -32,7 +35,7 @@ const Person = () => {
     if (loading) {
         return (
             <>
-                <Navbar />
+                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
                 <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
             </>
         )
@@ -44,7 +47,7 @@ const Person = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
             <div className="people-page">
                 <div className="person-header-container">
                     <div className="person-header">
@@ -97,31 +100,9 @@ const Person = () => {
                                 </div>
                             </div>
                         </div>
-
-                        <div className="known-for-container">
-                            <h2 className="known-for-title">Known For</h2>
-                            <div className="known-for-grid">
-                                {person.knownFor.map((item) => (
-                                    <div 
-                                        key={item.itemId} 
-                                        className="known-for-item"
-                                        onClick={() => navigate(`/item/${item.itemId}`)}
-                                    >
-                                        <img 
-                                            src={item.imageLink} 
-                                            alt={item.title}
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = "/mangodb-logo.png";
-                                            }}
-                                        />
-                                        <h4>{item.title}</h4>
-                                        <p>{item.year}</p>
-                                        <p>Rating: {item.rating}/10</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                        { person.knownFor && person.knownFor.length > 0 && (
+                            <ListItemThumbnail title="Known For" itemThumbnails={person.knownFor} />
+                        )}
 
                         {person.awards && person.awards.length > 0 && (
                             <div className="awards-container">

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { getLoggedIn, getItemDetails, submitRating, submitReview } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/Item.css"
+import ListPersonThumbnail from "../components/ListPersonThumbnail";
 
 const Popup = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
@@ -27,11 +28,13 @@ const Item = () => {
     const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
     const [userReviewText, setUserReviewText] = useState("");
     const [hoverRating, setHoverRating] = useState(0);
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
 
     useEffect(() => {
         const checkStatus = async () => {
-            getLoggedIn().then(loggedIn => { 
-                if (!loggedIn) navigate("/login"); 
+            getLoggedIn().then(data => { 
+                if (!data.loggedIn) navigate("/login");
+                setLoggedInData(data);
             });
         };
         checkStatus();
@@ -68,7 +71,7 @@ const Item = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
 
             <Popup isOpen={isRatingPopupOpen} onClose={() => setIsRatingPopupOpen(false)}>
                 <div className="popup-header">
@@ -259,8 +262,8 @@ const Item = () => {
                         </div>
 
                         <div className="item-genres">
-                            {item.tags.map((tag, index) => (
-                                <span key={index} className="genre-tag" onClick={() => navigate(`/tag/${tag.id}`)}>{tag.name}</span>
+                            {item.tags.map((genre, index) => (
+                                <span key={index} className="genre-tag" onClick={() => navigate(`/genre/${genre.id}`, {state: {name: genre.name}})}>{genre.name}</span>
                             ))}
                         </div>
 
@@ -283,7 +286,7 @@ const Item = () => {
                                             <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
                                         </>
                                     ))}
-                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {listId: item.writers.map(writer => writer.id), title: item.title}})}></p>
+                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
                                 </div>
                             )}
                             
@@ -296,7 +299,7 @@ const Item = () => {
                                             <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
                                         </>
                                     ))}
-                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {listId: item.actors.map(actor => actor.id), title: item.title}})}></p>
+                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {personHeaders: item.actors, title: item.title}})}></p>
                                 </div>
                             )}
 
@@ -309,6 +312,10 @@ const Item = () => {
 
                     
                 </div>
+
+                {item.actors.length > 0 && (
+                    <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.actors} />
+                )}
 
                 <div>
                     <div style={{display: 'flex'}}>

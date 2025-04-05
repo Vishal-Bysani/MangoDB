@@ -2,15 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { apiUrl } from "../config/config";
 import "../css/NavBar.css";
-import { getMatchingItems, getLoggedIn } from "../api"
+import { getMatchingItems, logoutUser } from "../api"
 
-const Navbar = () => {
+const Navbar = ({isLoggedIn = false, userName = ""}) => {
   const navigate = useNavigate();
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [searchText, setSearchText] = useState(""); // State for search text
-  const [matchingList, setMatchingList] = useState([]); // State for matching results
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
+  const [searchText, setSearchText] = useState("");
+  const [matchingList, setMatchingList] = useState([]);
   const [hideSearch, setHideSearch] = useState(false);
   const searchContainerRef = useRef(null);
+
+  useEffect(() => {
+    setLoggedIn(isLoggedIn);
+  }, [isLoggedIn]);
 
   const handleSearchChange = (e) => {
     const text = e.target.value;
@@ -34,23 +38,6 @@ const Navbar = () => {
     setMatchingList([]);
     navigate(`/item/${itemId}`);
   };
-
-  useEffect(() => {
-    const checkStatus = async () => {
-      try {
-        const data = await getLoggedIn();
-
-        if (data.loggedIn) {
-          setLoggedIn(true);
-        } else {
-          setLoggedIn(false);
-        }
-      } catch(err) {
-        console.error("Error checking authentication status in NavBar:", err);
-      }
-    };
-    checkStatus();
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -116,11 +103,11 @@ const Navbar = () => {
         {loggedIn ? (
           <>
             <div className="nav-button-div">
-              <button className="nav-button" onClick={() => navigate("/profile")}>Profile</button>
+              <button className="nav-button" onClick={() => navigate("/profile")}> {userName} </button>
             </div>
             <div className="nav-button-div">
               {/* TODO: Define an onClick action for logout */}
-              <button className="nav-button">Logout</button>
+              <button className="nav-button" onClick={() => { logoutUser(); setLoggedIn(false); }}>Logout</button>
             </div>
           </>
         ) : (

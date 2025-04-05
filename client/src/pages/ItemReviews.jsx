@@ -10,12 +10,14 @@ const ItemReviews = () => {
     const [title, setTitle] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
     const navigate = useNavigate();
 
     useEffect(() => {
         const checkStatus = async () => {
-            getLoggedIn().then(loggedIn => { 
-                if (!loggedIn) navigate("/login"); 
+            getLoggedIn().then(data => { 
+                if (!data.loggedIn) navigate("/login"); 
+                setLoggedInData(data);
             });
         };
         checkStatus();
@@ -34,7 +36,7 @@ const ItemReviews = () => {
 
     return (
         <>
-            <Navbar />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
             <div className="item-reviews-page" style={{marginTop: '200px'}}>
                 <h1 className="item-reviews-title" onClick={() => navigate(`/item/${itemId}`)} style={{cursor: 'pointer'}}>{title}</h1>
                 <div className="reviews-container">

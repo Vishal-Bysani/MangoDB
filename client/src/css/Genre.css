@@ -1,0 +1,11 @@
+.genre-container {
+    margin-top: 120px;
+    margin-left: 250px;
+    margin-right: 250px;
+}
+
+.genre-title {
+    font-size: 44px;
+    font-weight: bold;
+    color: #f5c518;
+}

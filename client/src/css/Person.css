@@ -65,48 +65,6 @@
     font-size: 20px;
 }
 
-.known-for-container {
-    margin-top: 30px;
-}
-
-.known-for-title {
-    font-size: 30px;
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.known-for-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.known-for-item {
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.known-for-item:hover {
-    transform: scale(1.05);
-}
-
-.known-for-item img {
-    width: 100%;
-    border-radius: 4px;
-    margin-bottom: 10px;
-}
-
-.known-for-item h4 {
-    margin: 0;
-    font-size: 16px;
-}
-
-.known-for-item p {
-    margin: 5px 0;
-    color: #666;
-    font-size: 14px;
-}
-
 .awards-container {
     margin-top: 30px;
 }

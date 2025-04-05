@@ -1,0 +1,38 @@
+.listItemThumbnail-item-thumbnail-title {
+    font-size: 30px;
+    text-align: left;
+    margin-bottom: 30px;
+    margin-top: 20px;
+}
+
+.listItemThumbnail-item-thumbnail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+
+.listItemThumbnail-button {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+}
+
+.listItemThumbnail-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.listItemThumbnail-button:hover {
+    background-color: #333;
+}

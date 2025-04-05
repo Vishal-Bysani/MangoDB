@@ -10,10 +10,22 @@ const getLoggedIn = async () => {
             // });
             // const data = await response.json();
 
-        const data = { loggedIn: true };
-        return data.loggedIn;
+        const data = { loggedIn: true, userName: "Atharva" };
+        return data;
     } catch (err) {
         console.error("Error checking authentication status:", err);
+    }
+}
+
+const logoutUser = async () => {
+    try {
+        // TODO: Activate the below code
+        // const response = await fetch(`${apiUrl}/logout`, {
+        //       method: "GET",
+        //       credentials: "include",
+        // });
+    } catch (err) {
+        console.error("Error logging out:", err);
     }
 }
 
@@ -43,10 +55,17 @@ const getItemDetails = async (itemId) => {
                 { id: 303, name: "Christopher Nolan" }
             ],
             actors: [
-                { id: 101, name: "Christian Bale", character: "Bruce Wayne / Batman", imageLink: "https://example.com/christian_bale.jpg" },
+                { id: 101, name: "Christian Bale", character: "Bruce Wayne / Batman", imageLink: "https://m.media-amazon.com/images/M/MV5BMTkxMzk4MjQ4MF5BMl5BanBnXkFtZTcwMzExODQxOA@@._V1_QL75_UX190_CR0,0,190,281_.jpg" },
                 { id: 102, name: "Heath Ledger", character: "Joker", imageLink: "https://example.com/heath_ledger.jpg" },
                 { id: 103, name: "Aaron Eckhart", character: "Harvey Dent / Two-Face", imageLink: "https://example.com/aaron_eckhart.jpg" },
-                { id: 104, name: "Michael Caine", character: "Alfred", imageLink: "https://example.com/michael_caine.jpg" }
+                { id: 104, name: "Michael Caine", character: "Alfred", imageLink: "https://example.com/michael_caine.jpg" },
+                { id: 201, name: "Marlon Brando", character: "Don Vito Corleone", imageLink: "https://example.com/marlon_brando.jpg" },
+                { id: 202, name: "Al Pacino", character: "Michael Corleone", imageLink: "https://example.com/al_pacino.jpg" },
+                { id: 203, name: "James Caan", character: "Sonny Corleone", imageLink: "https://example.com/james_caan.jpg" },
+                { id: 204, name: "Robert Duvall", character: "Tom Hagen", imageLink: "https://example.com/robert_duvall.jpg" },
+                { id: 801, name: "Steve Carell", character: "Michael Scott", imageLink: "https://example.com/steve_carell.jpg" },
+                { id: 802, name: "Jenna Fischer", character: "Pam Beesly", imageLink: "https://example.com/jenna_fischer.jpg" },
+                { id: 803, name: "John Krasinski", character: "Jim Halpert", imageLink: "https://example.com/john_krasinski.jpg" }
             ],
             image: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
             description: "Batman has a new foe, the Joker, who is an accomplished criminal hell-bent on decimating Gotham City. Together with Gordon and Harvey Dent, Batman struggles to thwart the Joker before it is too late.",
@@ -471,4 +490,35 @@ const getItemReviews = async (itemId, page = 1, limit = 10) => {
     }
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders };
+const getTrendingMovies = async () => {
+    // TODO
+    const mockTrendingMoviesDb = [
+        { itemId: 1, title: "The Dark Knight", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", year: 2008 },
+        { itemId: 6, title: "Schindler's List", rating: 8.9, imageLink: "https://m.media-amazon.com/images/M/MV5BMTg3MDc4ODgyOF5BMl5BanBnXkFtZTgwNzY1ODIyNjM@._V1_QL75_UX190_CR0,10,190,281_.jpg", year: 1993 },
+        { itemId: 9, title: "Inception", rating: 8.8, imageLink: "https://m.media-amazon.com/images/M/MV5BMjExMjkwNTQ0Nl5BMl5BanBnXkFtZTcwNTY0OTk1Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2010 },
+        { itemId: 11, title: "American Psycho", rating: 7.6, imageLink: "https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2000 },
+        { itemId: 12, title: "The Dark Knight Rises", rating: 8.4, imageLink: "https://m.media-amazon.com/images/M/MV5BMTMxMTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2012 }
+    ]
+    return mockTrendingMoviesDb;
+}
+
+const getTrendingShows = async () => {
+    // TODO
+    const mockTrendingShowsDb = [
+        { itemId: 8, title: "The Office", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
+    ]
+    return mockTrendingShowsDb;
+}
+
+const getFilteredItems = async ({personId = null, genreId = null, minRating = null, type = null, orderByRating = false, orderByPopularity = false}) => {
+    // TODO
+    return [
+        { itemId: 8, title: "The Office", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
+        { itemId: 8, title: "The Office", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
+        { itemId: 8, title: "The Office", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
+        { itemId: 8, title: "The Office", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
+        { itemId: 8, title: "The Office", rating: 9.0, imageLink: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
+    ];
+}
+
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems };
