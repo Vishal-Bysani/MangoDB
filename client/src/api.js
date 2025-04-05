@@ -43,10 +43,10 @@ const getItemDetails = async (itemId) => {
                 { id: 303, name: "Christopher Nolan" }
             ],
             actors: [
-                { id: 101, name: "Christian Bale" },
-                { id: 102, name: "Heath Ledger" },
-                { id: 103, name: "Aaron Eckhart" },
-                { id: 104, name: "Michael Caine" }
+                { id: 101, name: "Christian Bale", character: "Bruce Wayne / Batman", imageLink: "https://example.com/christian_bale.jpg" },
+                { id: 102, name: "Heath Ledger", character: "Joker", imageLink: "https://example.com/heath_ledger.jpg" },
+                { id: 103, name: "Aaron Eckhart", character: "Harvey Dent / Two-Face", imageLink: "https://example.com/aaron_eckhart.jpg" },
+                { id: 104, name: "Michael Caine", character: "Alfred", imageLink: "https://example.com/michael_caine.jpg" }
             ],
             image: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg",
             description: "Batman has a new foe, the Joker, who is an accomplished criminal hell-bent on decimating Gotham City. Together with Gordon and Harvey Dent, Batman struggles to thwart the Joker before it is too late.",
@@ -81,10 +81,10 @@ const getItemDetails = async (itemId) => {
                 { id: 403, name: "Francis Ford Coppola" }
             ],
             actors: [
-                { id: 201, name: "Marlon Brando" },
-                { id: 202, name: "Al Pacino" },
-                { id: 203, name: "James Caan" },
-                { id: 204, name: "Robert Duvall" }
+                { id: 201, name: "Marlon Brando", character: "Don Vito Corleone", imageLink: "https://example.com/marlon_brando.jpg" },
+                { id: 202, name: "Al Pacino", character: "Michael Corleone", imageLink: "https://example.com/al_pacino.jpg" },
+                { id: 203, name: "James Caan", character: "Sonny Corleone", imageLink: "https://example.com/james_caan.jpg" },
+                { id: 204, name: "Robert Duvall", character: "Tom Hagen", imageLink: "https://example.com/robert_duvall.jpg" }
             ],
             image: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY281_CR4,0,190,281_.jpg",
             description: "Don Vito Corleone, head of a mafia family, decides to hand over his empire to his youngest son, Michael. However, his decision unintentionally puts the lives of his loved ones in grave danger.",
@@ -120,9 +120,9 @@ const getItemDetails = async (itemId) => {
                 { id: 504, name: "Stephen Merchant" }
             ],
             actors: [
-                { id: 801, name: "Steve Carell" },
-                { id: 802, name: "Jenna Fischer" },
-                { id: 803, name: "John Krasinski" }
+                { id: 801, name: "Steve Carell", character: "Michael Scott", imageLink: "https://example.com/steve_carell.jpg" },
+                { id: 802, name: "Jenna Fischer", character: "Pam Beesly", imageLink: "https://example.com/jenna_fischer.jpg" },
+                { id: 803, name: "John Krasinski", character: "Jim Halpert", imageLink: "https://example.com/john_krasinski.jpg" }
             ],
             image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg",
             description: "A mockumentary on a group of typical office workers, where the workday consists of ego clashes, inappropriate behavior, and tedium.",
@@ -157,8 +157,8 @@ const getItemDetails = async (itemId) => {
                 { id: 603, name: "Mary Harron" }
             ],
             actors: [
-                { id: 101, name: "Christian Bale" },
-                { id: 902, name: "Willem Dafoe" }
+                { id: 101, name: "Christian Bale", character: "Patrick Bateman", imageLink: "https://example.com/christian_bale.jpg" },
+                { id: 902, name: "Willem Dafoe", character: "Donald Kimball", imageLink: "https://example.com/willem_dafoe.jpg" }
             ],
             image: "https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg",
             description: "A wealthy New York investment banker who is a psychopath and serial killer.",
@@ -292,7 +292,7 @@ const getPersonDetails = async (personId) => {
 
 const getPersonHeaders = async (personIdList) => {
     // TODO
-    const mockPersonDb = [
+    const mockPersonHeadersDb = [
         {
             id: 101,
             name: "Christian Bale",
@@ -316,7 +316,7 @@ const getPersonHeaders = async (personIdList) => {
         }
     ]
     try {
-        const matches = mockPersonDb.filter(person =>
+        const matches = mockPersonHeadersDb.filter(person =>
             personIdList.includes(person.id)
         );
         return matches;
