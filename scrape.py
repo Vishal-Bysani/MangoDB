@@ -178,6 +178,10 @@ def insert_movies_shows():
         
         for movie in movies:
             print("Movie ID:", movie["id"])
+            cursor.execute("SELECT 1 FROM movies_shows WHERE tmdb_id = %s", (movie["id"],))
+            exists = cursor.fetchone()
+            if exists:
+                continue
             response2 = requests.get(API_URL+"/movie/"+str(movie["id"])+"?language=en-US", headers=HEADERS)
             
             if response2.status_code == 200:
@@ -277,7 +281,10 @@ def insert_movies_shows():
         for show in shows:
             print("Show ID:", show["id"])
             response2 = requests.get(API_URL+"/tv/"+str(show["id"])+"?language=en-US", headers=HEADERS)
-            print(show["id"])
+            cursor.execute("SELECT 1 FROM movies_shows WHERE tmdb_id = %s", (show["id"],))
+            exists = cursor.fetchone()
+            if exists:
+                continue
             if response2.status_code == 200:
                 show2 = response2.json()
                 full_poster_url = "https://image.tmdb.org/t/p/original" + show["poster_path"] if show["poster_path"] else None

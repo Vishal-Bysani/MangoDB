@@ -4,17 +4,16 @@ DROP TABLE IF EXISTS movies_details CASCADE;
 DROP TABLE IF EXISTS movies_shows_genres CASCADE;
 DROP TABLE IF EXISTS movies_shows_spoken_languages CASCADE;
 DROP TABLE IF EXISTS movies_shows_production_company CASCADE;
-DROP TABLE IF EXISTS movies_shows CASCADE;
-DROP TABLE IF EXISTS jobs CASCADE;
-DROP TABLE IF EXISTS shows_details CASCADE;
-DROP TABLE IF EXISTS creator_show CASCADE;
 DROP TABLE IF EXISTS cast_movies_shows CASCADE;
 DROP TABLE IF EXISTS crew_movies_shows CASCADE;
+DROP TABLE IF EXISTS jobs CASCADE;
+DROP TABLE IF EXISTS shows_details CASCADE;
 DROP TABLE IF EXISTS person CASCADE;
 DROP TABLE IF EXISTS departments CASCADE;
 DROP TABLE IF EXISTS genres CASCADE;
 DROP TABLE IF EXISTS collections CASCADE;
 DROP TABLE IF EXISTS production_companies CASCADE;
+DROP TABLE IF EXISTS movies_shows CASCADE;
 DROP TABLE IF EXISTS languages CASCADE;
 DROP TABLE IF EXISTS countries CASCADE;
 
@@ -125,6 +124,7 @@ CREATE TABLE IF NOT EXISTS seasons (
 );
 
 CREATE TABLE IF NOT EXISTS episodes (
+    show_id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- TV Show ID
     season_id INTEGER REFERENCES seasons(id) ON DELETE CASCADE,  -- Season ID
     id SERIAL PRIMARY KEY,                   -- Unique ID from TMDb
     name TEXT NOT NULL,                      -- Episode Name
@@ -149,17 +149,18 @@ CREATE TABLE IF NOT EXISTS person (
     place_of_birth TEXT,                      -- Place of Birth
     original_name TEXT,                      -- Original Name
     popularity NUMERIC,                        -- Popularity Score
-    profile_path TEXT                        -- URL Path for Profile Image
-    known_for_department TEXT REFERENCES departments(name) ON DELETE SET NULL,  -- Department Name
+    profile_path TEXT,                        -- URL Path for Profile Image
+    known_for_department TEXT
 );
 
 CREATE TABLE IF NOT EXISTS crew_movies_shows (
     id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
     person_id INTEGER REFERENCES person(id) ON DELETE CASCADE,  -- Person ID
-    department_name TEXT REFERENCES departments(name) ON DELETE CASCADE,  -- Department Name
-    job_title TEXT NOT NULL,  -- Job Title
+    -- department_name TEXT REFERENCES departments(name) ON DELETE CASCADE,  -- Department Name
+    department_name TEXT ,  -- Department Name
+    job_title TEXT ,  -- Job Title
     PRIMARY KEY (id, person_id, department_name, job_title),
-    FOREIGN KEY (department_name, job_title) REFERENCES jobs(department_name, title) ON DELETE CASCADE
+    -- FOREIGN KEY (department_name, job_title) REFERENCES jobs(department_name, title) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS cast_movies_shows (
@@ -170,17 +171,8 @@ CREATE TABLE IF NOT EXISTS cast_movies_shows (
     PRIMARY KEY (id, person_id, character)
 );
 
--- CREATE TABLE IF NOT EXISTS creator_show (
---     show_id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- TV Show ID
---     person_id INTEGER REFERENCES person(id) ON DELETE CASCADE,  -- Person ID
---     PRIMARY KEY (show_id, person_id)   -- Composite Primary Key
--- );
-
---  Put creator in crew
-
 CREATE TABLE IF NOT EXISTS shows_details (
     id INTEGER PRIMARY KEY REFERENCES movies_shows(id) ON DELETE CASCADE,                   -- Unique ID from TMDb
     number_of_episodes INTEGER DEFAULT 0,                   -- Total Number of Episodes
     number_of_seasons INTEGER DEFAULT 0                  -- Total Number of Seasons
-    next_episode_to_air DATE,                         -- Next Episode Air Date (YYYY-MM-DD)
 );
