@@ -27,11 +27,11 @@ npm install
 To run the application in development mode:
 1) Start the backend server
 ```
-   npm run server
+   node index.js
 ```
 2) In a separate terminal, start the frontend development server
 ```
-   npm run client
+   npm start
 ```
 
 ### Production Build
