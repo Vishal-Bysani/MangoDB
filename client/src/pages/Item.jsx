@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { getLoggedIn, getItemDetails, submitRating, submitReview } from "../api";
+import { getLoggedIn, getItemDetails, submitRating, submitReview, toggleFavorite } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/Item.css"
 import ListPersonThumbnail from "../components/ListPersonThumbnail";
@@ -77,6 +77,7 @@ const Item = () => {
                 <div className="popup-header">
                     <p style={{textAlign: 'center'}}>RATE THIS</p>
                     <h2 >{item.title}</h2>
+                    
                 </div>
                 <div className="popup-body">
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
@@ -151,7 +152,14 @@ const Item = () => {
                 )}
                 <div className="item-header-container">
                     <div className="item-header">
-                        <h1 className="item-title">{item.title}</h1>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+                            <h1 className="item-title">{item.title}</h1>
+                            <button 
+                                className={`favorite-button ${item.favorite ? 'favorite-active' : ''}`}
+                                onClick={() => { toggleFavorite(item.id); setItem(prevItem => ({...prevItem, favorite: !prevItem.favorite})); }}
+                                aria-label="Toggle favorite"
+                            > ❤ </button>
+                        </div>
                         <div className="item-metadata">
                             {item.type === "tvseries" ? (
                                 <>

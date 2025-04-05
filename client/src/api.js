@@ -10,7 +10,8 @@ const getLoggedIn = async () => {
             },
             credentials: "include",
         });
-        return response.json();
+        // return response.json();
+        return Promise.resolve({loggedIn: true, userName: "John Doe"});
     } catch (err) {
         console.error("Error checking authentication status:", err);
     }
@@ -54,6 +55,7 @@ const getItemDetails = async (itemId) => {
             duration: 152,
             user_rating: 4.8,
             popularity: 98,
+            favorite: true,
             tags: [
                 { id: 1001, name: "Action" },
                 { id: 1002, name: "Crime" },
@@ -101,6 +103,7 @@ const getItemDetails = async (itemId) => {
             duration: 175,
             user_rating: null,
             popularity: 99,
+            favorite: false,
             tags: [
                 { id: 1002, name: "Crime" },
                 { id: 1003, name: "Drama" }
@@ -139,6 +142,7 @@ const getItemDetails = async (itemId) => {
             duration: 22,
             user_rating: 4.8,
             popularity: 95,
+            favorite: true,
             tags: [
                 { id: 1005, name: "Comedy" },
                 { id: 1003, name: "Drama" }
@@ -356,6 +360,11 @@ const getPersonHeaders = async (personIdList) => {
     }
 }
 
+const toggleFavorite = async (itemId) => {
+    // TODO
+    console.log("Toggling favorite for item: " + itemId)
+}
+
 const getItemReviews = async (itemId, page = 1, limit = 10) => {
     const mockReviewDb = [
         {
@@ -532,4 +541,4 @@ const getFilteredItems = async ({personId = null, genreId = null, minRating = nu
     ];
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser };
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, toggleFavorite };
