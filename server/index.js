@@ -121,16 +121,213 @@ app.post("/logout", (req, res) => {
 ////////////////////////////////////////////////////
 // APIs for the movie database
 
-app.get("/getMovieDetails", async (req, res) => {
+app.get("/getMovieContainingText", async (req, res) => {
   try {
-    const { movieId } = req.query;
-    const result = await pool.query("SELECT * FROM movies WHERE movie_id = $1", [movieId]);
-    res.status(200).json(result.rows[0]);
+    const { text } = req.query;
+
+    const movieQuery = await pool.query(
+      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC LIMIT 5",
+      [`%${text}%`]
+    );
+
+    const castQuery = await pool.query(
+      "SELECT id, name, popularity, known_for_department, profile_path FROM person WHERE name ILIKE $1 ORDER BY popularity DESC LIMIT 5",
+      [`%${text}%`]
+    );
+
+    res.status(200).json({
+      movies: movieQuery.rows,
+      cast: castQuery.rows
+    });
+
   } catch (error) {
+    console.error("Error fetching movie or cast:", error);
     res.status(500).json({ message: "Error getting movie details" });
   }
 });
 
+app.get("/getMovieShowDetails", async (req, res) => {
+  try {
+    const { id } = req.query;
+    const movieOrShowQuery = await pool.query(
+      "SELECT * FROM movies_shows WHERE id = $1",
+      [id]
+    );
+    if(movieOrShowQuery.rows.length === 0){
+      return res.status(404).json({message: "Movie or Show not found"});
+    }
+    const countryQuery = await pool.query(
+      "SELECT english_name FROM countries WHERE iso_3166_1 = $1",
+      [movieOrShowQuery.rows[0].origin_country]
+    );
+    const LanguageQuery = await pool.query(
+      "SELECT english_name FROM languages WHERE iso_639_1 = $1",
+      [movieOrShowQuery.rows[0].original_language]
+    );
+    const genreQuery = await pool.query(
+      "SELECT genres.id as genre_id, genre.name as genre_name FROM movies_shows_genres join genres on genre.id=movies_shows_genres.genre_id WHERE id = $1",
+      [id]
+    ); 
+    const productionQuery = await pool.query(
+      "SELECT production_companies.name FROM production_companies join movies_shows_production_company on production_companies.id = movies_shows_production_company.production_company_id WHERE movies_shows_production_company.id = $1",
+      [id]
+    );
+    const castQuery = await pool.query(
+      "SELECT person.id, name, character profile_path FROM person JOIN cast_movies_shows ON person.id = cast_movies_shows.person_id WHERE movie_cast.movie_id = $1",
+      [id]
+    );
+    const crewQuery = await pool.query(
+      "SELECT person.id, name, department_name, job_title, profile_path FROM person JOIN movie_cast ON person.id = crew_movies_shows.person_id WHERE movies_crew.movie_id = $1",
+      [id]
+    );
+    if(movieOrShowQuery.rows[0].category === "movie"){
+      const collectionQuery = await pool.query(
+        "SELECT name FROM collections WHERE collection_id = $1",
+        [movieOrShowQuery.rows[0].belongs_to_collection]
+      );
+      const movieQuery = await pool.query(
+        "SELECT * FROM movies_shows WHERE collection_id = $1",
+        [id]
+      ); 
+      res.status(200).json({
+        moviesOrShow: movieOrShowQuery.rows[0],
+        country: countryQuery.rows[0],
+        language: LanguageQuery.rows[0],
+        genres: genreQuery.rows,
+        production: productionQuery.rows,
+        cast: castQuery.rows,
+        crew: crewQuery.rows,
+        collection: collectionQuery.rows,
+        movieDetails: movieQuery.rows
+      });
+    }
+    else {
+      const episodeQuery = await pool.query(
+        "SELECT * FROM episodes WHERE show_id = $1",
+        [id]
+      );
+      const seasonQuery = await pool.query(
+        "SELECT * FROM seasons WHERE show_id = $1",
+        [id]
+      );
+      const showQuery = await pool.query(
+        "SELECT * FROM showDetails WHERE id = $1",
+        [id]
+      );
+      res.status(200).json({
+        moviesOrShow: movieOrShowQuery.rows[0],
+        country: countryQuery.rows[0],
+        language: LanguageQuery.rows[0],
+        genres: genreQuery.rows,
+        production: productionQuery.rows,
+        cast: castQuery.rows,
+        crew: crewQuery.rows,
+        episode: episodeQuery.rows,
+        season: seasonQuery.rows,
+        showDetails: showQuery.rows
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching movie or cast:", error);
+    res.status(500).json({ message: "Error getting movie details" });
+  }
+}
+);
+
+app.get("/getPersonDetails", async (req, res) => {
+  try {
+    const { id } = req.query;
+    const personQuery = await pool.query(
+      "SELECT * FROM person WHERE id = $1",
+      [id]
+    );
+    if(personQuery.rows.length === 0){
+      return res.status(404).json({message: "Person not found"});
+    }
+    const moviesShowsCastQuery = await pool.query(
+      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,character, vote_average FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.movie_id WHERE cast_movies_shows.person_id = $1 order by popularity desc",
+      [id]
+    );
+    const moviesShowsCrewQuery = await pool.query(
+      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,job_title, vote_average FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.movie_id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
+      [id]
+    );
+    res.status(200).json({
+      person: personQuery.rows[0],
+      cast : moviesShowsCastQuery.rows,
+      crew : moviesShowsCrewQuery.rows
+    });
+  } catch (error) {
+    console.error("Error fetching movie or cast:", error);
+    res.status(500).json({ message: "Error getting movie details" });
+  }
+});
+app.get("/getMovieShowByGenreId", async (req, res) => {
+  try {
+    const { genre_id } = req.query;
+    const movieOrShowQuery = await pool.query(
+      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE id IN (SELECT movie_id FROM movies_shows_genres WHERE genre_id = $1) ORDER BY popularity DESC, vote_average",
+      [genre_id]
+    );
+    const genreQuery = await pool.query(
+      "SELECT name FROM genres WHERE id = $1",
+      [genre_id]
+    );
+    res.status(200).json({
+      moviesOrShow: movieOrShowQuery.rows,
+      genre: genreQuery.rows[0]
+    });
+  } catch (error) {
+    console.error("Error fetching movie or cast:", error);
+    res.status(500).json({ message: "Error getting movie details" });
+  }
+});
+app.get("/getMovieShowByCollectionId", async (req, res) => {
+  try {
+    const { collection_id } = req.query;
+    const movieOrShowQuery = await pool.query(
+      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE collection_id = $1 ORDER BY popularity DESC, vote_average",
+      [collection_id]
+    );
+    const collectionQuery = await pool.query(
+      "SELECT name FROM collections WHERE collection_id = $1",
+      [collection_id]
+    );
+    res.status(200).json({
+      moviesOrShow: movieOrShowQuery.rows,
+      collection: collectionQuery.rows[0]
+    });
+  } catch (error) {
+    console.error("Error fetching movie or cast:", error);
+    res.status(500).json({ message: "Error getting movie details" });
+  }
+});
+app.get("/getMovieByPopularity", async (req, res) => {
+  try {
+    const movieQuery = await pool.query(
+      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE category = 'movie' ORDER BY popularity DESC, vote_average DESC"
+    );
+    res.status(200).json({
+      movies: movieQuery.rows
+    });
+  } catch (error) {
+    console.error("Error fetching movies :", error);
+    res.status(500).json({ message: "Error getting movie details" });
+  }
+});
+app.get("/getShowsByPopularity", async (req, res) => {
+  try {
+    const ShowQuery = await pool.query(
+      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE category = 'tv' ORDER BY popularity DESC, vote_average DESC"
+    );
+    res.status(200).json({
+      Shows : ShowQuery.rows
+    });
+  } catch (error) {
+    console.error("Error fetching shows: ", error);
+    res.status(500).json({ message: "Error getting shows details" });
+  }
+});
 ////////////////////////////////////////////////////
 // Start the server
 app.listen(port, () => {
