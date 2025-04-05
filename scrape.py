@@ -5,7 +5,7 @@ from psycopg2.extras import execute_values
 API_URL = "https://api.themoviedb.org/3"
 HEADERS = {
     "accept": "application/json",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlYjcyM2M1N2U0MTFjNTU4NmFjYzNjYjM5ZmU4ZmExMSIsIm5iZiI6MTc0MzcxNzQ4Mi4zNzMsInN1YiI6IjY3ZWYwNDZhZWRlOGQ4MmYzYmFjZjRiOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.QZwZoke8Dhc63oDjyvSppcEqmOSuZDnjeugxneIgWJc"
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkZTBlYzhhYTVhNTI5ZWYzOTZlNjJlNDVmMWFkMzUyNiIsIm5iZiI6MTc0MzY3MTc5My4yMzIsInN1YiI6IjY3ZWU1MWYxYjViMWM1YTRjM2E3YjNiZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.L7p7LuruZEI_sJ3SnckfyjuftCfKL6rxdGTRarkVQsg"
 }
 
 # Database Connection
@@ -267,7 +267,7 @@ def insert_movies_shows():
                 print("Error fetching movie details:", response.text)
             
 
-    for page in range(1,4):
+    for page in range(4,7):
         if page%2 == 1:
             page = page + 100
         print("Page:", page)
@@ -290,7 +290,7 @@ def insert_movies_shows():
                 full_poster_url = "https://image.tmdb.org/t/p/original" + show["poster_path"] if show["poster_path"] else None
                 full_backdrop_url = "https://image.tmdb.org/t/p/original" + show["backdrop_path"] if show["backdrop_path"] else None
                 first_air_date = checkEmptyString(show["first_air_date"])
-                last_air_date = checkEmptyString(show["last_air_date"])
+                last_air_date = checkEmptyString(show2["last_air_date"])
                 adult_value = 1 if show["adult"] else 0
                 cursor.execute("""
                     INSERT INTO movies_shows (tmdb_id, title, original_title, original_language, overview, release_date, category, popularity, vote_average, vote_count, adult, backdrop_path, poster_path, tagline, status, origin_country, end_date) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s) ON CONFLICT DO NOTHING RETURNING id""", (show["id"], show["name"], show["original_name"], show["original_language"], show["overview"], first_air_date, "tv", show["popularity"], show["vote_average"], show["vote_count"], adult_value, full_backdrop_url,full_poster_url, show2["tagline"], show2["status"], show["origin_country"][0], last_air_date))
@@ -314,7 +314,7 @@ def insert_movies_shows():
                     cursor.execute("""
                                 INSERT INTO crew_movies_shows(id, person_id, department_name, job_title) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING""", (id, creator["id"], "Creator", "Creator"))
                 cursor.execute("""
-                    INSERT INTO tv_details (id, number_of_episodes, number_of_seasons) VALUES (%s, %s, %s, %s) ON CONFLICT (id) DO NOTHING; """, (id, show2["number_of_episodes"], show2["number_of_seasons"]))
+                    INSERT INTO shows_details (id, number_of_episodes, number_of_seasons) VALUES (%s, %s, %s) ON CONFLICT (id) DO NOTHING; """, (id, show2["number_of_episodes"], show2["number_of_seasons"]))
                 for production_company in show2["production_companies"]:
                     if production_company["origin_country"] == "":    
                         production_company["origin_country"] = None
@@ -337,7 +337,7 @@ def insert_movies_shows():
                         for episode in season_data["episodes"]:
                             full_still_url = "https://image.tmdb.org/t/p/original" + episode["still_path"] if episode["still_path"] else None
                             cursor.execute("""
-                                INSERT INTO episodes (show_id, season_id, id, name, overview, air_date, episode_number, vote_average, vote_count, still_path, runtime, season_number) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING""", (id, season["id"], episode["id"], episode["name"], episode["overview"], episode["air_date"], episode["episode_number"], episode["vote_average"], episode["vote_count"], full_still_url, episode["runtime"], episode["season_number"]))
+                                INSERT INTO episodes (show_id, season_id, id, name, overview, air_date, episode_number, vote_average, vote_count, still_path, runtime, season_number) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING""", (id, season["id"], episode["id"], episode["name"], episode["overview"], episode["air_date"], episode["episode_number"], episode["vote_average"], episode["vote_count"], full_still_url, episode["runtime"], episode["season_number"]))
                 response3 = requests.get(API_URL+"/tv/"+str(show["id"])+"/credits?language=en-US", headers=HEADERS)
                 if response3.status_code == 200:
                     credits = response3.json()
@@ -383,10 +383,10 @@ def insert_movies_shows():
 
 # Main function
 def main():
-    # insert_countries()
-    # insert_departments()
-    # insert_languages()
-    # insert_genres()
+    insert_countries()
+    insert_departments()
+    insert_languages()
+    insert_genres()
     insert_movies_shows()
 
 if __name__ == "__main__":
