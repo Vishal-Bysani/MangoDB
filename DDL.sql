@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS crew_movies_shows (
     -- department_name TEXT REFERENCES departments(name) ON DELETE CASCADE,  -- Department Name
     department_name TEXT ,  -- Department Name
     job_title TEXT ,  -- Job Title
-    PRIMARY KEY (id, person_id, department_name, job_title),
+    PRIMARY KEY (id, person_id, department_name, job_title)
     -- FOREIGN KEY (department_name, job_title) REFERENCES jobs(department_name, title) ON DELETE CASCADE
 );
 
