@@ -10,10 +10,10 @@ const port = 4000;
 // PostgreSQL connection
 // NOTE: use YOUR postgres username and password here
 const pool = new Pool({
-  user: 'test',
+  user: 'atharva',
   host: 'localhost',
-  database: 'ecommerce',
-  password: 'test',
+  database: 'atharva',
+  password: 'atharva',
   port: 5432,
 });
 
@@ -132,20 +132,16 @@ app.get("/getMatchingItem", async (req, res) => {
     const { text } = req.query;
 
     const movieQuery = await pool.query(
-      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC LIMIT 5",
+      "SELECT id, title, category as type, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", NULL as \"endYear\", vote_average as rating FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC LIMIT 20",
       [`%${text}%`]
     );
 
     const castQuery = await pool.query(
-      "SELECT id, name, popularity, known_for_department, profile_path FROM person WHERE name ILIKE $1 ORDER BY popularity DESC LIMIT 5",
+      "SELECT id, name as title, popularity, known_for_department as role, profile_path as image FROM person WHERE name ILIKE $1 ORDER BY popularity DESC LIMIT 10",
       [`%${text}%`]
     );
 
-    res.status(200).json({
-      movies: movieQuery.rows,
-      cast: castQuery.rows
-    });
-
+    res.status(200).json(movieQuery.rows.concat(castQuery.rows));
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
     res.status(500).json({ message: "Error getting movie details" });
@@ -201,7 +197,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
       [movieOrShowQuery.rows[0].original_language]
     );
     const genreQuery = await pool.query(
-      "SELECT genres.id as genre_id, genre.name as genre_name FROM movies_shows_genres join genres on genre.id=movies_shows_genres.genre_id WHERE id = $1",
+      "SELECT genres.id as genre_id, genres.name as genre_name FROM movies_shows_genres join genres on genres.id=movies_shows_genres.genre_id WHERE id = $1",
       [id]
     ); 
     const productionQuery = await pool.query(

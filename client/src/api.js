@@ -2,19 +2,13 @@ import { cache } from "react";
 import { apiUrl } from "./config/config.js";
 
 const getLoggedIn = async () => {
-    try {
-        const response = await fetch(`${apiUrl}/isLoggedIn`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-        });
-        // return response.json();
-        return Promise.resolve({loggedIn: true, userName: "John Doe"});
-    } catch (err) {
-        console.error("Error checking authentication status:", err);
-    }
+    return fetch(`${apiUrl}/isLoggedIn`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        credentials: "include",
+    });
 }
 
 const logoutUser = async () => {
@@ -30,14 +24,25 @@ const logoutUser = async () => {
     });
 }
 
-const loginUser = async (email, password) => {
+const loginUser = async (user, password) => {
     return fetch(`${apiUrl}/login`, {
         method: "POST",
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ user, password }),
+    });
+}
+
+const signupUser = async (username, password, email) => {
+    return fetch(`${apiUrl}/signup`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password, email }),
     });
 }
 
@@ -206,6 +211,10 @@ const getItemDetails = async (itemId) => {
         }
     ];
 
+    const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`);
+    const data = await response.json();
+    console.log(data);
+
     try {
         const item = mockItemDB.find(item => item.id === parseInt(itemId));
         return item;
@@ -216,30 +225,11 @@ const getItemDetails = async (itemId) => {
 }
 
 // TODO: Properly integrate with API
-const getMatchingItems = cache((text) => {
-    const mockItems = [
-        { id: 1, title: "The Dark Knight", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", startYear: 2008, endYear: null, rating: 9.0, actors: ["Christian Bale", "Heath Ledger"] },
-        { id: 2, title: "The Godfather", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY281_CR4,0,190,281_.jpg", startYear: 1972, endYear: null, rating: 9.2, actors: ["Marlon Brando", "Al Pacino"] },
-        { id: 3, title: "The Italian Job", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BMjJjNzc5YjAtZjU2Ni00ZjVkLTkzYmItM2E2NDM0NWE1YmJhXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", startYear: 2003, endYear: null, rating: 7.0, actors: ["Mark Wahlberg", "Charlize Theron"] },
-        { id: 4, title: "Zodiac", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BNDFkMTRkZmQtM2I0NC00NjJjLWJlMDctNTNiZWYxYzhjZDZiXkEyXkFqcGc@._V1_QL75_UY281_CR0,0,190,281_.jpg", startYear: 2007, endYear: null, rating: 7.7, actors: ["Jake Gyllenhaal", "Robert Downey Jr."] },
-        { id: 5, title: "Bourne Identity", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BYTk1ZTcyMWMtMWUxYS00MmEzLTlmODYtOTk1MGRjOTg1ZjlmXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", startYear: 2002, endYear: null, rating: 7.9, actors: ["Matt Damon", "Franka Potente"] },
-        { id: 6, title: "Schindler's List", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BMTg3MDc4ODgyOF5BMl5BanBnXkFtZTgwNzY1ODIyNjM@._V1_QL75_UX190_CR0,10,190,281_.jpg", startYear: 1993, endYear: null, rating: 8.9, actors: ["Liam Neeson", "Ralph Fiennes"] },
-        { id: 7, title: "1917", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BYzkxZjg2NDQtMGVjMy00NWZkLTk0ZDEtZWE3NDYwYjAyMTg1XkEyXkFqcGc@._V1_QL75_UX190_CR0,10,190,281_.jpg", startYear: 2019, endYear: null, rating: 8.3, actors: ["George MacKay", "Dean-Charles Chapman"] },
-        { id: 8, title: "The Office", type: "tvseries", image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", startYear: 2005, endYear: 2013, rating: 9.0, actors: ["Steve Carell", "Jenna Fischer", "John Krasinski"] },
-        { id: 9, title: "Inception", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BMjExMjkwNTQ0Nl5BMl5BanBnXkFtZTcwNTY0OTk1Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", startYear: 2010, endYear: null, rating: 8.8, actors: ["Leonardo DiCaprio", "Joseph Gordon-Levitt"] },
-        { id: 10, title: "The Dark Knight Rises", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BMTk4ODQzNDY3Ml5BMl5BanBnXkFtZTcwODA0NTM4Nw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", startYear: 2012, endYear: null, rating: 8.4, actors: ["Christian Bale", "Tom Hardy"] },
-        { id: 11, title: "American Psycho", type: "movie", image: "https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg", startYear: 2000, endYear: null, rating: 7.6, actors: ["Christian Bale", "Willem Dafoe"] },
-    ]
-    try {
-        const matches = mockItems.filter(item => 
-            item.title.toLowerCase().startsWith(text.toLowerCase())
-        );
-        return matches;
-    } catch (err) {
-        console.error("Error retrieving matching items:", err);
-        return null;
-    }
-})
+const getMatchingItems = async (text) => {
+    const response = await fetch(`${apiUrl}/getMatchingItem?text=${text}`);
+    const data = await response.json();
+    return data;
+}
 
 const submitRating = async (rating) => {
     // TODO
@@ -517,7 +507,7 @@ const getTrendingMovies = async () => {
         { itemId: 6, title: "Schindler's List", rating: 8.9, imageLink: "https://m.media-amazon.com/images/M/MV5BMTg3MDc4ODgyOF5BMl5BanBnXkFtZTgwNzY1ODIyNjM@._V1_QL75_UX190_CR0,10,190,281_.jpg", year: 1993 },
         { itemId: 9, title: "Inception", rating: 8.8, imageLink: "https://m.media-amazon.com/images/M/MV5BMjExMjkwNTQ0Nl5BMl5BanBnXkFtZTcwNTY0OTk1Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2010 },
         { itemId: 11, title: "American Psycho", rating: 7.6, imageLink: "https://m.media-amazon.com/images/M/MV5BNzBjM2I5ZjUtNmIzNy00OGNkLWIwZDMtOTAwYWUwMzA2YjdlXkEyXkFqcGc@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2000 },
-        { itemId: 12, title: "The Dark Knight Rises", rating: 8.4, imageLink: "https://m.media-amazon.com/images/M/MV5BMTMxMTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2012 }
+        { itemId: 12, title: "The Dark Knight Rises", rating: 8.4, imageLink: "https://m.media-amazon.com/images/M/MV5BMTk4ODQzNDY3Ml5BMl5BanBnXkFtZTcwODA0NTM4Nw@@._V1_QL75_UX190_CR0,0,190,281_.jpg", year: 2012 }
     ]
     return mockTrendingMoviesDb;
 }
@@ -541,4 +531,4 @@ const getFilteredItems = async ({personId = null, genreId = null, minRating = nu
     ];
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, toggleFavorite };
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, toggleFavorite, signupUser };

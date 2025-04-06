@@ -13,14 +13,16 @@ const Person = () => {
     const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
 
     useEffect(() => {
-        const checkStatus = async () => {
-            getLoggedIn().then(data => { 
-                if (!data.loggedIn) navigate("/login"); 
-                setLoggedInData(data);
-            });
-        };
-        checkStatus();
-    }, [navigate]);
+        getLoggedIn().then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    setLoggedInData(data);
+                });
+            } else {
+                navigate("/login");
+            }
+        });
+    }, []);
 
     useEffect(() => {
         const fetchPersonDetails = async () => {

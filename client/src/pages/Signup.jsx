@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router";
-import { apiUrl } from "../config/config";
+import { signupUser } from "../api";
 import "../css/Signup.css";
+import { getLoggedIn } from "../api";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,35 +18,30 @@ const Signup = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  useEffect(() => {
+    getLoggedIn().then(response => {
+        if (response.status === 200) {
+            response.json().then(data => {
+                if (data.loggedIn) navigate("/dashboard");
+            });
+        }
+    });
+}, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    try {
-    //   TODO: Activate this code
-    //   const response = await fetch(`${apiUrl}/signup`, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(formData),
-    //     credentials: "include", // Include cookies in the request
-    //   });
-      
-    //   const data = await response.json();
-
-      const response = {status: 400};
-      const data = {message: "SignUp functionality under development"}
-
+    signupUser(formData.username, formData.password, formData.email).then(response => {
       if (response.status === 200) {
         navigate("/dashboard");
       } else {
-        setError(data.message || "Signup failed.");
+        setError(response.json().then(data => data.message));
       }
-    } catch (err) {
+    }).catch(err => {
       setError("An error occurred. Please try again.");
       console.error("Signup error:", err);
-    }
+    });
   };
 
   return (

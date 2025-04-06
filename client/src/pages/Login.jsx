@@ -8,16 +8,17 @@ const Login = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkStatus = async () => {
-            getLoggedIn().then(loggedInData => {
-                if (loggedInData.loggedIn) navigate("/dashboard");
-            });
-        };
-        checkStatus();
+        getLoggedIn().then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    if (data.loggedIn) navigate("/dashboard");
+                });
+            }
+        });
     }, []);
 
     const [formData, setFormData] = useState({
-        email: "",
+        user: "",
         password: "",
     });
 
@@ -31,7 +32,7 @@ const Login = () => {
         e.preventDefault();
         setError("");
 
-        loginUser(formData.email, formData.password).then(response => {
+        loginUser(formData.user, formData.password).then(response => {
             if (response.status === 200) {
                 navigate("/dashboard");
             } else {
@@ -47,12 +48,12 @@ const Login = () => {
                 {error && <p className="error-message">{error}</p>}
                 <form onSubmit={handleSubmit} method="POST">
                     <div className="form-group">
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="email">Username or Email</label>
                         <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
+                            type="text"
+                            id="user"
+                            name="user"
+                            value={formData.user}
                             onChange={handleChange}
                             required
                         />

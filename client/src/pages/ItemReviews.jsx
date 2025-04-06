@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, useLocation } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { getLoggedIn, getItemReviews } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/ItemReviews.css";
@@ -14,14 +14,16 @@ const ItemReviews = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkStatus = async () => {
-            getLoggedIn().then(data => { 
-                if (!data.loggedIn) navigate("/login"); 
-                setLoggedInData(data);
-            });
-        };
-        checkStatus();
-    }, [navigate]);
+        getLoggedIn().then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    setLoggedInData(data);
+                });
+            } else {
+                navigate("/login");
+            }
+        });
+    }, []);
 
     useEffect(() => {
         const fetchReviews = async () => {

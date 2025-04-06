@@ -17,26 +17,25 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
   }, [isLoggedIn]);
 
   const handleSearchChange = (e) => {
-    const text = e.target.value;
-    setSearchText(text);
+    setSearchText(e.target.value);
     setHideSearch(false);
+    const trimmedText = e.target.value.trim().toLowerCase();
 
-    if (text.trim() === "") {
+    if (trimmedText === "") {
       setMatchingList([]);
-    } else if(searchText !== "" && text.toLowerCase().startsWith(searchText.toLowerCase())) {
-      setMatchingList(matchingList.filter(item => 
-        item.title.toLowerCase().startsWith(text.toLowerCase())
-      ));
-    } else {
-      setMatchingList(getMatchingItems(text));
+      return;
     }
-    setSearchText(text);
-  };
 
-  const handleResultClick = (itemId) => {
-    setSearchText("");
-    setMatchingList([]);
-    navigate(`/item/${itemId}`);
+    const filtered = matchingList.filter(item =>
+      item.title.toLowerCase().startsWith(trimmedText)
+    );
+    if (searchText !== "" && trimmedText.startsWith(searchText.toLowerCase()) && filtered.length >= 5) {
+      setMatchingList(filtered);
+    } else {
+      getMatchingItems(trimmedText).then(matchingItems => {
+        setMatchingList(matchingItems);
+      });
+    }
   };
 
   useEffect(() => {
@@ -74,7 +73,7 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
                 <div 
                   key={item.id} 
                   className="search-result-item"
-                  onClick={() => handleResultClick(item.id)}
+                  onClick={item.popularity ? () => navigate(`/person/${item.id}`) : () => navigate(`/item/${item.id}`)}
                 >
                   <div className="search-result-content">
                     <img 
@@ -89,11 +88,13 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
                     <div className="search-result-info">
                       <div className="search-result-text">
                         <div className="search-result-title">{item.title}</div>
-                        <div className="search-result-year">{item.startYear}</div>
-                        <div className="search-result-actors">{item.actors.slice(0, 2).join(", ")}</div>
+                        { item.startYear && <div className="search-result-year">{item.startYear}</div> }
+                        { item.role && <div className="search-result-year">{item.role}</div> }
+                        { item.actors && <div className="search-result-actors">{item.actors.slice(0, 2).join(", ")}</div> }
                       </div>
                     </div>
-                    <div className="search-result-rating">{item.rating} ⭐</div>
+                    { item.rating && <div className="search-result-rating">{parseFloat(item.rating).toFixed(1)} ⭐</div> }
+                    { item.popularity && <div className="search-result-rating">{parseFloat(item.popularity).toFixed(1)} 🔥</div> }
                   </div>
                 </div>
               ))}
