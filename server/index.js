@@ -268,7 +268,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         "SELECT * FROM shows_details WHERE id = $1",
         [id]
       );
-      
+
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
         title: movieOrShowQuery.rows[0].title,
@@ -307,18 +307,25 @@ app.get("/getPersonDetails", async (req, res) => {
       [id]
     );
     if(personQuery.rows.length === 0){
-      return res.status(404).json({message: "Person not found"});
+      return res.status(400).json({message: "Person not found"});
     }
-    const moviesShowsCastQuery = await pool.query(
+    const moviesShowsQuery = await pool.query(
       "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,character, vote_average FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.id WHERE cast_movies_shows.person_id = $1 order by popularity desc",
       [id]
     );
     const moviesShowsCrewQuery = await pool.query(
-      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,job_title, vote_average FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
+      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,job_title, vote_average,department_name FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
       [id]
     );
     res.status(200).json({
-      person: personQuery.rows[0],
+      id: personQuery.rows[0].id,
+      name: personQuery.rows[0].name,
+      popularity: personQuery.rows[0].popularity,
+      imageLink: personQuery.rows[0].profile_path,
+      description: personQuery.rows[0].biography,
+      birthday: personQuery.rows[0].birthday,
+      deathday: personQuery.rows[0].deathday,
+      // person: personQuery.rows[0],
       cast : moviesShowsCastQuery.rows,
       crew : moviesShowsCrewQuery.rows
     });
