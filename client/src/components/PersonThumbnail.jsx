@@ -8,12 +8,12 @@ const PersonThumbnail = ({ personId, name, image, character }) => {
     return (
         <div key={personId} className="person-thumbnail" onClick={() => navigate(`/person/${personId}`)}>
             <img 
-                    src={image} 
-                    alt={name}
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "/mangodb-logo.png";
-                    }}
+                src={image ? image : "/mangodb-logo.png"} 
+                alt={name}
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/mangodb-logo.png";
+                }}
                 />
             <h3>{name}</h3>
             {character && <h4>{character}</h4>}

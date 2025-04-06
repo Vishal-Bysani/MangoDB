@@ -355,7 +355,7 @@ const toggleFavorite = async (itemId) => {
     console.log("Toggling favorite for item: " + itemId)
 }
 
-const getItemReviews = async (itemId, page = 1, limit = 10) => {
+const getItemReviews = async (itemId, page = 1, limit = 5) => {
     const mockReviewDb = [
         {
             itemId: 1,
@@ -531,4 +531,25 @@ const getFilteredItems = async ({personId = null, genreId = null, minRating = nu
     ];
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, toggleFavorite, signupUser };
+const getUserDetails = async () => {
+    // TODO
+    return {
+        userId: 101,
+        username: "Atharva",
+        joinDate: "2023-04-10",
+        favorites: [
+            { itemId: 1, title: "The Dark Knight", rating: 9.0, userRating: 10, imageLink: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", year: 2008 },
+            { itemId: 2, title: "The Godfather", rating: 9.0, userRating: 10, imageLink: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY281_CR4,0,190,281_.jpg", year: 1972 },
+        ],
+        watchlist: [
+            { itemId: 2, title: "The Godfather", rating: 9.0, userRating: 10, imageLink: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY281_CR4,0,190,281_.jpg", year: 1972 },
+            { itemId: 1, title: "The Dark Knight", rating: 9.0, userRating: 10, imageLink: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", year: 2008 },
+        ],
+        reviews: [
+            { itemId: 1, title: "The Dark Knight", reviewId: 1, rating: 9.0, text: "This is a review", date: "2023-04-10" },
+            { itemId: 2, title: "The Godfather", reviewId: 2, rating: 9.0, text: "This is a review", date: "2023-04-10" },
+        ]
+    }
+}
+
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, getPersonHeaders, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, toggleFavorite, signupUser, getUserDetails };
