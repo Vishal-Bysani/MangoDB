@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { apiUrl } from "./config/config.js";
+import { Navigate } from "react-router";
 
 const getLoggedIn = async () => {
     return fetch(`${apiUrl}/isLoggedIn`, {
@@ -19,6 +20,7 @@ const logoutUser = async () => {
         if (response.status !== 200) {
             throw new Error("Failed to log out");
         }
+        Navigate("/login");
     }).catch(err => {
         console.error("Error logging out:", err);
     });
@@ -210,10 +212,10 @@ const getItemDetails = async (itemId) => {
             trailerLink: "https://www.youtube.com/watch?v=81mibtQWWBg"
         }
     ];
-
     const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`);
     const data = await response.json();
     console.log(data);
+    return data;
 
     try {
         const item = mockItemDB.find(item => item.id === parseInt(itemId));

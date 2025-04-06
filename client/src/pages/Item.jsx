@@ -188,7 +188,7 @@ const Item = () => {
                                 </>
                             )}
                             <span>&nbsp;·&nbsp;</span>
-                            <span>{item.country}</span>
+                            <span>{item.country.english_name}</span>
                         </div>
                     </div>
                     <div className="item-sidebar">
@@ -258,7 +258,9 @@ const Item = () => {
                                     }}
                                 />
                             </div>
-                            <div className="item-trailer">
+                            { item.trailerLink &&
+                                <>
+                                <div className="item-trailer">
                                 <iframe 
                                     width="100%" 
                                     height="100%" 
@@ -269,25 +271,28 @@ const Item = () => {
                                     allowFullScreen
                                 ></iframe>
                             </div>
+                                </>
+                            }
                         </div>
 
-                        <div className="item-genres">
+                        { item.tags && <div className="item-genres">
                             {item.tags.map((genre, index) => (
-                                <span key={index} className="genre-tag" onClick={() => navigate(`/genre/${genre.id}`, {state: {name: genre.name}})}>{genre.name}</span>
+                                <span key={index} className="genre-tag" onClick={() => navigate(`/genre/${genre.genre_id}`, {state: {name: genre.genre_name}})}>{genre.genre_name}</span>
                             ))}
-                        </div>
+                        </div> }
 
-                        <div className="item-description">
+                        { item.description && <div className="item-description">
                             <p>{item.description}</p>
-                        </div>
+                        </div> }
 
                         <div className="item-crew">
-                            <div className="crew-section">
+                            { item.director && <div className="crew-section">
                                 <h3>Director</h3>
                                 <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.director.id}`)}>{item.director.name}</p>
                             </div>
+                            }
                             
-                            { item.writers.length > 0 && (
+                            { item.writers && item.writers.length > 0 && (
                                 <div className="crew-section">
                                     <h3>Writers</h3>
                                     <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.writers[0].id}`)}>{item.writers[0].name}</p>
@@ -300,7 +305,7 @@ const Item = () => {
                                 </div>
                             )}
                             
-                            { item.actors.length > 0 && (
+                            { item.actors && item.actors.length > 0 && (
                                 <div className="crew-section">
                                     <h3>Stars</h3>
                                     <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.actors[0].id}`)}>{item.actors[0].name}</p>
@@ -312,22 +317,26 @@ const Item = () => {
                                     <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {personHeaders: item.actors, title: item.title}})}></p>
                                 </div>
                             )}
+                                    {item.productionCompany && item.productionCompany.length > 0 && (
+                                    <div className="crew-section">
+                                        <h3>Production Company</h3>
+                                        <p className="crew-name" style={{ marginLeft: '16px' }}>
+                                        {item.productionCompany[0].name}
+                                        </p>
+                                    </div>
+                                    )}
 
-                            <div className="crew-section">
-                                <h3>Production Company</h3>
-                                <p className="crew-name" style={{marginLeft: '16px'}}>{item.productionCompany}</p>
-                            </div>
                         </div>
                     </div>
 
                     
                 </div>
 
-                {item.actors.length > 0 && (
+                {item.actors && item.actors.length > 0 && (
                     <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.actors} />
                 )}
 
-                <div>
+                {item.reviews && <div>
                     <div style={{display: 'flex'}}>
                         <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
                         <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`, {state: {title: item.title}})}></p>
@@ -346,7 +355,7 @@ const Item = () => {
                             </div>
                         ))}
                     </div>
-                </div>
+                </div>}
             </div>
         </>
     );

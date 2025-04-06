@@ -34,6 +34,7 @@ const Login = () => {
 
         loginUser(formData.user, formData.password).then(response => {
             if (response.status === 200) {
+                // console.log("Login successful");
                 navigate("/dashboard");
             } else {
                 setError(response.json().then(data => data.message));

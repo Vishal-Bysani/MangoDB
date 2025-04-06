@@ -10,10 +10,10 @@ const port = 4000;
 // PostgreSQL connection
 // NOTE: use YOUR postgres username and password here
 const pool = new Pool({
-  user: 'atharva',
+  user: 'imdbuser',
   host: 'localhost',
-  database: 'atharva',
-  password: 'atharva',
+  database: 'imdb',
+  password: '123',
   port: 5432,
 });
 
@@ -45,7 +45,7 @@ app.use(
 
 // Redirect unauthenticated users to the login page with respective status code
 function isAuthenticated(req, res, next) {
-  if(req.session.userId){
+  if(req.session.username){
     next();
   }
   else{
@@ -57,14 +57,16 @@ function isAuthenticated(req, res, next) {
 app.post('/signup', async (req, res) => {
   try{
     const {username, password, email} = req.body;
+    console.log("Received signup request:", req.body);
     const user_rows = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if(user_rows.rows.length > 0){
       return res.status(400).json({message: "Error: Email is already registered."});
     }
     const hashPassword = await bcrypt.hash(password, 10);
-    const result = await pool.query("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING user_id", [username, email, hashPassword]);
-    req.session.userId = result.rows[0].user_id;
-    req.session.username = username;
+    const result = await pool.query("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING username,email", [username, email, hashPassword]);
+    req.session.email = result.rows[0].email;
+    req.session.username = result.rows[0].username;
+    console.log("User registered successfully:", result.rows[0]);
     res.status(200).json({message: "User Registered Successfully"});
   }
   catch (error){
@@ -83,16 +85,19 @@ app.post("/login",  async (req, res) => {
     else{
       user_row = await pool.query("SELECT * FROM users WHERE username = $1", [user]);
     }
+    // console.log("Received login request:", user_row.rows);
     if(user_row.rows.length === 0){
       return res.status(400).json({message: "Invalid Credentials"});
     } 
     const dbUser = user_row.rows[0];
     const valid = await bcrypt.compare(password, dbUser.password_hash);
+    // console.log("Password comparison result:", valid);
     if(!valid){
       return res.status(400).json({message: "Invalid Credentials"});
     }
-    req.session.userId = dbUser.user_id;
+    req.session.email = dbUser.email;
     req.session.username = dbUser.username;
+    // console.log("User logged in successfully:", req.session);
     res.status(200).json({message:"Login successful"});
   }
   catch{
@@ -103,9 +108,11 @@ app.post("/login",  async (req, res) => {
 
 // Implement API used to check if the client is currently logged in or not.
 app.get("/isLoggedIn", async (req, res) => {
-  if(req.session && req.session.userId){
+  // console.log("Received isLoggedIn request:", req.session);
+  if(req.session && req.session.username){
     const username = req.session.username;
-    res.status(200).json({loggedIn : true, userName : username});
+    const email = req.session.email;
+    res.status(200).json({loggedIn : true, username : username, email : email});
   }
   else{
     res.status(400).json({loggedIn : false, message : "Not logged in"});
@@ -182,7 +189,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const movieOrShowQuery = await pool.query(
-      "SELECT * FROM movies_shows WHERE id = $1",
+      "SELECT id, title, category as type, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating,vote_count as numRating, popularity, overview as description, origin_country FROM movies_shows WHERE id = $1",
       [id]
     );
     if(movieOrShowQuery.rows.length === 0){
@@ -197,7 +204,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
       [movieOrShowQuery.rows[0].original_language]
     );
     const genreQuery = await pool.query(
-      "SELECT genres.id as genre_id, genres.name as genre_name FROM movies_shows_genres join genres on genres.id=movies_shows_genres.genre_id WHERE id = $1",
+      "SELECT genres.id as genre_id, genres.name as genre_name FROM movies_shows_genres join genres on genres.id=movies_shows_genres.genre_id WHERE movies_shows_genres.id = $1",
       [id]
     ); 
     const productionQuery = await pool.query(
@@ -205,32 +212,47 @@ app.get("/getMovieShowDetails", async (req, res) => {
       [id]
     );
     const castQuery = await pool.query(
-      "SELECT person.id, name, character, profile_path FROM person JOIN cast_movies_shows ON person.id = cast_movies_shows.person_id WHERE movie_cast.movie_id = $1",
+      "SELECT person.id, name, character, profile_path FROM person JOIN cast_movies_shows ON person.id = cast_movies_shows.person_id WHERE cast_movies_shows.id = $1",
       [id]
     );
     const crewQuery = await pool.query(
-      "SELECT person.id, name, department_name, job_title, profile_path FROM person JOIN movie_cast ON person.id = crew_movies_shows.person_id WHERE movies_crew.movie_id = $1",
+      "SELECT person.id, name, department_name, job_title, profile_path FROM person JOIN crew_movies_shows ON person.id = crew_movies_shows.person_id WHERE crew_movies_shows.id = $1",
       [id]
     );
-    if(movieOrShowQuery.rows[0].category === "movie"){
+    // console.log("Movie or Show Query: ", movieOrShowQuery.rows[0]);
+    // console.log("Movie or Show Query: ", movieOrShowQuery.rows[0].type);
+    if(movieOrShowQuery.rows[0].type === "movie"){
       const movieQuery = await pool.query(
-        "SELECT * FROM movies_details WHERE id = $1",
+        "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
         [id]
       ); 
       const collectionQuery = await pool.query(
-        "SELECT name FROM collections WHERE collection_id = $1",
+        "SELECT name FROM collections WHERE id = $1",
         [movieQuery.rows[0].belongs_to_collection]
       );
       res.status(200).json({
-        moviesOrShow: movieOrShowQuery.rows[0],
+        id: movieOrShowQuery.rows[0].id,
+        title: movieOrShowQuery.rows[0].title,
+        type: movieOrShowQuery.rows[0].type,
+        image: movieOrShowQuery.rows[0].image,
+        startYear: movieOrShowQuery.rows[0].startYear,
+        endYear: movieOrShowQuery.rows[0].endYear,
+        rating: movieOrShowQuery.rows[0].rating,
+        numRating: movieOrShowQuery.rows[0].numRating,
+        popularity: movieOrShowQuery.rows[0].popularity,
+        description: movieOrShowQuery.rows[0].description,
+        user_rating: null,
+        duration: movieQuery.rows[0].duration,
+        budget: movieQuery.rows[0].budget,
+        revenue: movieQuery.rows[0].revenue,
         country: countryQuery.rows[0],
         language: LanguageQuery.rows[0],
-        genres: genreQuery.rows,
-        production: productionQuery.rows,
+        tags: genreQuery.rows,
+        productionCompany: productionQuery.rows,
         cast: castQuery.rows,
         crew: crewQuery.rows,
         collection: collectionQuery.rows[0],
-        movieDetails: movieQuery.rows[0]
+        // movieDetails: movieQuery.rows[0]
       });
     }
     else {
@@ -246,12 +268,23 @@ app.get("/getMovieShowDetails", async (req, res) => {
         "SELECT * FROM shows_details WHERE id = $1",
         [id]
       );
+      
       res.status(200).json({
-        moviesOrShow: movieOrShowQuery.rows[0],
+        id: movieOrShowQuery.rows[0].id,
+        title: movieOrShowQuery.rows[0].title,
+        type: movieOrShowQuery.rows[0].type,
+        image: movieOrShowQuery.rows[0].image,
+        startYear: movieOrShowQuery.rows[0].startYear,
+        endYear: movieOrShowQuery.rows[0].endYear,
+        rating: movieOrShowQuery.rows[0].rating,
+        numRating: movieOrShowQuery.rows[0].numRating,
+        popularity: movieOrShowQuery.rows[0].popularity,
+        description: movieOrShowQuery.rows[0].description,
+        user_rating: null,
         country: countryQuery.rows[0],
         language: LanguageQuery.rows[0],
-        genres: genreQuery.rows,
-        production: productionQuery.rows,
+        tags: genreQuery.rows,
+        productionCompany: productionQuery.rows,
         cast: castQuery.rows,
         crew: crewQuery.rows,
         episodes: episodeQuery.rows,
@@ -277,11 +310,11 @@ app.get("/getPersonDetails", async (req, res) => {
       return res.status(404).json({message: "Person not found"});
     }
     const moviesShowsCastQuery = await pool.query(
-      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,character, vote_average FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.movie_id WHERE cast_movies_shows.person_id = $1 order by popularity desc",
+      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,character, vote_average FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.id WHERE cast_movies_shows.person_id = $1 order by popularity desc",
       [id]
     );
     const moviesShowsCrewQuery = await pool.query(
-      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,job_title, vote_average FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.movie_id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
+      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,job_title, vote_average FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
       [id]
     );
     res.status(200).json({
@@ -298,7 +331,7 @@ app.get("/getMovieShowByGenreId", async (req, res) => {
   try {
     const { genre_id } = req.query;
     const movieOrShowQuery = await pool.query(
-      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE id IN (SELECT movie_id FROM movies_shows_genres WHERE genre_id = $1) ORDER BY popularity DESC, vote_average",
+      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE id IN (SELECT id FROM movies_shows_genres WHERE genre_id = $1) ORDER BY popularity DESC, vote_average",
       [genre_id]
     );
     const genreQuery = await pool.query(
@@ -361,73 +394,73 @@ app.get("/getShowsByPopularity", async (req, res) => {
   }
 });
 
-app.post("/submitRating", isAuthenticated, async (req, res) => {
-  try {
-    const { id, rating } = req.query;
-    const user_id = req.session.userId;
-    await pool.query(
-      "INSERT INTO movies_shows_reviews_ratings (user_id, id, rating) VALUES ($1, $2, $3)",
-      [user_id, id, rating]
-    );
-    await pool.query(
-      `UPDATE movies_shows
-      SET vote_average = ((vote_average * vote_count) + $1) / (vote_count + 1),
-          vote_count = vote_count + 1
-      WHERE id = $2`,
-      [rating, id]
-    );
-    res.status(200).json({
-      message: "Rating submitted successfully"
-    });
-  } catch (error) {
-    console.error("Error submitting rating:", error);
-    res.status(500).json({ message: "Error submitting rating" });
-  }
-});
+// app.post("/submitRating", isAuthenticated, async (req, res) => {
+//   try {
+//     const { id, rating } = req.query;
+//     const username = req.session.username;
+//     await pool.query(
+//       "INSERT INTO movies_shows_reviews_ratings (username, id, rating) VALUES ($1, $2, $3)",
+//       [username, id, rating]
+//     );
+//     await pool.query(
+//       `UPDATE movies_shows
+//       SET vote_average = ((vote_average * vote_count) + $1) / (vote_count + 1),
+//           vote_count = vote_count + 1
+//       WHERE id = $2`,
+//       [rating, id]
+//     );
+//     res.status(200).json({
+//       message: "Rating submitted successfully"
+//     });
+//   } catch (error) {
+//     console.error("Error submitting rating:", error);
+//     res.status(500).json({ message: "Error submitting rating" });
+//   }
+// });
 
-app.post("/submitEpisodeRating", isAuthenticated, async (req, res) => {
-  try {
-    const { id, rating } = req.query;
-    const user_id = req.session.userId;
-    await pool.query(
-      "INSERT INTO episode_reviews_ratings (user_id, id, rating) VALUES ($1, $2, $3)",
-      [user_id, id, rating]
-    );
-    await pool.query(
-      `UPDATE episodes
-      SET vote_average = ((vote_average * vote_count) + $1) / (vote_count + 1),
-          vote_count = vote_count + 1
-      WHERE id = $2`,
-      [rating, id]
-    );
-    const seasonResult = await pool.query(
-      "SELECT season_id FROM episodes WHERE id = $1",
-      [id]
-    );
-    const season_id = seasonResult.rows[0].season_id;
-    await pool.query(
-      `UPDATE seasons
-      SET vote_average = (SELECT CASE WHEN SUM(vote_count) = 0 THEN 0 ELSE SUM(vote_average * vote_count) / SUM(vote_count) END FROM episodes WHERE season_id = $1),
-      WHERE id = $1`,
-      [season_id]
-    );
-    res.status(200).json({
-      message: "Rating submitted successfully"
-    });
-  } catch (error) {
-    console.error("Error submitting rating:", error);
-    res.status(500).json({ message: "Error submitting rating" });
-  }
-});
+// app.post("/submitEpisodeRating", isAuthenticated, async (req, res) => {
+//   try {
+//     const { id, rating } = req.query;
+//     const username = req.session.username;
+//     await pool.query(
+//       "INSERT INTO episode_reviews_ratings (username, id, rating) VALUES ($1, $2, $3)",
+//       [username, id, rating]
+//     );
+//     await pool.query(
+//       `UPDATE episodes
+//       SET vote_average = ((vote_average * vote_count) + $1) / (vote_count + 1),
+//           vote_count = vote_count + 1
+//       WHERE id = $2`,
+//       [rating, id]
+//     );
+//     const seasonResult = await pool.query(
+//       "SELECT season_id FROM episodes WHERE id = $1",
+//       [id]
+//     );
+//     const season_id = seasonResult.rows[0].season_id;
+//     await pool.query(
+//       `UPDATE seasons
+//       SET vote_average = (SELECT CASE WHEN SUM(vote_count) = 0 THEN 0 ELSE SUM(vote_average * vote_count) / SUM(vote_count) END FROM episodes WHERE season_id = $1),
+//       WHERE id = $1`,
+//       [season_id]
+//     );
+//     res.status(200).json({
+//       message: "Rating submitted successfully"
+//     });
+//   } catch (error) {
+//     console.error("Error submitting rating:", error);
+//     res.status(500).json({ message: "Error submitting rating" });
+//   }
+// });
 
-app.post("/submitReview", isAuthenticated, async (req, res) => {
+app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
   try {
     const { id, rating, review } = req.query;
-    const user_id = req.session.userId;
+    const username = req.session.username;
 
     const ratingOrReviewExists = await pool.query(
-      "SELECT * FROM movies_shows_reviews_ratings WHERE user_id = $1 AND id = $2",
-      [user_id, id]
+      "SELECT * FROM movies_shows_reviews_ratings WHERE username = $1 AND id = $2",
+      [username, id]
     );
 
     if(ratingOrReviewExists.rows.length > 0){
@@ -439,8 +472,8 @@ app.post("/submitReview", isAuthenticated, async (req, res) => {
           [ratingOrReviewExists.rows[0].rating, rating, id]
         );
         await pool.query(
-            "UPDATE movies_shows_reviews_ratings SET rating = $1, review = $2 WHERE user_id = $3 AND id = $4",
-            [rating, review, user_id, id]
+            "UPDATE movies_shows_reviews_ratings SET rating = $1, review = $2 WHERE username = $3 AND id = $4",
+            [rating, review, username, id]
         );
     }
     else{
@@ -452,8 +485,8 @@ app.post("/submitReview", isAuthenticated, async (req, res) => {
           [rating, id]
         );
       await pool.query(
-          "INSERT INTO movies_shows_reviews_ratings (user_id, id, rating, review) VALUES ($1, $2, $3, $4)",
-          [user_id, id, rating, review]
+          "INSERT INTO movies_shows_reviews_ratings (username, id, rating, review) VALUES ($1, $2, $3, $4)",
+          [username, id, rating, review]
         );
     }
     res.status(200).json({
@@ -465,13 +498,13 @@ app.post("/submitReview", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/submitEpisodeReview", isAuthenticated, async (req, res) => {
+app.post("/submitEpisodeRatingReview", isAuthenticated, async (req, res) => {
   try {
     const { id, rating, review } = req.query;
-    const user_id = req.session.userId;
+    const username = req.session.userId;
     const ratingOrReviewExists = await pool.query(
-      "SELECT * FROM episode_reviews_ratings WHERE user_id = $1 AND id = $2",
-      [user_id, id]
+      "SELECT * FROM episode_reviews_ratings WHERE username = $1 AND id = $2",
+      [username, id]
     );
     if(ratingOrReviewExists.rows.length > 0){
         await pool.query(
@@ -482,8 +515,8 @@ app.post("/submitEpisodeReview", isAuthenticated, async (req, res) => {
           [ratingOrReviewExists.rows[0].rating, rating, id]
         );
         await pool.query(
-            "UPDATE episode_reviews_ratings SET rating = $1, review = $2 WHERE user_id = $3 AND id = $4",
-            [rating, review, user_id, id]
+            "UPDATE episode_reviews_ratings SET rating = $1, review = $2 WHERE username = $3 AND id = $4",
+            [rating, review, username, id]
         );
     }
     else{
@@ -495,8 +528,8 @@ app.post("/submitEpisodeReview", isAuthenticated, async (req, res) => {
           [rating, id]
         );
       await pool.query(
-          "INSERT INTO episode_reviews_ratings (user_id, id, rating, review) VALUES ($1, $2, $3, $4)",
-          [user_id, id, rating, review]
+          "INSERT INTO episode_reviews_ratings (username, id, rating, review) VALUES ($1, $2, $3, $4)",
+          [username, id, rating, review]
         );
     }
     res.status(200).json({
