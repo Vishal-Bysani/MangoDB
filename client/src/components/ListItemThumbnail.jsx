@@ -8,20 +8,19 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails }) => {
     const [rowLimit, setRowLimit] = useState(5);
     const containerRef = useRef(null);
     const thumbnailRef = useRef(null);
+    const sliderRef = useRef(null);
 
     useEffect(() => {
         const calculateRowLimit = () => {
-            if (!containerRef.current || !thumbnailRef.current) return;
+            if (!containerRef.current) return;
             const containerWidth = containerRef.current.clientWidth;
-            const thumbnailElement = thumbnailRef.current;
-            const thumbnailStyles = window.getComputedStyle(thumbnailElement);
-            const thumbnailWidth = thumbnailElement.offsetWidth + 
-                parseFloat(thumbnailStyles.marginLeft) + 
-                parseFloat(thumbnailStyles.marginRight);
             const buttonWidth = 50;
-            const availableWidth = containerWidth - (buttonWidth * 2);
-            const calculatedLimit = Math.floor(availableWidth / thumbnailWidth);
+            const gapWidth = 20;
+            const availableWidth = containerWidth - (buttonWidth * 2) - (gapWidth * 2);
+            const itemWidth = 200;
+            const calculatedLimit = Math.floor(availableWidth / (itemWidth + gapWidth));
             const newRowLimit = Math.max(1, Math.min(calculatedLimit, itemThumbnails.length));
+            
             if (newRowLimit !== rowLimit) {
                 setRowLimit(newRowLimit);
                 if (startingIndex + newRowLimit > itemThumbnails.length) {
@@ -38,6 +37,15 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails }) => {
             window.removeEventListener('resize', handleResize);
         };
     }, [itemThumbnails.length, rowLimit, startingIndex]);
+        
+    useEffect(() => {
+        if (sliderRef.current) {
+            const itemWidth = 200;
+            const gapWidth = 25;
+            const offset = startingIndex * (itemWidth + gapWidth);
+            sliderRef.current.style.transform = `translateX(-${offset}px)`;
+        }
+    }, [startingIndex]);
 
     const handleNext = () => {
         if (startingIndex + 2 * rowLimit < itemThumbnails.length) {
@@ -61,23 +69,32 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails }) => {
                 <button className="listItemThumbnail-button" onClick={handlePrevious} disabled={startingIndex === 0}>
                     <p className="backward-arrow"></p>
                 </button>
-                <div className="listItemThumbnail-item-thumbnail-grid">
-                    {itemThumbnails.slice(startingIndex, startingIndex + rowLimit).map((itemThumbnail, index) => (
-                        <ItemThumbnail 
-                            key={itemThumbnail.itemId}
-                            ref={index === 0 ? thumbnailRef : null}
-                            itemId={itemThumbnail.id}
-                            title={itemThumbnail.title}
-                            image={itemThumbnail.image}
-                            year={itemThumbnail.year}
-                            rating={itemThumbnail.rating}
-                            userRating={itemThumbnail.userRating}
-                            startYear={itemThumbnail.startYear}
-                            endYear={itemThumbnail.endYear}
-                            cast={itemThumbnail.cast}
-                            crew={itemThumbnail.crew}
-                        />
-                    ))}
+                <div className="listItemThumbnail-item-viewport">
+                    <div 
+                        className="listItemThumbnail-item-slider" 
+                        ref={sliderRef}
+                    >
+                        {itemThumbnails.map((itemThumbnail, index) => (
+                            <div 
+                                key={itemThumbnail.itemId || index} 
+                                className="listItemThumbnail-item-wrapper"
+                                ref={index === 0 ? thumbnailRef : null}
+                            >
+                                <ItemThumbnail 
+                                    itemId={itemThumbnail.id}
+                                    title={itemThumbnail.title}
+                                    image={itemThumbnail.image}
+                                    year={itemThumbnail.year}
+                                    rating={itemThumbnail.rating}
+                                    userRating={itemThumbnail.userRating}
+                                    startYear={itemThumbnail.startYear}
+                                    endYear={itemThumbnail.endYear}
+                                    cast={itemThumbnail.cast}
+                                    crew={itemThumbnail.crew}
+                                />
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 <button className="listItemThumbnail-button" onClick={handleNext} disabled={startingIndex + rowLimit >= itemThumbnails.length}>
                     <p className="forward-arrow"></p>

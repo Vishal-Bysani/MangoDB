@@ -43,8 +43,8 @@ const Home = () => {
         <>
             <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             <div className="home-container">
-                <ListItemThumbnail title="Trending Movies" titleFontSize="44px" itemThumbnails={trendingMovies} />
-                <ListItemThumbnail title="Trending Shows" titleFontSize="44px" itemThumbnails={trendingShows} />
+                { trendingMovies && trendingMovies.length > 0 && <ListItemThumbnail title="Trending Movies" titleFontSize="44px" itemThumbnails={trendingMovies} /> }
+                { trendingShows && trendingShows.length > 0 && <ListItemThumbnail title="Trending Shows" titleFontSize="44px" itemThumbnails={trendingShows} /> }
             </div>
         </>
     );

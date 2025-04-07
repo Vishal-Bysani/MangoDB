@@ -141,7 +141,7 @@ app.get("/getMatchingItem", async (req, res) => {
     const { text } = req.query;
 
     const movieQuery = await pool.query(
-      "SELECT id, title, category as type, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", NULL as \"endYear\", vote_average as rating FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC LIMIT 20",
+      "SELECT id, title, category as type, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC LIMIT 20",
       [`%${text}%`]
     );
 
@@ -281,7 +281,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         popularity: movieOrShowQuery.rows[0].popularity,
         description: movieOrShowQuery.rows[0].description,
         user_rating: null,
-        country: countryQuery.rows[0],
+        country: countryQuery.rows[0].english_name,
         language: LanguageQuery.rows[0],
         tags: genreQuery.rows,
         productionCompany: productionQuery.rows,

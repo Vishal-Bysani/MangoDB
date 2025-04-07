@@ -51,6 +51,7 @@ const signupUser = async (username, password, email) => {
 const getItemDetails = async (itemId) => {
     const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`);
     const data = await response.json();
+    console.log(data);
     return data;
 }
 
@@ -241,7 +242,7 @@ const getTrendingMovies = async (pageNo = 1, pageLimit = 25) => {
 
 const getTrendingShows = async (pageNo = 1, pageLimit = 25) => {
     const response = await fetch(`${apiUrl}/getShowsByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`);
-    const data = await response.json(); 
+    const data = await response.json();
     return data.shows;
 }
 
@@ -269,7 +270,6 @@ const getFilteredItems = async ({personId = null,
     if (pageLimit) baseUrl += `pageLimit=${pageLimit}&`;
     const response = await fetch(baseUrl);
     const data = await response.json();
-    console.log(data.items);
     return data.items;
     return [
         { itemId: 8, title: "The Office", rating: 9.0, image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },

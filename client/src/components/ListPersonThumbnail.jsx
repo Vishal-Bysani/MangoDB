@@ -7,6 +7,7 @@ const ListPersonThumbnail = ({ title, titleFontSize = "30px", personThumbnails }
     const [rowLimit, setRowLimit] = useState(4);
     const containerRef = useRef(null);
     const thumbnailRef = useRef(null);
+    const sliderRef = useRef(null);
 
     useEffect(() => {
         const calculateRowLimit = () => {
@@ -38,6 +39,15 @@ const ListPersonThumbnail = ({ title, titleFontSize = "30px", personThumbnails }
         };
     }, [personThumbnails.length, rowLimit, startingIndex]);
 
+    useEffect(() => {
+        if (sliderRef.current) {
+            const itemWidth = 200;
+            const gapWidth = 25;
+            const offset = startingIndex * (itemWidth + gapWidth);
+            sliderRef.current.style.transform = `translateX(-${offset}px)`;
+        }
+    }, [startingIndex]);
+
     const handleNext = () => {
         if (startingIndex + 2 * rowLimit < personThumbnails.length) {
             setStartingIndex(startingIndex + rowLimit);
@@ -60,17 +70,26 @@ const ListPersonThumbnail = ({ title, titleFontSize = "30px", personThumbnails }
                 <button className="listPersonThumbnail-button" onClick={handlePrevious} disabled={startingIndex === 0}>
                     <p className="backward-arrow"></p>
                 </button>
-                <div className="listPersonThumbnail-grid">
-                    {personThumbnails.slice(startingIndex, startingIndex + rowLimit).map((personThumbnail, index) => (
-                        <PersonThumbnail
-                            key={personThumbnail.id}
-                            ref={index === 0 ? thumbnailRef : null}
-                            personId={personThumbnail.id}
-                            name={personThumbnail.name}
-                            image={personThumbnail.image}
-                            character={personThumbnail.character}
-                        />
-                    ))}
+                <div className="listPersonThumbnail-item-viewport">
+                    <div 
+                        className="listPersonThumbnail-item-slider" 
+                        ref={sliderRef}
+                    >
+                        {personThumbnails.map((personThumbnail, index) => (
+                            <div 
+                                key={personThumbnail.id || index} 
+                                className="listPersonThumbnail-item-wrapper"
+                                ref={index === 0 ? thumbnailRef : null}
+                            >
+                                <PersonThumbnail 
+                                    personId={personThumbnail.id}
+                                    name={personThumbnail.name}
+                                    image={personThumbnail.image}
+                                    character={personThumbnail.character}
+                                />
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 <button className="listPersonThumbnail-button" onClick={handleNext} disabled={startingIndex + rowLimit >= personThumbnails.length}>
                     <p className="forward-arrow"></p>

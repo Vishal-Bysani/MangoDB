@@ -20,17 +20,15 @@ const Genre = () => {
                 response.json().then(data => {
                     setLoggedInData(data);
                 });
-            } else {
-                navigate("/login");
             }
         });
     }, []);
 
     useEffect(() => {
         const fetchGenre = async () => {
-            const movies = await getFilteredItems({genreId: genreId, type: "movie"});
+            const movies = await getFilteredItems({genreId: genreId, forMovie: true, forShow: false});
             setGenreMovies(movies);
-            const shows = await getFilteredItems({genreId: genreId, type: "show"});
+            const shows = await getFilteredItems({genreId: genreId, forMovie: false, forShow: true});
             setGenreShows(shows);
             setLoading(false);
             setGenreName(location.state.name);
@@ -47,8 +45,8 @@ const Genre = () => {
             <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             <div className="genre-container">
                 <h1 className="genre-title">{genreName}</h1>
-                <ListItemThumbnail title={`Popular ${genreName} Movies`} titleFontSize="44px" itemThumbnails={genreMovies} />
-                <ListItemThumbnail title={`Popular ${genreName} Shows`} titleFontSize="44px" itemThumbnails={genreShows} />
+                { genreMovies && genreMovies.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Movies`} titleFontSize="44px" itemThumbnails={genreMovies} /> }
+                { genreShows && genreShows.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Shows`} titleFontSize="44px" itemThumbnails={genreShows} /> }
             </div>
         </>
     );

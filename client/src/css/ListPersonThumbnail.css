@@ -30,9 +30,30 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
     gap: 20px;
 }
 
 .listPersonThumbnail-button:hover {
     background-color: #333;
+}
+
+
+.listPersonThumbnail-item-viewport {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.listPersonThumbnail-item-slider {
+    display: flex;
+    position: relative;
+    transition: transform 0.3s ease-out;
+    width: max-content;
+}
+
+.listPersonThumbnail-item-wrapper {
+    width: 200px;
+    margin-right: 25px;
 }

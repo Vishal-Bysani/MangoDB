@@ -148,7 +148,7 @@ const Item = () => {
             </Popup>
 
             <div className="item-page">
-                {item.type === "tvseries" && (
+                {item.type === "tv" && (
                     <>
                         <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/episodes`)}>
                             <p style={{textDecoration: 'none'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Episode Guide</p>
@@ -167,7 +167,7 @@ const Item = () => {
                             > ❤ </button>
                         </div>
                         <div className="item-metadata">
-                            {item.type === "tvseries" ? (
+                            {item.type === "tv" ? (
                                 <>
                                     <span>TV Series</span>
                                     <span>&nbsp;·&nbsp;</span>
@@ -180,19 +180,28 @@ const Item = () => {
                                     <span>&nbsp;·&nbsp;</span>
                                 </>
                             )}
-                            <span>{item.contentRating}</span>
-                            <span>&nbsp;·&nbsp;</span>
-                            {Math.floor(item.duration/60) > 0 ? (
+                            { item.contentRating && 
+                                <>
+                                    <span>{item.contentRating}</span> 
+                                    <span>&nbsp;·&nbsp;</span> 
+                                </>
+                            }
+                            { item.duration && Math.floor(item.duration/60) > 0 ? (
                                 <>
                                     <span>{Math.floor(item.duration/60)}h {item.duration%60}m</span>
+                                    <span>&nbsp;·&nbsp;</span>
                                 </>
-                            ) : (
+                            ) : ( item.duration && 
                                 <>
                                     <span>{item.duration%60}m</span>
+                                    <span>&nbsp;·&nbsp;</span>
                                 </>
                             )}
-                            <span>&nbsp;·&nbsp;</span>
-                            <span>{item.country}</span>
+                            { item.country && 
+                                <>
+                                    <span>{item.country}</span>
+                                </>
+                            }
                         </div>
                     </div>
                     <div className="item-sidebar">

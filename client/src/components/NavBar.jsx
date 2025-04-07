@@ -88,7 +88,8 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
                     <div className="search-result-info">
                       <div className="search-result-text">
                         <div className="search-result-title">{item.title}</div>
-                        { item.startYear && <div className="search-result-year">{item.startYear}</div> }
+                        { item.startYear && !item.endYear && <div className="search-result-year">{item.startYear}</div> }
+                        { item.startYear && item.endYear && <div className="search-result-year">{item.startYear} - {item.endYear}</div> }
                         { item.role && <div className="search-result-year">{item.role}</div> }
                         { item.actors && <div className="search-result-actors">{item.actors.slice(0, 2).join(", ")}</div> }
                       </div>
