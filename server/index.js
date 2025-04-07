@@ -309,12 +309,16 @@ app.get("/getPersonDetails", async (req, res) => {
     if(personQuery.rows.length === 0){
       return res.status(400).json({message: "Person not found"});
     }
-    const moviesShowsQuery = await pool.query(
+    const moviesShowsCastQuery = await pool.query(
       "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,character, vote_average FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.id WHERE cast_movies_shows.person_id = $1 order by popularity desc",
       [id]
     );
     const moviesShowsCrewQuery = await pool.query(
       "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,job_title, vote_average,department_name FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
+      [id]
+    );
+    const distinctRoles = await pool.query(
+      "SELECT DISTINCT job_title as role FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
       [id]
     );
     res.status(200).json({
@@ -327,7 +331,8 @@ app.get("/getPersonDetails", async (req, res) => {
       deathday: personQuery.rows[0].deathday,
       // person: personQuery.rows[0],
       cast : moviesShowsCastQuery.rows,
-      crew : moviesShowsCrewQuery.rows
+      crew : moviesShowsCrewQuery.rows,
+      roles : distinctRoles.rows,
     });
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
