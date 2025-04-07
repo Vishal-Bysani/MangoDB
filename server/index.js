@@ -339,6 +339,7 @@ app.get("/getPersonDetails", async (req, res) => {
     res.status(500).json({ message: "Error getting movie details" });
   }
 });
+
 app.get("/getMovieShowByGenreId", async (req, res) => {
   try {
     const { genre_id, pageNo, pageLimit } = req.query;
@@ -363,6 +364,7 @@ app.get("/getMovieShowByGenreId", async (req, res) => {
     res.status(500).json({ message: "Error getting movie details" });
   }
 });
+
 app.get("/getMovieShowByCollectionId", async (req, res) => {
   try {
     const { collection_id, pageNo, pageLimit } = req.query;
@@ -387,6 +389,7 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
     res.status(500).json({ message: "Error getting movie details" });
   }
 });
+
 app.get("/getMoviesByPopularity", async (req, res) => {
   try {
     const {pageNo, pageLimit} = req.query;
@@ -406,6 +409,7 @@ app.get("/getMoviesByPopularity", async (req, res) => {
     res.status(500).json({ message: "Error getting movie details" });
   }
 });
+
 app.get("/getShowsByPopularity", async (req, res) => {
   try {
     const {pageNo, pageLimit} = req.query;
@@ -536,6 +540,31 @@ app.get("/filterItems", async (req, res) => {
   }
 });
 
+app.get("/listGenres", async (req, res) => {
+  try {
+    const genreQuery = await pool.query(
+      "SELECT id, name FROM genres ORDER BY name"
+    );
+    res.status(200).json(genreQuery.rows);
+  } catch (error) {
+    console.error("Error fetching genres:", error);
+    res.status(500).json({ message: "Error getting genres" });
+  }
+});
+
+app.get("/matchingPersons", async (req, res) => {
+  try {
+    const { searchText } = req.query;
+    const personQuery = await pool.query(
+      "SELECT id, name, popularity, profile_path, known_for_department as image FROM person WHERE name ILIKE $1 ORDER BY popularity DESC",
+      [`${searchText}%`]
+    );
+    res.status(200).json(personQuery.rows);
+  } catch (error) {
+    console.error("Error fetching persons:", error);
+    res.status(500).json({ message: "Error getting persons" });
+  }
+});
 
 // app.post("/submitRating", isAuthenticated, async (req, res) => {
 //   try {
