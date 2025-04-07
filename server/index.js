@@ -332,7 +332,7 @@ app.get("/getPersonDetails", async (req, res) => {
       // person: personQuery.rows[0],
       cast : moviesShowsCastQuery.rows,
       crew : moviesShowsCrewQuery.rows,
-      roles : distinctRoles.rows.concat(personQuery.rows[0].known_for_department),
+      roles : distinctRoles.rows.map(role => role.role).concat(personQuery.rows[0].known_for_department),
     });
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
@@ -387,7 +387,7 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
     res.status(500).json({ message: "Error getting movie details" });
   }
 });
-app.get("/getMovieByPopularity", async (req, res) => {
+app.get("/getMoviesByPopularity", async (req, res) => {
   try {
     const {pageNo, pageLimit} = req.query;
     const page = parseInt(pageNo);
@@ -395,7 +395,7 @@ app.get("/getMovieByPopularity", async (req, res) => {
     const offset = (page - 1) * limit;
 
     const movieQuery = await pool.query(
-      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE category = 'movie' ORDER BY popularity DESC, vote_average DESC"
+      "SELECT id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as year, vote_average as rating FROM movies_shows WHERE category = 'movie' ORDER BY popularity DESC, rating DESC"
     );
     
     res.status(200).json({
@@ -414,10 +414,10 @@ app.get("/getShowsByPopularity", async (req, res) => {
     const offset = (page - 1) * limit;
 
     const ShowQuery = await pool.query(
-      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE category = 'tv' ORDER BY popularity DESC, vote_average DESC"
+      "SELECT id, title, category, poster_path AS image, EXTRACT(YEAR FROM release_date) as year, vote_average as rating FROM movies_shows WHERE category = 'tv' ORDER BY popularity DESC, rating DESC"
     );
     res.status(200).json({
-      Shows : ShowQuery.rows.slice(offset, offset + limit)
+      shows : ShowQuery.rows.slice(offset, offset + limit)
     });
   } catch (error) {
     console.error("Error fetching shows: ", error);
