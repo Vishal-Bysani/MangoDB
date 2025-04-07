@@ -425,6 +425,118 @@ app.get("/getShowsByPopularity", async (req, res) => {
   }
 });
 
+app.get("/filterItems", async (req, res) => {
+  try {
+    const {
+      personId,
+      genreId,
+      year,
+      minRating,
+      orderByRating,
+      orderByPopularity,
+      forMovie,
+      forShow,
+      pageNo = 1,
+      pageLimit = 10,
+    } = req.query;
+
+    const page = parseInt(pageNo);
+    const limit = parseInt(pageLimit);
+    const offset = (page - 1) * limit;
+
+    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path, ms.release_date, ms.end_date, ms.vote_average FROM movies_shows ms";
+
+    const conditions = [];
+    const values = [];
+    let idx = 1;
+
+    // Join with genres
+    if (genreId) {
+      baseQuery += " JOIN movies_shows_genres msg ON ms.id = msg.id";
+      conditions.push(`msg.genre_id = $${idx++}`);
+      values.push(genreId);
+    }
+
+    // Join with crew and cast
+    if (personId) {
+      baseQuery += ` JOIN crew_movies_shows msc ON ms.id = msc.id`;
+      conditions.push(`msc.person_id = $${idx++}`);
+      values.push(personId);
+
+      baseQuery += ` JOIN cast_movies_shows cmv ON ms.id = cmv.id`;
+      conditions.push(`cmv.person_id = $${idx++}`);
+      values.push(personId);
+    }
+
+    // Year filter
+    if (year) {
+      conditions.push(`EXTRACT(YEAR FROM ms.release_date) = $${idx++}`);
+      values.push(year);
+    }
+
+    // Rating filter
+    if (minRating) {
+      conditions.push(`ms.vote_average >= $${idx++}`);
+      values.push(minRating);
+    }
+
+    // forMovie / forShow filter
+    if (forMovie && forShow) {
+      conditions.push(`(ms.category = 'movie' OR ms.category = 'tv')`);
+    } else if (forMovie) {
+      conditions.push(`ms.category = 'movie'`);
+    } else if (forShow) {
+      conditions.push(`ms.category = 'tv'`);
+    }
+
+    if (conditions.length) {
+      baseQuery += ` WHERE ` + conditions.join(" AND ");
+    }
+
+    // ORDER BY
+    const orderConditions = [];
+    if (orderByPopularity) orderConditions.push(`ms.popularity DESC`);
+    if (orderByRating) orderConditions.push(`ms.vote_average DESC`);
+    if (!orderConditions.length) orderConditions.push(`ms.popularity DESC`);
+
+    baseQuery += ` ORDER BY ${orderConditions.join(", ")}`;
+
+    baseQuery += ` LIMIT $${idx++} OFFSET $${idx++}`;
+    values.push(limit, offset);
+
+    const movies = await pool.query(baseQuery, values);
+    movies = movies.rows;
+    // fetch the cast for the movies/shows in the result as a list of rows where each set of rows corresponds to a movie/show
+
+    const castList = [];
+    const crewList = [];
+
+    for (const movie of movies) {
+      const castResult = await pool.query(
+        "SELECT name FROM cast_movies_shows WHERE id = $1",
+        [movie.id]
+      );
+
+      const crewResult = await pool.query(
+        "SELECT name FROM crew_movies_shows WHERE id = $1",
+        [movie.id]
+      );
+
+      castList.push(castResult.rows.map((r) => r.name));
+      crewList.push(crewResult.rows.map((r) => r.name));
+    }
+    res.status(200).json({
+        movies : result.rows,
+        cast : castList,
+        crew : crewList
+    })
+  } catch (error) {
+    console.error("Error fetching filtered items:", error);
+    res.status(500).json({ message: "Error getting movie/show details" });
+  }
+});
+
+
 // app.post("/submitRating", isAuthenticated, async (req, res) => {
 //   try {
 //     const { id, rating } = req.query;
