@@ -310,11 +310,11 @@ app.get("/getPersonDetails", async (req, res) => {
       return res.status(400).json({message: "Person not found"});
     }
     const moviesShowsCastQuery = await pool.query(
-      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,character, vote_average FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.id WHERE cast_movies_shows.person_id = $1 order by popularity desc",
+      "SELECT movies_shows.id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as year, character, vote_average as rating FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.id WHERE cast_movies_shows.person_id = $1 order by popularity desc",
       [id]
     );
     const moviesShowsCrewQuery = await pool.query(
-      "SELECT movies_shows.id, title, category, poster_path, release_date,end_date,job_title, vote_average,department_name FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
+      "SELECT movies_shows.id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as year, job_title as role, vote_average as rating FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
       [id]
     );
     const distinctRoles = await pool.query(
@@ -329,9 +329,7 @@ app.get("/getPersonDetails", async (req, res) => {
       description: personQuery.rows[0].biography,
       birthday: personQuery.rows[0].birthday,
       deathday: personQuery.rows[0].deathday,
-      // person: personQuery.rows[0],
-      cast : moviesShowsCastQuery.rows,
-      crew : moviesShowsCrewQuery.rows,
+      knownFor : moviesShowsCastQuery.rows.concat(moviesShowsCrewQuery.rows),
       roles : distinctRoles.rows.map(role => role.role).concat(personQuery.rows[0].known_for_department),
     });
   } catch (error) {
