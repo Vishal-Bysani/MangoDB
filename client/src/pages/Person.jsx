@@ -62,7 +62,7 @@ const Person = () => {
                                 <p style={{fontSize: '15px', fontWeight: 'bold'}} >POPULARITY</p>
                                 <div className="popularity-score">
                                     <span className="arrow">🔥</span>
-                                    <span style={{marginTop: '5px', fontWeight: 'bold'}}>{parseInt(person.popularity).toFixed(1)}</span>
+                                    <span style={{marginTop: '5px', fontWeight: 'bold'}}>{parseFloat(person.popularity).toFixed(1)}</span>
                                 </div>
                             </div>
                         </div>

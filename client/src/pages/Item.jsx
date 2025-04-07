@@ -218,7 +218,7 @@ const Item = () => {
                                 <div className="star-rating">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                         <span className="star">★</span>
-                                        <span className="rating-value">{parseInt(item.rating).toFixed(1)}/10</span>
+                                        <span className="rating-value">{parseFloat(item.rating).toFixed(1)}/10</span>
                                     </div>
                                     <span className="rating-count">{parseInt(item.numRating) >= 1000000 ? ( Math.floor(parseInt(item.numRating)/100000)/10 + ' M') : ( parseInt(item.numRating) >= 1000 ? (  Math.floor(parseInt(item.numRating)/100)/10 + ' K') : (item.numRating) )}</span>
                                 </div>
@@ -249,7 +249,7 @@ const Item = () => {
                                 <h4 style={{fontSize: '15px', fontWeight: 'bold'}} >POPULARITY</h4>
                                 <div className="popularity-score">
                                     <span className="arrow">🔥</span>
-                                    <span style={{marginTop: '5px', fontWeight: 'bold'}}>{parseInt(item.popularity).toFixed(1)}</span>
+                                    <span style={{marginTop: '5px', fontWeight: 'bold'}}>{parseFloat(item.popularity).toFixed(1)}</span>
                                 </div>
                             </div>
                         </div>
@@ -361,7 +361,7 @@ const Item = () => {
                             <div key={review.id} className="review">
                                 <div className="review-rating">
                                     <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                    {parseInt(review.rating).toFixed(1)}/10
+                                    {parseFloat(review.rating).toFixed(1)}/10
                                 </div>
                                 <div className="review-text">
                                     {review.text}
