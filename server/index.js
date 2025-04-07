@@ -448,7 +448,7 @@ app.get("/filterItems", async (req, res) => {
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
-    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path, ms.release_date, ms.end_date, ms.vote_average FROM movies_shows ms";
+    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path, ms.release_date, ms.end_date, ms.vote_average, ms.popularity FROM movies_shows ms";
 
     const conditions = [];
     const values = [];
