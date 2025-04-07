@@ -214,11 +214,11 @@ app.get("/getMovieShowDetails", async (req, res) => {
       [id]
     );
     const castQuery = await pool.query(
-      "SELECT person.id, name, character, profile_path AS image FROM person JOIN cast_movies_shows ON person.id = cast_movies_shows.person_id WHERE cast_movies_shows.id = $1",
+      "SELECT person.id, name, character, profile_path AS image FROM person JOIN cast_movies_shows ON person.id = cast_movies_shows.person_id WHERE cast_movies_shows.id = $1 ORDER BY person.popularity DESC",
       [id]
     );
     const crewQuery = await pool.query(
-      "SELECT person.id, name, department_name, job_title, profile_path AS image FROM person JOIN crew_movies_shows ON person.id = crew_movies_shows.person_id WHERE crew_movies_shows.id = $1",
+      "SELECT person.id, name, department_name, job_title, profile_path AS image FROM person JOIN crew_movies_shows ON person.id = crew_movies_shows.person_id WHERE crew_movies_shows.id = $1 ORDER BY person.popularity DESC",
       [id]
     );
     if(movieOrShowQuery.rows[0].type === "movie"){
@@ -336,7 +336,11 @@ app.get("/getPersonDetails", async (req, res) => {
 });
 app.get("/getMovieShowByGenreId", async (req, res) => {
   try {
-    const { genre_id } = req.query;
+    const { genre_id, pageNo, pageLimit } = req.query;
+    const page = parseInt(pageNo);
+    const limit = parseInt(pageLimit);
+    const offset = (page - 1) * limit;
+
     const movieOrShowQuery = await pool.query(
       "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE id IN (SELECT id FROM movies_shows_genres WHERE genre_id = $1) ORDER BY popularity DESC, vote_average",
       [genre_id]
@@ -346,7 +350,7 @@ app.get("/getMovieShowByGenreId", async (req, res) => {
       [genre_id]
     );
     res.status(200).json({
-      moviesOrShow: movieOrShowQuery.rows,
+      moviesOrShow: movieOrShowQuery.rows.slice(offset, offset + limit),
       genre: genreQuery.rows[0]
     });
   } catch (error) {
@@ -356,7 +360,11 @@ app.get("/getMovieShowByGenreId", async (req, res) => {
 });
 app.get("/getMovieShowByCollectionId", async (req, res) => {
   try {
-    const { collection_id } = req.query;
+    const { collection_id, pageNo, pageLimit } = req.query;
+    const page = parseInt(pageNo);
+    const limit = parseInt(pageLimit);
+    const offset = (page - 1) * limit;
+
     const movieOrShowQuery = await pool.query(
       "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE collection_id = $1 ORDER BY popularity DESC, vote_average",
       [collection_id]
@@ -366,7 +374,7 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
       [collection_id]
     );
     res.status(200).json({
-      moviesOrShow: movieOrShowQuery.rows,
+      moviesOrShow: movieOrShowQuery.rows.slice(offset, offset + limit),
       collection: collectionQuery.rows[0]
     });
   } catch (error) {
@@ -376,11 +384,17 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
 });
 app.get("/getMovieByPopularity", async (req, res) => {
   try {
+    const {pageNo, pageLimit} = req.query;
+    const page = parseInt(pageNo);
+    const limit = parseInt(pageLimit);
+    const offset = (page - 1) * limit;
+
     const movieQuery = await pool.query(
       "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE category = 'movie' ORDER BY popularity DESC, vote_average DESC"
     );
+    
     res.status(200).json({
-      movies: movieQuery.rows
+      movies : movieQuery.rows.slice(offset, offset + limit)
     });
   } catch (error) {
     console.error("Error fetching movies :", error);
@@ -389,11 +403,16 @@ app.get("/getMovieByPopularity", async (req, res) => {
 });
 app.get("/getShowsByPopularity", async (req, res) => {
   try {
+    const {pageNo, pageLimit} = req.query;
+    const page = parseInt(pageNo);
+    const limit = parseInt(pageLimit);
+    const offset = (page - 1) * limit;
+
     const ShowQuery = await pool.query(
       "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE category = 'tv' ORDER BY popularity DESC, vote_average DESC"
     );
     res.status(200).json({
-      Shows : ShowQuery.rows
+      Shows : ShowQuery.rows.slice(offset, offset + limit)
     });
   } catch (error) {
     console.error("Error fetching shows: ", error);
