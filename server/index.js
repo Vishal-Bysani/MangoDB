@@ -454,9 +454,23 @@ app.get("/filterItems", async (req, res) => {
 
     // Join with genres
     if (genreId) {
-      baseQuery += " JOIN movies_shows_genres msg ON ms.id = msg.id";
-      conditions.push(`msg.genre_id = $${idx++}`);
+      const genreName = await pool.query(
+        "SELECT name FROM genres WHERE id = $1",
+        [parseInt(genreId)]
+      );
+      genreName = genreName.rows[0].name;
+      // baseQuery += " JOIN movies_shows_genres msg ON ms.id = msg.id";
+      // conditions.push(`msg.genre_id = $${idx++}`);
+      // values.push(parseInt(genreId));
+  
+      //get movies/shows with that genre_id or containing the genre name in their genre string, or being contained in the genre name
+
+      baseQuery += ` JOIN movies_shows_genres msg ON ms.id = msg.id`;
+      baseQuery += ` JOIN genres g ON msg.genre_id = g.id`;
+      conditions.push(`msg.genre_id = $${idx++} OR g.name ILIKE $${idx++} OR $${idx++} ILIKE '%' || g.name || '%'`);
       values.push(parseInt(genreId));
+      values.push(`%${genreName}%`);
+      values.push(`%${genreName}%`);
     }
 
     // Join with crew and cast
