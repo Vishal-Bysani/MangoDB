@@ -528,7 +528,7 @@ app.get("/filterItems", async (req, res) => {
       crewList.push(crewResult.rows.map((r) => r.name));
     }
     res.status(200).json({
-        movies : result.rows,
+        items : movies,
         cast : castList,
         crew : crewList
     })
