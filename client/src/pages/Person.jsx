@@ -98,6 +98,12 @@ const Person = () => {
                                         </>
                                     )}
                                 </div>
+                                <div style={{display: "flex", gap: '10px'}}>
+                                    <span style={{display: 'flex'}}>
+                                        <p style={{fontWeight: 'bolder'}}>Gender:&nbsp;</p>
+                                        <p> {person.gender == 1 ? "Female" : person.gender == 2 ? "Male" : person.gender == 3 ? "Non-binary" : "-"} </p>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         { person.knownFor && person.knownFor.length > 0 && (

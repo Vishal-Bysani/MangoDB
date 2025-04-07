@@ -327,6 +327,7 @@ app.get("/getPersonDetails", async (req, res) => {
       deathday: personQuery.rows[0].deathday,
       knownFor : moviesShowsQuery.rows,
       roles : distinctRoles.rows.map(role => role.role).concat(personQuery.rows[0].known_for_department),
+      gender: personQuery.rows[0].gender,
     });
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
