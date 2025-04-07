@@ -10,10 +10,10 @@ const port = 4000;
 // PostgreSQL connection
 // NOTE: use YOUR postgres username and password here
 const pool = new Pool({
-  user: 'imdbuser',
+  user: 'atharva',
   host: 'localhost',
-  database: 'imdb',
-  password: '123',
+  database: 'atharva',
+  password: 'atharva',
   port: 5432,
 });
 
@@ -70,6 +70,7 @@ app.post('/signup', async (req, res) => {
     res.status(200).json({message: "User Registered Successfully"});
   }
   catch (error){
+    console.error("Error signing up:", error);
     res.status(500).json({message: "Error signing up"});
   }
 });
@@ -100,7 +101,8 @@ app.post("/login",  async (req, res) => {
     // console.log("User logged in successfully:", req.session);
     res.status(200).json({message:"Login successful"});
   }
-  catch{
+  catch (err) {
+    console.error("Error logging in:", err);
     res.status(500).json({message: "Error logging in"});
   }
 });
@@ -212,15 +214,13 @@ app.get("/getMovieShowDetails", async (req, res) => {
       [id]
     );
     const castQuery = await pool.query(
-      "SELECT person.id, name, character, profile_path FROM person JOIN cast_movies_shows ON person.id = cast_movies_shows.person_id WHERE cast_movies_shows.id = $1",
+      "SELECT person.id, name, character, profile_path AS image FROM person JOIN cast_movies_shows ON person.id = cast_movies_shows.person_id WHERE cast_movies_shows.id = $1",
       [id]
     );
     const crewQuery = await pool.query(
-      "SELECT person.id, name, department_name, job_title, profile_path FROM person JOIN crew_movies_shows ON person.id = crew_movies_shows.person_id WHERE crew_movies_shows.id = $1",
+      "SELECT person.id, name, department_name, job_title, profile_path AS image FROM person JOIN crew_movies_shows ON person.id = crew_movies_shows.person_id WHERE crew_movies_shows.id = $1",
       [id]
     );
-    // console.log("Movie or Show Query: ", movieOrShowQuery.rows[0]);
-    // console.log("Movie or Show Query: ", movieOrShowQuery.rows[0].type);
     if(movieOrShowQuery.rows[0].type === "movie"){
       const movieQuery = await pool.query(
         "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
@@ -245,7 +245,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         duration: movieQuery.rows[0].duration,
         budget: movieQuery.rows[0].budget,
         revenue: movieQuery.rows[0].revenue,
-        country: countryQuery.rows[0],
+        country: countryQuery.rows[0].english_name,
         language: LanguageQuery.rows[0],
         tags: genreQuery.rows,
         productionCompany: productionQuery.rows,
@@ -321,7 +321,7 @@ app.get("/getPersonDetails", async (req, res) => {
       id: personQuery.rows[0].id,
       name: personQuery.rows[0].name,
       popularity: personQuery.rows[0].popularity,
-      imageLink: personQuery.rows[0].profile_path,
+      image: personQuery.rows[0].profile_path,
       description: personQuery.rows[0].biography,
       birthday: personQuery.rows[0].birthday,
       deathday: personQuery.rows[0].deathday,
