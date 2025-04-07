@@ -72,6 +72,10 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails }) => {
                             year={itemThumbnail.year}
                             rating={itemThumbnail.rating}
                             userRating={itemThumbnail.userRating}
+                            startYear={itemThumbnail.startYear}
+                            endYear={itemThumbnail.endYear}
+                            cast={itemThumbnail.cast}
+                            crew={itemThumbnail.crew}
                         />
                     ))}
                 </div>
