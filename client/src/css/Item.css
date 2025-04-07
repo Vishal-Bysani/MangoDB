@@ -225,8 +225,9 @@ body {
 }
 
 .popularity-score {
+  margin-top: 12px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
 }
 

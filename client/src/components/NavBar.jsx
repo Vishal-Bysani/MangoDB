@@ -73,7 +73,7 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
                 <div 
                   key={item.id} 
                   className="search-result-item"
-                  onClick={item.popularity ? () => navigate(`/person/${item.id}`) : () => navigate(`/item/${item.id}`)}
+                  onClick={item.popularity ? () => navigate(`/person/${item.id}`) : () => { navigate(`/item/${item.id}`); setSearchText(""); setHideSearch(true); }}
                 >
                   <div className="search-result-content">
                     <img 

@@ -29,6 +29,8 @@ const Item = () => {
     const [userReviewText, setUserReviewText] = useState("");
     const [hoverRating, setHoverRating] = useState(0);
     const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const [directors, setDirectors] = useState([]);
+    const [writers, setWriters] = useState([]);
 
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -48,6 +50,8 @@ const Item = () => {
             const data = await getItemDetails(itemId);
             setItem(data);
             if (data && data.user_rating) setRating(data.user_rating);
+            setDirectors(data.crew.filter(crew => crew.job_title === "Director"));
+            setWriters(data.crew.filter(crew => crew.department_name === "Writing"));
             setLoading(false);
         };
         fetchItemDetails();
@@ -73,7 +77,7 @@ const Item = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
 
             <Popup isOpen={isRatingPopupOpen} onClose={() => setIsRatingPopupOpen(false)}>
                 <div className="popup-header">
@@ -98,7 +102,7 @@ const Item = () => {
                         )}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(rating);}}>
+                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(item.id, rating);}}>
                             Rate
                         </button>
                     </div>
@@ -136,7 +140,7 @@ const Item = () => {
                         />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {if (userReviewText.length > 0) {setIsReviewPopupOpen(false); submitReview(userReviewText);} else {alert("Review cannot be empty");}}}>
+                        <button className="submit-rate-button" onClick={() => {if (userReviewText.length > 0) {setIsReviewPopupOpen(false); submitReview(item.id, rating, userReviewText);} else {alert("Review cannot be empty");}}}>
                             Submit
                         </button>
                     </div>
@@ -188,7 +192,7 @@ const Item = () => {
                                 </>
                             )}
                             <span>&nbsp;·&nbsp;</span>
-                            <span>{item.country.english_name}</span>
+                            <span>{item.country}</span>
                         </div>
                     </div>
                     <div className="item-sidebar">
@@ -207,7 +211,7 @@ const Item = () => {
                                 <div className="star-rating">
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                         <span className="star">★</span>
-                                        <span className="rating-value">{item.rating}/10</span>
+                                        <span className="rating-value">{parseInt(item.rating).toFixed(1)}/10</span>
                                     </div>
                                     <span className="rating-count">{parseInt(item.numRating) >= 1000000 ? ( Math.floor(parseInt(item.numRating)/100000)/10 + ' M') : ( parseInt(item.numRating) >= 1000 ? (  Math.floor(parseInt(item.numRating)/100)/10 + ' K') : (item.numRating) )}</span>
                                 </div>
@@ -237,8 +241,8 @@ const Item = () => {
                             <div className="popularity">
                                 <h4 style={{fontSize: '15px', fontWeight: 'bold'}} >POPULARITY</h4>
                                 <div className="popularity-score">
-                                    <span className="arrow">-</span>
-                                    <span style={{marginTop: '5px'}}>{item.popularity}</span>
+                                    <span className="arrow">🔥</span>
+                                    <span style={{marginTop: '5px', fontWeight: 'bold'}}>{parseInt(item.popularity).toFixed(1)}</span>
                                 </div>
                             </div>
                         </div>
@@ -258,21 +262,17 @@ const Item = () => {
                                     }}
                                 />
                             </div>
-                            { item.trailerLink &&
-                                <>
-                                <div className="item-trailer">
+                            <div className="item-trailer">
                                 <iframe 
                                     width="100%" 
                                     height="100%" 
-                                    src={item.trailerLink.replace('watch?v=', 'embed/')} 
+                                    src={item.trailerLink ? item.trailerLink.replace('watch?v=', 'embed/') : "https://www.youtube.com/embed/dQw4w9WgXcQ"} 
                                     title="YouTube video player"
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                     allowFullScreen
                                 ></iframe>
                             </div>
-                                </>
-                            }
                         </div>
 
                         { item.tags && <div className="item-genres">
@@ -286,17 +286,24 @@ const Item = () => {
                         </div> }
 
                         <div className="item-crew">
-                            { item.director && <div className="crew-section">
-                                <h3>Director</h3>
-                                <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.director.id}`)}>{item.director.name}</p>
-                            </div>
+                            { directors.length > 0 && 
+                                <div className="crew-section">
+                                    <h3>Directors</h3>
+                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${directors[0].id}`)}>{directors[0].name}</p>
+                                    { directors.slice(1, 5).map(director => (
+                                        <>
+                                            <p className="crew-name" onClick={() => navigate(`/person/${director.id}`)}>&nbsp;·&nbsp;{director.name}</p>
+                                        </>
+                                    ))}
+                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
+                                </div>
                             }
                             
-                            { item.writers && item.writers.length > 0 && (
+                            { writers.length > 0 && (
                                 <div className="crew-section">
                                     <h3>Writers</h3>
-                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.writers[0].id}`)}>{item.writers[0].name}</p>
-                                    { item.writers.slice(1, 5).map(writer => (
+                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${writers[0].id}`)}>{writers[0].name}</p>
+                                    { writers.slice(1, 5).map(writer => (
                                         <>
                                             <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
                                         </>
@@ -305,16 +312,16 @@ const Item = () => {
                                 </div>
                             )}
                             
-                            { item.actors && item.actors.length > 0 && (
+                            { item.cast && item.cast.length > 0 && (
                                 <div className="crew-section">
                                     <h3>Stars</h3>
-                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.actors[0].id}`)}>{item.actors[0].name}</p>
-                                    { item.actors.slice(1, 5).map(actor => (
+                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.cast[0].id}`)}>{item.cast[0].name}</p>
+                                    { item.cast.slice(1, 5).map(actor => (
                                         <>
                                             <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
                                         </>
                                     ))}
-                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {personHeaders: item.actors, title: item.title}})}></p>
+                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {personHeaders: item.cast, title: item.title}})}></p>
                                 </div>
                             )}
                                     {item.productionCompany && item.productionCompany.length > 0 && (
@@ -332,8 +339,8 @@ const Item = () => {
                     
                 </div>
 
-                {item.actors && item.actors.length > 0 && (
-                    <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.actors} />
+                {item.cast && item.cast.length > 0 && (
+                    <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.cast} />
                 )}
 
                 {item.reviews && <div>
@@ -347,7 +354,7 @@ const Item = () => {
                             <div key={review.id} className="review">
                                 <div className="review-rating">
                                     <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                    {review.rating}/10
+                                    {parseInt(review.rating).toFixed(1)}/10
                                 </div>
                                 <div className="review-text">
                                     {review.text}

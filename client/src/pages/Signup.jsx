@@ -59,6 +59,8 @@ const Signup = () => {
               value={formData.username}
               onChange={handleChange}
               required
+              pattern="^[^@]+$"
+              title="Username should not contain '@'"
             />
           </div>
           <div className="form-group">

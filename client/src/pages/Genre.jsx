@@ -44,7 +44,7 @@ const Genre = () => {
     
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             <div className="genre-container">
                 <h1 className="genre-title">{genreName}</h1>
                 <ListItemThumbnail title={`Popular ${genreName} Movies`} titleFontSize="44px" itemThumbnails={genreMovies} />

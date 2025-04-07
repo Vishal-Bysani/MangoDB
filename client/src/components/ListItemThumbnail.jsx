@@ -66,9 +66,9 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails }) => {
                         <ItemThumbnail 
                             key={itemThumbnail.itemId}
                             ref={index === 0 ? thumbnailRef : null}
-                            itemId={itemThumbnail.itemId}
+                            itemId={itemThumbnail.id}
                             title={itemThumbnail.title}
-                            image={itemThumbnail.imageLink}
+                            image={itemThumbnail.image}
                             year={itemThumbnail.year}
                             rating={itemThumbnail.rating}
                             userRating={itemThumbnail.userRating}

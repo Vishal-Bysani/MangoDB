@@ -21,8 +21,8 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
                     }}
                 />
                 <div className="ItemThumbnail-rating-container">
-                    <p style={{fontWeight: 'bold'}}><span className="ItemThumbnail-yellow-star">★</span> {rating}/10</p>
-                    { userRating > 0 && <p style={{fontWeight: 'bold'}}><span className="ItemThumbnail-blue-star">★</span> {userRating}/10</p> }
+                    <p style={{fontWeight: 'bold'}}><span className="ItemThumbnail-yellow-star">★</span> {parseFloat(rating).toFixed(1)}/10</p>
+                    { userRating > 0 && <p style={{fontWeight: 'bold'}}><span className="ItemThumbnail-blue-star">★</span> {parseFloat(userRating).toFixed(1)}/10</p> }
                 </div>
                 <h4>{title}</h4>
                 <p style={{fontWeight: 'bold'}}>{year}</p>

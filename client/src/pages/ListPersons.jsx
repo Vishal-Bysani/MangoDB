@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
-import { getLoggedIn, getPersonHeaders } from "../api";
+import { getLoggedIn } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/ListPersons.css";
 
@@ -26,9 +26,6 @@ const ListPersons = () => {
     }, []);
 
     useEffect(() => {
-        // const fetchPersons = async () => {
-        //     const data = await getPersonHeaders(location.state.listId);
-        // };
         setPersons(location.state.personHeaders);
         setLoading(false);
         setTitle(location.state.title);
@@ -38,7 +35,7 @@ const ListPersons = () => {
     if (loading) {
         return (
             <>
-                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
+                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
                 <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
             </>
         )
@@ -55,14 +52,14 @@ const ListPersons = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             <div className="list-persons-page">
                 <p className="list-persons-title" onClick={() => navigate(`/item/${itemId}`)} style={{cursor: 'pointer'}}>{role.charAt(0).toUpperCase() + role.slice(1)} | {title}</p>
                 <div className="list-persons-container">
                     {persons.map(person => (
                         <div className="list-person-card" key={person.id}>
                             <img 
-                                src={person.imageLink} 
+                                src={person.image} 
                                 alt={person.name}
                                 onError={(e) => {
                                     e.target.onerror = null;

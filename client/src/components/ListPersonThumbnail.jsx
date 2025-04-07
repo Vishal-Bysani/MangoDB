@@ -67,7 +67,7 @@ const ListPersonThumbnail = ({ title, titleFontSize = "30px", personThumbnails }
                             ref={index === 0 ? thumbnailRef : null}
                             personId={personThumbnail.id}
                             name={personThumbnail.name}
-                            image={personThumbnail.imageLink}
+                            image={personThumbnail.image}
                             character={personThumbnail.character}
                         />
                     ))}

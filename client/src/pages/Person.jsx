@@ -4,7 +4,7 @@ import { getLoggedIn, getPersonDetails } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/Person.css";
 import ListItemThumbnail from "../components/ListItemThumbnail";
-
+import moment from "moment";
 const Person = () => {
     const { personId } = useParams();
     const navigate = useNavigate();
@@ -37,7 +37,7 @@ const Person = () => {
     if (loading) {
         return (
             <>
-                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
+                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
                 <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
             </>
         )
@@ -49,7 +49,7 @@ const Person = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             <div className="people-page">
                 <div className="person-header-container">
                     <div className="person-header">
@@ -61,10 +61,10 @@ const Person = () => {
                     <div className="person-sidebar">
                         <div className="rating-section">
                             <div className="popularity">
-                                <h4 style={{fontSize: '15px', fontWeight: 'bold'}} >POPULARITY</h4>
+                                <p style={{fontSize: '15px', fontWeight: 'bold'}} >POPULARITY</p>
                                 <div className="popularity-score">
-                                    <span className="arrow">-</span>
-                                    <span>{person.popularity}</span>
+                                    <span className="arrow">🔥</span>
+                                    <span style={{marginTop: '5px', fontWeight: 'bold'}}>{parseInt(person.popularity).toFixed(1)}</span>
                                 </div>
                             </div>
                         </div>
@@ -75,7 +75,7 @@ const Person = () => {
                     <div className="person-main">
                         <div style={{display: 'flex', gap: '30px'}}>
                             <img 
-                                src={person.imageLink} 
+                                src={person.image} 
                                 alt={person.name} 
                                 className="person-image"
                                 onError={(e) => {
@@ -88,14 +88,14 @@ const Person = () => {
                                 <div style={{display: "flex", gap: '10px'}}>
                                     <span style={{display: 'flex'}}>
                                         <p style={{fontWeight: 'bolder'}}>Born:&nbsp;</p>
-                                        <p> {person.dateOfBirth} </p>
+                                        <p> {moment(person.birthday).format('DD MMMM YYYY')} </p>
                                     </span>
-                                    {person.dateOfDeath && (
+                                    {person.deathday && (
                                         <>  
                                             <p>·</p>
                                             <span style={{display: 'flex'}}>
                                                 <p style={{fontWeight: 'bolder'}}>Death&nbsp;</p>
-                                                <p> {person.dateOfDeath} </p>
+                                                <p> {moment(person.deathday).format('DD MMMM YYYY')} </p>
                                             </span>
                                         </>
                                     )}
