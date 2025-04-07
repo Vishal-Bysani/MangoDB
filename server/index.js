@@ -318,7 +318,7 @@ app.get("/getPersonDetails", async (req, res) => {
       [id]
     );
     const distinctRoles = await pool.query(
-      "SELECT DISTINCT job_title as role FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
+      "SELECT DISTINCT job_title as role FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1",
       [id]
     );
     res.status(200).json({
@@ -332,7 +332,7 @@ app.get("/getPersonDetails", async (req, res) => {
       // person: personQuery.rows[0],
       cast : moviesShowsCastQuery.rows,
       crew : moviesShowsCrewQuery.rows,
-      roles : distinctRoles.rows,
+      roles : distinctRoles.rows.concat(personQuery.rows[0].known_for_department),
     });
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
