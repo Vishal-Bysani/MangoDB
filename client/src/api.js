@@ -20,7 +20,6 @@ const logoutUser = async () => {
         if (response.status !== 200) {
             throw new Error("Failed to log out");
         }
-        Navigate("/login");
     }).catch(err => {
         console.error("Error logging out:", err);
     });

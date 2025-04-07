@@ -21,10 +21,6 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchLoggedInData = async () => {
-            // const response = await getLoggedIn();
-            // console.log(data);
-            // if (!data.loggedIn) navigate("/login");
-            // setLoggedInData(data);
             getLoggedIn().then(response => {
                 response.json().then(data => {
                     if (!data.loggedIn) navigate("/login");

@@ -309,12 +309,8 @@ app.get("/getPersonDetails", async (req, res) => {
     if(personQuery.rows.length === 0){
       return res.status(400).json({message: "Person not found"});
     }
-    const moviesShowsCastQuery = await pool.query(
-      "SELECT movies_shows.id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as year, character, vote_average as rating FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.id WHERE cast_movies_shows.person_id = $1 order by popularity desc",
-      [id]
-    );
-    const moviesShowsCrewQuery = await pool.query(
-      "SELECT movies_shows.id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as year, job_title as role, vote_average as rating FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc",
+    const moviesShowsQuery = await pool.query(
+      "(SELECT movies_shows.id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating FROM movies_shows JOIN cast_movies_shows ON movies_shows.id = cast_movies_shows.id WHERE cast_movies_shows.person_id = $1 order by popularity desc) UNION DISTINCT (SELECT movies_shows.id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1 order by popularity desc)",
       [id]
     );
     const distinctRoles = await pool.query(
@@ -329,33 +325,8 @@ app.get("/getPersonDetails", async (req, res) => {
       description: personQuery.rows[0].biography,
       birthday: personQuery.rows[0].birthday,
       deathday: personQuery.rows[0].deathday,
-      knownFor : moviesShowsCastQuery.rows.concat(moviesShowsCrewQuery.rows),
+      knownFor : moviesShowsQuery.rows,
       roles : distinctRoles.rows.map(role => role.role).concat(personQuery.rows[0].known_for_department),
-    });
-  } catch (error) {
-    console.error("Error fetching movie or cast:", error);
-    res.status(500).json({ message: "Error getting movie details" });
-  }
-});
-
-app.get("/getMovieShowByGenreId", async (req, res) => {
-  try {
-    const { genre_id, pageNo, pageLimit } = req.query;
-    const page = parseInt(pageNo);
-    const limit = parseInt(pageLimit);
-    const offset = (page - 1) * limit;
-
-    const movieOrShowQuery = await pool.query(
-      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE id IN (SELECT id FROM movies_shows_genres WHERE genre_id = $1) ORDER BY popularity DESC, vote_average",
-      [genre_id]
-    );
-    const genreQuery = await pool.query(
-      "SELECT name FROM genres WHERE id = $1",
-      [genre_id]
-    );
-    res.status(200).json({
-      moviesOrShow: movieOrShowQuery.rows.slice(offset, offset + limit),
-      genre: genreQuery.rows[0]
     });
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
@@ -448,32 +419,24 @@ app.get("/filterItems", async (req, res) => {
 
     let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity FROM movies_shows ms";
 
-    const conditions = [];
-    const values = [];
+    let conditions = [];
+    let values = [];
     let idx = 1;
 
-    // Join with genres
     if (genreId) {
-      const genreName = await pool.query(
+      let genreName = await pool.query(
         "SELECT name FROM genres WHERE id = $1",
         [parseInt(genreId)]
       );
       genreName = genreName.rows[0].name;
-      // baseQuery += " JOIN movies_shows_genres msg ON ms.id = msg.id";
-      // conditions.push(`msg.genre_id = $${idx++}`);
-      // values.push(parseInt(genreId));
-  
-      //get movies/shows with that genre_id or containing the genre name in their genre string, or being contained in the genre name
-
       baseQuery += ` JOIN movies_shows_genres msg ON ms.id = msg.id`;
       baseQuery += ` JOIN genres g ON msg.genre_id = g.id`;
-      conditions.push(`msg.genre_id = $${idx++} OR g.name ILIKE $${idx++} OR $${idx++} ILIKE '%' || g.name || '%'`);
+      conditions.push(`(msg.genre_id = $${idx++} OR g.name ILIKE $${idx++} OR $${idx++} ILIKE '%' || g.name || '%')`);
       values.push(parseInt(genreId));
       values.push(`%${genreName}%`);
-      values.push(`%${genreName}%`);
+      values.push(`${genreName}`);
     }
 
-    // Join with crew and cast
     if (personId) {
       baseQuery += ` JOIN crew_movies_shows msc ON ms.id = msc.id`;
       conditions.push(`msc.person_id = $${idx++}`);
@@ -484,19 +447,16 @@ app.get("/filterItems", async (req, res) => {
       values.push(parseInt(personId));
     }
 
-    // Year filter
     if (year) {
       conditions.push(`EXTRACT(YEAR FROM ms.release_date) = $${idx++}`);
       values.push(parseInt(year));
     }
 
-    // Rating filter
     if (minRating) {
       conditions.push(`ms.vote_average >= $${idx++}`);
       values.push(parseFloat(minRating));
     }
 
-    // forMovie / forShow filter
     if (forMovie && forShow) {
       conditions.push(`(ms.category = 'movie' OR ms.category = 'tv')`);
     } else if (forMovie) {
@@ -509,7 +469,6 @@ app.get("/filterItems", async (req, res) => {
       baseQuery += ` WHERE ` + conditions.join(" AND ");
     }
 
-    // ORDER BY
     const orderConditions = [];
     if (orderByPopularity) orderConditions.push(`ms.popularity DESC`);
     if (orderByRating) orderConditions.push(`ms.vote_average DESC`);
@@ -520,7 +479,10 @@ app.get("/filterItems", async (req, res) => {
     baseQuery += ` LIMIT $${idx++} OFFSET $${idx++}`;
     values.push(limit, offset);
 
-    const movies = (await pool.query(baseQuery, values));
+    console.log(baseQuery);
+    console.log(values);
+    
+    const movies = await pool.query(baseQuery, values);
     const items = await Promise.all(movies.rows.map(async (movie) => {
       const castResult = await pool.query(
         "SELECT character, person.name FROM cast_movies_shows JOIN person ON cast_movies_shows.person_id = person.id WHERE cast_movies_shows.id = $1",

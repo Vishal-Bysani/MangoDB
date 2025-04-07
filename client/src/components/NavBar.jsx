@@ -109,7 +109,7 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
             </div>
             <div className="nav-button-div">
               {/* TODO: Define an onClick action for logout */}
-              <button className="nav-button" onClick={() => { logoutUser(); setLoggedIn(false); }}>Logout</button>
+              <button className="nav-button" onClick={() => { logoutUser(); setLoggedIn(false); navigate("/"); }}>Logout</button>
             </div>
           </>
         ) : (

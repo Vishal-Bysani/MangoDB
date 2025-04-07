@@ -18,8 +18,6 @@ const Person = () => {
                 response.json().then(data => {
                     setLoggedInData(data);
                 });
-            } else {
-                navigate("/login");
             }
         });
     }, []);
