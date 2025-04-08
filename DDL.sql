@@ -1,21 +1,29 @@
-DROP TABLE IF EXISTS episodes CASCADE;
-DROP TABLE IF EXISTS seasons CASCADE;
-DROP TABLE IF EXISTS movies_details CASCADE;
-DROP TABLE IF EXISTS movies_shows_genres CASCADE;
-DROP TABLE IF EXISTS movies_shows_spoken_languages CASCADE;
-DROP TABLE IF EXISTS movies_shows_production_company CASCADE;
-DROP TABLE IF EXISTS cast_movies_shows CASCADE;
-DROP TABLE IF EXISTS crew_movies_shows CASCADE;
-DROP TABLE IF EXISTS jobs CASCADE;
-DROP TABLE IF EXISTS shows_details CASCADE;
-DROP TABLE IF EXISTS person CASCADE;
-DROP TABLE IF EXISTS departments CASCADE;
-DROP TABLE IF EXISTS genres CASCADE;
-DROP TABLE IF EXISTS collections CASCADE;
-DROP TABLE IF EXISTS production_companies CASCADE;
-DROP TABLE IF EXISTS movies_shows CASCADE;
-DROP TABLE IF EXISTS languages CASCADE;
-DROP TABLE IF EXISTS countries CASCADE;
+-- DROP TABLE IF EXISTS episodes CASCADE;
+-- DROP TABLE IF EXISTS seasons CASCADE;
+-- DROP TABLE IF EXISTS movies_details CASCADE;
+-- DROP TABLE IF EXISTS movies_shows_genres CASCADE;
+-- DROP TABLE IF EXISTS movies_shows_spoken_languages CASCADE;
+-- DROP TABLE IF EXISTS movies_shows_production_company CASCADE;
+-- DROP TABLE IF EXISTS cast_movies_shows CASCADE;
+-- DROP TABLE IF EXISTS crew_movies_shows CASCADE;
+-- DROP TABLE IF EXISTS jobs CASCADE;
+-- DROP TABLE IF EXISTS shows_details CASCADE;
+-- DROP TABLE IF EXISTS person CASCADE;
+-- DROP TABLE IF EXISTS departments CASCADE;
+-- DROP TABLE IF EXISTS genres CASCADE;
+-- DROP TABLE IF EXISTS collections CASCADE;
+-- DROP TABLE IF EXISTS production_companies CASCADE;
+-- DROP TABLE IF EXISTS movies_shows CASCADE;
+-- DROP TABLE IF EXISTS languages CASCADE;
+-- DROP TABLE IF EXISTS countries CASCADE;
+
+CREATE TABLE IF NOT EXISTS users (
+    username TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    is_critic BOOLEAN DEFAULT FALSE,
+    is_authenticated BOOLEAN DEFAULT FALSE
+);
 
 CREATE TABLE IF NOT EXISTS countries (
     iso_3166_1 TEXT NOT NULL PRIMARY KEY,
@@ -79,7 +87,10 @@ CREATE TABLE IF NOT EXISTS movies_shows (
     poster_path TEXT,                          -- URL Path for Poster Image
     tagline TEXT,                             -- Tagline
     status TEXT ,  -- Status
-    origin_country TEXT REFERENCES countries(iso_3166_1) ON DELETE SET NULL  -- Country Code
+    origin_country TEXT REFERENCES countries(iso_3166_1) ON DELETE SET NULL,  -- Country Code
+    iso_3166_1 TEXT,                -- Country Code
+    certificate TEXT,               -- Certificate
+    (iso_3166_1, certificate) REFERENCES certifications(iso_3166_1, certificate) ON DELETE SET NULL,  -- Certificate
 );
 
 CREATE TABLE IF NOT EXISTS movies_shows_genres (
@@ -175,4 +186,53 @@ CREATE TABLE IF NOT EXISTS shows_details (
     id INTEGER PRIMARY KEY REFERENCES movies_shows(id) ON DELETE CASCADE,                   -- Unique ID from TMDb
     number_of_episodes INTEGER DEFAULT 0,                   -- Total Number of Episodes
     number_of_seasons INTEGER DEFAULT 0                  -- Total Number of Seasons
+);
+
+
+CREATE TABLE IF NOT EXISTS movies_shows_reviews_ratings (
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    user_id INTEGER NOT NULL,  -- User ID
+    review TEXT,               -- Review Text
+    rating NUMERIC CHECK (rating >= 0 AND rating <= 10) NOT NULL,  -- Rating (0 to 10)
+    PRIMARY KEY (id, user_id) 
+);
+CREATE TABLE IF NOT EXISTS episodes_reviews_ratings (
+    id INTEGER REFERENCES episodes(id) ON DELETE CASCADE,  -- Movie ID
+    user_id INTEGER NOT NULL,  -- User ID
+    review TEXT,               -- Review Text
+    rating NUMERIC CHECK (rating >= 0 AND rating <= 10) NOT NULL,  -- Rating (0 to 10)
+    PRIMARY KEY (id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS person_known_for (
+    person_id INTEGER REFERENCES person(id) ON DELETE CASCADE,  -- Person ID
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    PRIMARY KEY (person_id, id)
+);
+
+CREATE TABLE IF NOT EXISTS favourites (
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    PRIMARY KEY (username, id)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS movies_shows_videos (
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    video_path TEXT NOT NULL,  -- Video URL Path
+    type TEXT,
+    PRIMARY KEY (id, video_path)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS seasons_videos (
+    id INTEGER REFERENCES seasons(id) ON DELETE CASCADE,  -- Season ID
+    video_path TEXT NOT NULL,  -- Video URL Path
+    type TEXT,
+    PRIMARY KEY (id, video_path)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS certifications (
+    iso_3166_1 TEXT REFERENCES countries(iso_3166_1) ON DELETE CASCADE,  -- Country Code
+    certificate TEXT NOT NULL,  -- Certificate
+    meaning TEXT,  -- Meaning
+    PRIMARY KEY (iso_3166_1, certificate)
 );
