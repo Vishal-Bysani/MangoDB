@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import Navbar from "../components/NavBar";
 import "../css/Search.css";
 import { getGenreList, getFilteredItems, getMatchingPersons } from "../api";
-import ListItemThumbnail from "../components/ListItemThumbnail";
 import ListItemOverview from "../components/ListItemOverview";
 import SearchDropdown from "../components/SearchDropdown";
 import SearchBar from "../components/SearchBar";
+
 const Search = () => {
     const { query } = useParams();
+    const totalPages = 10;
 
     const [searchQuery, setSearchQuery] = useState(query);
 
@@ -26,7 +27,7 @@ const Search = () => {
     const [year, setYear] = useState(null);
     const [yearText, setYearText] = useState("");
 
-    const [minRating, setMinRating] = useState(0.0);
+    const [minRating, setMinRating] = useState(null);
     const [minRatingText, setMinRatingText] = useState("");
 
     const [orderByRating, setOrderByRating] = useState(false);
@@ -41,15 +42,20 @@ const Search = () => {
 
     useEffect(() => {
         getGenreList().then(setGenreList);
-        setGenreListFiltered(genreList);
     }, []);
 
+    useEffect(() => {
+        setGenreListFiltered(genreList);
+    }, [genreList]);
+
     const handleFilterSubmit = () => {
-        console.log(searchQuery, genreId, personId, year, minRating, orderByRating, orderByPopularity, forMovie, forShow, pageNo);
         getFilteredItems({searchText: searchQuery, genreId: genreId, personId: personId, year: year, minRating: minRating, orderByRating: orderByRating, orderByPopularity: orderByPopularity, forMovie: forMovie, forShow: forShow, pageNo: pageNo, pageLimit: pageLimit}).then(setMatchingItems);
     }
 
-        
+    useEffect(() => {
+        handleFilterSubmit();
+    }, [pageNo]);
+
     return (
         <div>
             <Navbar />
@@ -69,6 +75,7 @@ const Search = () => {
                         <SearchDropdown 
                             filterName="Genre"
                             filterList={genreListFiltered}
+                            filterValue={genreId}
                             setFilterValue={setGenreId}
                             filterValueText={genreText}
                             setFilterValueText={setGenreText}
@@ -79,13 +86,14 @@ const Search = () => {
                                 } else {
                                     setGenreListFiltered(genreList);
                                     setGenreText("");
-                                    setGenreId(null);
                                 }
+                                setGenreId(null);
                             }}
                         />
                         <SearchDropdown 
                             filterName="Person"
                             filterList={personList}
+                            filterValue={personId}
                             setFilterValue={setPersonId}
                             filterValueText={personText}
                             setFilterValueText={setPersonText}
@@ -96,13 +104,14 @@ const Search = () => {
                                 } else {
                                     setPersonList([]);
                                     setPersonText("");
-                                    setPersonId(null);
                                 }
+                                setPersonId(null);
                             }}
                         />
                         <SearchDropdown
                             filterName="Year"
                             filterList={[]}
+                            filterValue={year}
                             setFilterValue={setYear}
                             filterValueText={yearText}
                             setFilterValueText={setYearText}
@@ -110,16 +119,17 @@ const Search = () => {
                             onFilterValueTextChange={async (searchText) => {
                                 if (searchText.length > 0) {
                                     setYear(parseInt(searchText));
-                                    setYearText(searchText);
+                                    setYearText(String(parseInt(searchText)));
                                 } else {
-                                    setYear(null);
                                     setYearText("");
                                 }
+                                setYear(null);
                             }}
                         />
                         <SearchDropdown
                             filterName="Minimum Rating"
                             filterList={[]}
+                            filterValue={minRating}
                             setFilterValue={setMinRating}
                             filterValueText={minRatingText}
                             setFilterValueText={setMinRatingText}
@@ -130,19 +140,19 @@ const Search = () => {
                                     if (searchText.endsWith(".")) setMinRatingText(String(Math.min(Math.max(parseFloat(searchText), 0.0), 10.0)) + '.');
                                     else setMinRatingText(String(Math.min(Math.max(parseFloat(searchText), 0.0), 10.0)));
                                 } else {
-                                    setMinRating(0.0);
                                     setMinRatingText("");
                                 }
+                                setMinRating(null);
                             }}
                         />
-                        <div className="search-page-filters-checkbox">
+                        <div className="search-page-filters-checkbox" style={{ marginTop: "15px" }}>
                             <label>
                                 <input
                                     type="checkbox"
                                     checked={orderByRating}
-                                    onChange={() => setOrderByRating(!orderByRating)}
+                                    onChange={() => { setOrderByRating(!orderByRating); setOrderByPopularity(false);}}
                                 />
-                                Order by Rating
+                                Highest Rated
                             </label>
                         </div>
                         <div className="search-page-filters-checkbox">
@@ -150,9 +160,9 @@ const Search = () => {
                                 <input
                                     type="checkbox"
                                     checked={orderByPopularity}
-                                    onChange={() => setOrderByPopularity(!orderByPopularity)}
+                                    onChange={() => { setOrderByPopularity(!orderByPopularity); setOrderByRating(false);}}
                                 />
-                                Order by Popularity
+                                Popular
                             </label>
                         </div>
                         <div className="search-page-filters-checkbox">
@@ -160,9 +170,9 @@ const Search = () => {
                                 <input
                                     type="checkbox"
                                     checked={forMovie}
-                                    onChange={() => setForMovie(!forMovie)}
+                                    onChange={() => { if (forMovie) setForShow(true); setForMovie(!forMovie)}}
                                 />
-                                For Movie
+                                Movie
                             </label>
                         </div>
                         <div className="search-page-filters-checkbox">
@@ -170,9 +180,9 @@ const Search = () => {
                                 <input
                                     type="checkbox"
                                     checked={forShow}
-                                    onChange={() => setForShow(!forShow)}
+                                    onChange={() => { if (forShow) setForMovie(true); setForShow(!forShow)}}
                                 />
-                                For Show
+                                Show
                             </label>
                         </div>
                         <div className="search-page-submit-button">
@@ -182,9 +192,14 @@ const Search = () => {
                 </div>
                 <div className="search-page-results-container">
                     <div className="search-page-results-container-title">
-                        { matchingItems && matchingItems.length > 0 ? <ListItemOverview title="Results" itemOverviewList={matchingItems} /> : <div className="search-page-results-container-no-results">No results found</div>}
+                        { matchingItems && matchingItems.length > 0 ? <ListItemOverview  itemOverviewList={matchingItems} /> : <div className="search-page-results-container-no-results">No results found</div>}
                     </div>
                 </div>
+            </div>
+            <div className="search-page-pagination-container">
+                    <button className="search-page-pagination-button" onClick={() => setPageNo(Math.max(pageNo - 1, 1))} disabled={pageNo === 1}>Previous</button>
+                    <span className="search-page-pagination-info">{pageNo} of {totalPages}</span>
+                <button className="search-page-pagination-button" onClick={() => setPageNo(Math.min(pageNo + 1, totalPages))} disabled={pageNo === totalPages}>Next</button>
             </div>
         </div>
     )

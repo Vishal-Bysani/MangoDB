@@ -191,7 +191,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const movieOrShowQuery = await pool.query(
-      "SELECT id, title, category as type, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating,vote_count as numRating, popularity, overview as description, origin_country FROM movies_shows WHERE id = $1",
+      "SELECT id, title, category as type, poster_path as image, backdrop_path as backdrop, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating,vote_count as numRating, popularity, overview as description, origin_country FROM movies_shows WHERE id = $1",
       [id]
     );
     if(movieOrShowQuery.rows.length === 0){
@@ -257,6 +257,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         crew: crewQuery.rows,
         collection: collectionQuery.rows[0],
         video: videoQuery.rows,
+        backdrop: movieOrShowQuery.rows[0].backdrop,
       });
     }
     else {
@@ -295,6 +296,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         seasons: seasonQuery.rows,
         showDetails: showQuery.rows[0],
         video: videoQuery.rows,
+        backdrop: movieOrShowQuery.rows[0].backdrop,
       });
     }
   } catch (error) {
@@ -470,6 +472,11 @@ app.get("/filterItems", async (req, res) => {
       conditions.push(`ms.category = 'movie'`);
     } else if (forShow) {
       conditions.push(`ms.category = 'tv'`);
+    }
+
+    if (searchText) {
+      conditions.push(`ms.title ILIKE $${idx++}`);
+      values.push(`%${searchText}%`);
     }
 
     if (conditions.length) {

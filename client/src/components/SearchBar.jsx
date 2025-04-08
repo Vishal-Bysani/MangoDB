@@ -18,7 +18,7 @@ const SearchBar = ( { handleSearch, setParentSearchText = null } ) => {
                     if (setParentSearchText) setParentSearchText(e.target.value);
                 }}
                 onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === "Enter" && searchText.length > 0) {
                         handleSearch(searchText);
                     }
                 }}

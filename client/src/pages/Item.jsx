@@ -144,232 +144,234 @@ const Item = () => {
                     </div>
                 </div>
             </Popup>
-
-            <div className="item-page">
-                {item.type === "tv" && (
-                    <>
-                        <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/episodes`)}>
-                            <p style={{textDecoration: 'none'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Episode Guide</p>
-                            <p className="forward-arrow" style={{marginLeft: '10px', marginTop: '19px'}}></p>
-                        </div>
-                    </>
-                )}
-                <div className="item-header-container">
-                    <div className="item-header">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
-                            <h1 className="item-title">{item.title}</h1>
-                            <button 
-                                className={`favorite-button ${item.favorite ? 'favorite-active' : ''}`}
-                                onClick={() => { toggleFavorite(item.id); setItem(prevItem => ({...prevItem, favorite: !prevItem.favorite})); }}
-                                aria-label="Toggle favorite"
-                            > ❤ </button>
-                        </div>
-                        <div className="item-metadata">
-                            {item.type === "tv" ? (
-                                <>
-                                    <span>TV Series</span>
-                                    <span>&nbsp;·&nbsp;</span>
-                                    <span>{item.startYear}-{item.endYear}</span>
-                                    <span>&nbsp;·&nbsp;</span>
-                                </>
-                            ) : (
-                                <>
-                                    <span>{item.startYear}</span>
-                                    <span>&nbsp;·&nbsp;</span>
-                                </>
-                            )}
-                            { item.contentRating && 
-                                <>
-                                    <span>{item.contentRating}</span> 
-                                    <span>&nbsp;·&nbsp;</span> 
-                                </>
-                            }
-                            { item.duration && Math.floor(item.duration/60) > 0 ? (
-                                <>
-                                    <span>{Math.floor(item.duration/60)}h {item.duration%60}m</span>
-                                    <span>&nbsp;·&nbsp;</span>
-                                </>
-                            ) : ( item.duration && 
-                                <>
-                                    <span>{item.duration%60}m</span>
-                                    <span>&nbsp;·&nbsp;</span>
-                                </>
-                            )}
-                            { item.country && 
-                                <>
-                                    <span>{item.country}</span>
-                                </>
-                            }
-                        </div>
-                    </div>
-                    <div className="item-sidebar">
-                        <div className="rating-section">
-                            <div className="mangodb-rating">
-                                <div className="star-rating" style={{display: 'flex', margin: '20px'}}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px'}}>
-                                    <img src="/rotten-mangoes.png" alt="Logo" style={{width: "30px"}}>
-                                    </img>
-                                        <span className="rating-value" style={{fontSize: '24px'}}>96%</span>
-                                    </div>
-                                </div>
+            {/* Uncomment to apply backdrop image */}
+            {/* <div className="item-page-container" style={{backgroundImage: `url(${item.backdrop})`}}> */}
+            <div className="item-page-container">
+                <div className="item-page">
+                    {item.type === "tv" && (
+                        <>
+                            <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/episodes`)}>
+                                <p style={{textDecoration: 'none'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Episode Guide</p>
+                                <p className="forward-arrow" style={{marginLeft: '10px', marginTop: '19px'}}></p>
                             </div>
-                            <div className="mangodb-rating">
-                                <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '150px'}} >PUBLIC RATING</h4>
-                                <div className="star-rating">
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        <span className="star">★</span>
-                                        <span className="rating-value">{parseFloat(item.rating).toFixed(1)}/10</span>
-                                    </div>
-                                    <span className="rating-count">{parseInt(item.numRating) >= 1000000 ? ( Math.floor(parseInt(item.numRating)/100000)/10 + ' M') : ( parseInt(item.numRating) >= 1000 ? (  Math.floor(parseInt(item.numRating)/100)/10 + ' K') : (item.numRating) )}</span>
-                                </div>
+                        </>
+                    )}
+                    <div className="item-header-container">
+                        <div className="item-header">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+                                <h1 className="item-title">{item.title}</h1>
+                                <button 
+                                    className={`favorite-button ${item.favorite ? 'favorite-active' : ''}`}
+                                    onClick={() => { toggleFavorite(item.id); setItem(prevItem => ({...prevItem, favorite: !prevItem.favorite})); }}
+                                    aria-label="Toggle favorite"
+                                > ❤ </button>
                             </div>
-                            
-                            <div className="your-rating">
-                                <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '120px'}} >YOUR RATING</h4>
-                                <div className="rate-button">
-                                    <button className="rate-button">
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} onClick={() => setIsRatingPopupOpen(true)}>
-                                            { rating > 0 ? (
-                                                <>
-                                                    <span className="star-outline">★</span>
-                                                    <span style={{ fontSize: '20px', color: 'white', fontWeight: 'bold'}}>{rating}/10</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <span className="star-outline">☆</span>
-                                                    <span style={{ fontSize: '16px', marginTop: '5px' }}>Rate</span>
-                                                </>
-                                            )}
+                            <div className="item-metadata">
+                                {item.type === "tv" ? (
+                                    <>
+                                        <span>TV Series</span>
+                                        <span>&nbsp;·&nbsp;</span>
+                                        <span>{item.startYear}-{item.endYear}</span>
+                                        <span>&nbsp;·&nbsp;</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>{item.startYear}</span>
+                                        <span>&nbsp;·&nbsp;</span>
+                                    </>
+                                )}
+                                { item.contentRating && 
+                                    <>
+                                        <span>{item.contentRating}</span> 
+                                        <span>&nbsp;·&nbsp;</span> 
+                                    </>
+                                }
+                                { item.duration && Math.floor(item.duration/60) > 0 ? (
+                                    <>
+                                        <span>{Math.floor(item.duration/60)}h {item.duration%60}m</span>
+                                        <span>&nbsp;·&nbsp;</span>
+                                    </>
+                                ) : ( item.duration && 
+                                    <>
+                                        <span>{item.duration%60}m</span>
+                                        <span>&nbsp;·&nbsp;</span>
+                                    </>
+                                )}
+                                { item.country && 
+                                    <>
+                                        <span>{item.country}</span>
+                                    </>
+                                }
+                            </div>
+                        </div>
+                        <div className="item-sidebar">
+                            <div className="rating-section">
+                                <div className="mangodb-rating">
+                                    <div className="star-rating" style={{display: 'flex', margin: '20px'}}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px'}}>
+                                        <img src="/rotten-mangoes.png" alt="Logo" style={{width: "30px"}}>
+                                        </img>
+                                            <span className="rating-value" style={{fontSize: '24px'}}>96%</span>
                                         </div>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div className="popularity">
-                                <h4 style={{fontSize: '15px', fontWeight: 'bold'}} >POPULARITY</h4>
-                                <div className="popularity-score">
-                                    <span className="arrow">🔥</span>
-                                    <span style={{marginTop: '5px', fontWeight: 'bold'}}>{parseFloat(item.popularity).toFixed(1)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="item-content">
-                    <div className="item-main">
-                        <div className="item-trailer-container">
-                            <div className="item-poster">
-                                <img 
-                                    src={item.image} 
-                                    alt={item.title} 
-                                    onError={(e) => {
-                                        e.target.onerror = null;
-                                        e.target.src = "/mangodb-logo.png"; // Fallback image
-                                    }}
-                                />
-                            </div>
-                            <div className="item-trailer">
-                                <iframe 
-                                    width="100%" 
-                                    height="100%" 
-                                    src={item.video && item.video.find(v => v.type === "Trailer") ? item.video.find(v => v.type === "Trailer").video.replace('watch?v=', 'embed/') : "https://www.youtube.com/embed/dQw4w9WgXcQ"} 
-                                    title="YouTube video player"
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowFullScreen
-                                ></iframe>
-                            </div>
-                        </div>
-
-                        { item.tags && <div className="item-genres">
-                            {item.tags.map((genre, index) => (
-                                <span key={index} className="genre-tag" onClick={() => navigate(`/genre/${genre.genre_id}`, {state: {name: genre.genre_name}})}>{genre.genre_name}</span>
-                            ))}
-                        </div> }
-
-                        { item.description && <div className="item-description">
-                            <p>{item.description}</p>
-                        </div> }
-
-                        <div className="item-crew">
-                            { directors.length > 0 && 
-                                <div className="crew-section">
-                                    <h3>Directors</h3>
-                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${directors[0].id}`)}>{directors[0].name}</p>
-                                    { directors.slice(1, 5).map(director => (
-                                        <>
-                                            <p className="crew-name" onClick={() => navigate(`/person/${director.id}`)}>&nbsp;·&nbsp;{director.name}</p>
-                                        </>
-                                    ))}
-                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
-                                </div>
-                            }
-                            
-                            { writers.length > 0 && (
-                                <div className="crew-section">
-                                    <h3>Writers</h3>
-                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${writers[0].id}`)}>{writers[0].name}</p>
-                                    { writers.slice(1, 5).map(writer => (
-                                        <>
-                                            <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
-                                        </>
-                                    ))}
-                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
-                                </div>
-                            )}
-                            
-                            { item.cast && item.cast.length > 0 && (
-                                <div className="crew-section">
-                                    <h3>Stars</h3>
-                                    <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.cast[0].id}`)}>{item.cast[0].name}</p>
-                                    { item.cast.slice(1, 5).map(actor => (
-                                        <>
-                                            <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
-                                        </>
-                                    ))}
-                                    <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {personHeaders: item.cast, title: item.title}})}></p>
-                                </div>
-                            )}
-                                    {item.productionCompany && item.productionCompany.length > 0 && (
-                                    <div className="crew-section">
-                                        <h3>Production Company</h3>
-                                        <p className="crew-name" style={{ marginLeft: '16px' }}>
-                                        {item.productionCompany[0].name}
-                                        </p>
                                     </div>
-                                    )}
-
+                                </div>
+                                <div className="mangodb-rating">
+                                    <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '150px'}} >PUBLIC RATING</h4>
+                                    <div className="star-rating">
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <span className="star">★</span>
+                                            <span className="rating-value">{parseFloat(item.rating).toFixed(1)}/10</span>
+                                        </div>
+                                        <span className="rating-count">{parseInt(item.numRating) >= 1000000 ? ( Math.floor(parseInt(item.numRating)/100000)/10 + ' M') : ( parseInt(item.numRating) >= 1000 ? (  Math.floor(parseInt(item.numRating)/100)/10 + ' K') : (item.numRating) )}</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="your-rating">
+                                    <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '120px'}} >YOUR RATING</h4>
+                                    <div className="rate-button">
+                                        <button className="rate-button">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} onClick={() => setIsRatingPopupOpen(true)}>
+                                                { rating > 0 ? (
+                                                    <>
+                                                        <span className="star-outline">★</span>
+                                                        <span style={{ fontSize: '20px', color: 'white', fontWeight: 'bold'}}>{rating}/10</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span className="star-outline">☆</span>
+                                                        <span style={{ fontSize: '16px', marginTop: '5px' }}>Rate</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div className="popularity">
+                                    <h4 style={{fontSize: '15px', fontWeight: 'bold'}} >POPULARITY</h4>
+                                    <div className="popularity-score">
+                                        <span className="arrow">🔥</span>
+                                        <span style={{marginTop: '5px', fontWeight: 'bold'}}>{parseFloat(item.popularity).toFixed(1)}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    
-                </div>
-
-                {item.cast && item.cast.length > 0 && (
-                    <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.cast} />
-                )}
-
-                {item.reviews && <div>
-                    <div style={{display: 'flex'}}>
-                        <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
-                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`, {state: {title: item.title}})}></p>
-                        <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={() => setIsReviewPopupOpen(true)}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
-                    </div>
-                    <div className="review-container">
-                        {item.reviews.slice(0,3).map(review => (
-                            <div key={review.id} className="review">
-                                <div className="review-rating">
-                                    <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                    {parseFloat(review.rating).toFixed(1)}/10
+                    <div className="item-content">
+                        <div className="item-main">
+                            <div className="item-trailer-container">
+                                <div className="item-poster">
+                                    <img 
+                                        src={item.image} 
+                                        alt={item.title} 
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = "/mangodb-logo.png"; // Fallback image
+                                        }}
+                                    />
                                 </div>
-                                <div className="review-text">
-                                    {review.text}
+                                <div className="item-trailer">
+                                    <iframe 
+                                        width="100%" 
+                                        height="100%" 
+                                        src={item.video && item.video.find(v => v.type === "Trailer") ? item.video.find(v => v.type === "Trailer").video.replace('watch?v=', 'embed/') : "https://www.youtube.com/embed/dQw4w9WgXcQ"} 
+                                        title="YouTube video player"
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowFullScreen
+                                    ></iframe>
                                 </div>
                             </div>
-                        ))}
+
+                            { item.tags && <div className="item-genres">
+                                {item.tags.map((genre, index) => (
+                                    <span key={index} className="genre-tag" onClick={() => navigate(`/genre/${genre.genre_id}`, {state: {name: genre.genre_name}})}>{genre.genre_name}</span>
+                                ))}
+                            </div> }
+
+                            { item.description && <div className="item-description">
+                                <p>{item.description}</p>
+                            </div> }
+
+                            <div className="item-crew">
+                                { directors.length > 0 && 
+                                    <div className="crew-section">
+                                        <h3>Directors</h3>
+                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${directors[0].id}`)}>{directors[0].name}</p>
+                                        { directors.slice(1, 5).map(director => (
+                                            <>
+                                                <p className="crew-name" onClick={() => navigate(`/person/${director.id}`)}>&nbsp;·&nbsp;{director.name}</p>
+                                            </>
+                                        ))}
+                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
+                                    </div>
+                                }
+                                
+                                { writers.length > 0 && (
+                                    <div className="crew-section">
+                                        <h3>Writers</h3>
+                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${writers[0].id}`)}>{writers[0].name}</p>
+                                        { writers.slice(1, 5).map(writer => (
+                                            <>
+                                                <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
+                                            </>
+                                        ))}
+                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
+                                    </div>
+                                )}
+                                
+                                { item.cast && item.cast.length > 0 && (
+                                    <div className="crew-section">
+                                        <h3>Stars</h3>
+                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.cast[0].id}`)}>{item.cast[0].name}</p>
+                                        { item.cast.slice(1, 5).map(actor => (
+                                            <>
+                                                <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
+                                            </>
+                                        ))}
+                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {personHeaders: item.cast, title: item.title}})}></p>
+                                    </div>
+                                )}
+                                        {item.productionCompany && item.productionCompany.length > 0 && (
+                                        <div className="crew-section">
+                                            <h3>Production Company</h3>
+                                            <p className="crew-name" style={{ marginLeft: '16px' }}>
+                                            {item.productionCompany[0].name}
+                                            </p>
+                                        </div>
+                                        )}
+
+                            </div>
+                        </div>
+                        
                     </div>
-                </div>}
+
+                    {item.cast && item.cast.length > 0 && (
+                        <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.cast} />
+                    )}
+
+                    {item.reviews && <div>
+                        <div style={{display: 'flex'}}>
+                            <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
+                            <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`, {state: {title: item.title}})}></p>
+                            <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={() => setIsReviewPopupOpen(true)}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
+                        </div>
+                        <div className="review-container">
+                            {item.reviews.slice(0,3).map(review => (
+                                <div key={review.id} className="review">
+                                    <div className="review-rating">
+                                        <span className="star-outline" style={{marginRight: '8px'}}>★</span>
+                                        {parseFloat(review.rating).toFixed(1)}/10
+                                    </div>
+                                    <div className="review-text">
+                                        {review.text}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>}
+                </div>
             </div>
         </>
     );

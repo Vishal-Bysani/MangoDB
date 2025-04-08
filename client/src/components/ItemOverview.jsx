@@ -20,8 +20,9 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                     />
                 </div>
                 <div className="item-overview-info-container">
-                    <h1 onClick={() => navigate(`/item/${itemId}`)} style={{ cursor: "pointer" }}>{title}</h1>
-                    <p>{year}</p>
+                    <h1 onClick={() => navigate(`/item/${itemId}`)} style={{ cursor: "pointer", fontSize: "36px", fontWeight: "bolder", color: "#10e3a5" }}>{title}</h1>
+                    { year && <p>{year}</p> }
+                    { startYear && endYear && <p>{startYear} - {endYear}</p> }
                     <p>{description}</p>
                 </div>
             </div>

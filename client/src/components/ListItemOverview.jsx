@@ -5,13 +5,15 @@ import "../css/ListItemOverview.css";
 const ListItemOverview = ( { title, itemOverviewList }) => {
     return (
         <div className="list-item-overview-container">
-            <h1>{title}</h1>
-            {itemOverviewList.map((itemOverview) => (
+            { title && <h1 className="list-item-overview-container-title">{title}</h1> }
+            {itemOverviewList && itemOverviewList.map((itemOverview) => (
                 <ItemOverview key={itemOverview.id}
                     itemId={itemOverview.id}
                     title={itemOverview.title}
                     image={itemOverview.image}
                     year={itemOverview.year}
+                    startYear={itemOverview.startYear}
+                    endYear={itemOverview.endYear}
                     rating={itemOverview.rating}
                     userRating={itemOverview.userRating}
                     cast={itemOverview.cast}

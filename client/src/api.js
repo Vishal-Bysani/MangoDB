@@ -50,6 +50,7 @@ const signupUser = async (username, password, email) => {
 const getItemDetails = async (itemId) => {
     const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`);
     const data = await response.json();
+    console.log(data);
     return data;
 }
 
