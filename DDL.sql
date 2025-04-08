@@ -191,26 +191,26 @@ CREATE TABLE IF NOT EXISTS shows_details (
 );
 
 
-CREATE TABLE IF NOT EXISTS movies_shows_reviews_ratings (
-    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
-    user_id INTEGER NOT NULL,  -- User ID
-    review TEXT,               -- Review Text
-    rating NUMERIC CHECK (rating >= 0 AND rating <= 10) NOT NULL,  -- Rating (0 to 10)
-    PRIMARY KEY (id, user_id) 
-);
-CREATE TABLE IF NOT EXISTS episodes_reviews_ratings (
-    id INTEGER REFERENCES episodes(id) ON DELETE CASCADE,  -- Movie ID
-    user_id INTEGER NOT NULL,  -- User ID
-    review TEXT,               -- Review Text
-    rating NUMERIC CHECK (rating >= 0 AND rating <= 10) NOT NULL,  -- Rating (0 to 10)
-    PRIMARY KEY (id, user_id)
-);
+-- CREATE TABLE IF NOT EXISTS movies_shows_reviews_ratings (
+--     id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+--     user_id INTEGER NOT NULL,  -- User ID
+--     review TEXT,               -- Review Text
+--     rating NUMERIC CHECK (rating >= 0 AND rating <= 10) NOT NULL,  -- Rating (0 to 10)
+--     PRIMARY KEY (id, user_id) 
+-- );
+-- CREATE TABLE IF NOT EXISTS episodes_reviews_ratings (
+--     id INTEGER REFERENCES episodes(id) ON DELETE CASCADE,  -- Movie ID
+--     user_id INTEGER NOT NULL,  -- User ID
+--     review TEXT,               -- Review Text
+--     rating NUMERIC CHECK (rating >= 0 AND rating <= 10) NOT NULL,  -- Rating (0 to 10)
+--     PRIMARY KEY (id, user_id)
+-- );
 
-CREATE TABLE IF NOT EXISTS person_known_for (
-    person_id INTEGER REFERENCES person(id) ON DELETE CASCADE,  -- Person ID
-    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
-    PRIMARY KEY (person_id, id)
-);
+-- CREATE TABLE IF NOT EXISTS person_known_for (
+--     person_id INTEGER REFERENCES person(id) ON DELETE CASCADE,  -- Person ID
+--     id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+--     PRIMARY KEY (person_id, id)
+-- );
 
 CREATE TABLE IF NOT EXISTS favourites (
     username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID

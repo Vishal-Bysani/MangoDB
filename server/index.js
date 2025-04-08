@@ -10,10 +10,10 @@ const port = 4000;
 // PostgreSQL connection
 // NOTE: use YOUR postgres username and password here
 const pool = new Pool({
-  user: 'atharva',
+  user: 'imdbuser',
   host: 'localhost',
-  database: 'atharva',
-  password: 'atharva',
+  database: 'imdb',
+  password: '123',
   port: 5432,
 });
 
@@ -141,7 +141,7 @@ app.get("/getMatchingItem", async (req, res) => {
     const { text } = req.query;
 
     const movieQuery = await pool.query(
-      "SELECT id, title, category as type, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC LIMIT 20",
+      "SELECT id, title, category as type,rotten_mangoes, rotten_mangoes_votes, poster_path as image, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC LIMIT 20",
       [`%${text}%`]
     );
 
@@ -166,7 +166,7 @@ app.get("/getMatchingItemPages", async (req, res) => {
     const offset = (page - 1) * limit;
 
     const movieQuery = await pool.query(
-      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC",
+      "SELECT id, title,rotten_mangoes,rotten_mangoes_votes, category, poster_path, release_date, vote_average FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC",
       [`%${text}%`]
     );
 
@@ -191,7 +191,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const movieOrShowQuery = await pool.query(
-      "SELECT id, title, category as type, poster_path as image, backdrop_path as backdrop, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating,vote_count as numRating, popularity, overview as description, origin_country FROM movies_shows WHERE id = $1",
+      "SELECT id, title,rotten_mangoes,rotten_mangoes_votes, category as type, poster_path as image, backdrop_path as backdrop, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating,vote_count as numRating, popularity, overview as description, origin_country FROM movies_shows WHERE id = $1",
       [id]
     );
     if(movieOrShowQuery.rows.length === 0){
@@ -236,6 +236,8 @@ app.get("/getMovieShowDetails", async (req, res) => {
       );
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
+        rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
+        rotten_mangoes_votes: movieOrShowQuery.rows[0].rotten_mangoes_votes,
         title: movieOrShowQuery.rows[0].title,
         type: movieOrShowQuery.rows[0].type,
         image: movieOrShowQuery.rows[0].image,
@@ -276,6 +278,8 @@ app.get("/getMovieShowDetails", async (req, res) => {
 
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
+        rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
+        rotten_mangoes_votes: movieOrShowQuery.rows[0].rotten_mangoes_votes,
         title: movieOrShowQuery.rows[0].title,
         type: movieOrShowQuery.rows[0].type,
         image: movieOrShowQuery.rows[0].image,
@@ -350,11 +354,11 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
     const offset = (page - 1) * limit;
 
     const movieOrShowQuery = await pool.query(
-      "SELECT id, title, category, poster_path, release_date, vote_average FROM movies_shows WHERE collection_id = $1 ORDER BY popularity DESC, vote_average",
+      "SELECT id, title, category, rotten_mangoes, rotten_mangoes_votes, poster_path, release_date, vote_average FROM movies_shows JOIN movies_details ON movies_shows.id = movies_details.id WHERE belongs_to_collection = $1 ORDER BY popularity DESC, vote_average",
       [collection_id]
     );
     const collectionQuery = await pool.query(
-      "SELECT name FROM collections WHERE collection_id = $1",
+      "SELECT name, overview, poster_path FROM collections WHERE id = $1",
       [collection_id]
     );
     res.status(200).json({
@@ -372,7 +376,7 @@ app.get("/getMoviesByPopularity", async (req, res) => {
     const {pageNo, pageLimit} = req.query;
     const page = parseInt(pageNo);
     const limit = parseInt(pageLimit);
-    const offset = (page - 1) * limit;
+    const offset = (page - 1) * limit; 
 
     const movieQuery = await pool.query(
       "SELECT id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as year, vote_average as rating FROM movies_shows WHERE category = 'movie' ORDER BY popularity DESC, rating DESC"
@@ -426,7 +430,7 @@ app.get("/filterItems", async (req, res) => {
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
-    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
+    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path, ms.rotten_mangoes, ms.rotten_mangoes_votes as image, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
 
     let conditions = [];
     let values = [];
