@@ -90,7 +90,9 @@ CREATE TABLE IF NOT EXISTS movies_shows (
     origin_country TEXT REFERENCES countries(iso_3166_1) ON DELETE SET NULL,  -- Country Code
     iso_3166_1 TEXT,                -- Country Code
     certificate TEXT,               -- Certificate
-    (iso_3166_1, certificate) REFERENCES certifications(iso_3166_1, certificate) ON DELETE SET NULL,  -- Certificate
+    FOREIGN KEY (iso_3166_1, certificate) REFERENCES certifications(iso_3166_1, certificate) ON DELETE SET NULL,  -- Certificate
+    rotten_mangoes INT CHECK (rotten_mangoes >= 0 AND rotten_mangoes <= 100) DEFAULT 0,  -- Rotten Mangoes Score
+    rotten_mangoes_votes INT DEFAULT 100,  -- Rotten Mangoes Count
 );
 
 CREATE TABLE IF NOT EXISTS movies_shows_genres (
