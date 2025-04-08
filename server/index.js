@@ -221,6 +221,10 @@ app.get("/getMovieShowDetails", async (req, res) => {
       "SELECT person.id, name, department_name, job_title, profile_path AS image FROM person JOIN crew_movies_shows ON person.id = crew_movies_shows.person_id WHERE crew_movies_shows.id = $1 ORDER BY person.popularity DESC",
       [id]
     );
+    const videoQuery = await pool.query(
+      "SELECT video_path as video, type FROM movies_shows JOIN movies_shows_videos ON movies_shows.id = movies_shows_videos.id WHERE movies_shows.id = $1",
+      [id]
+    );
     if(movieOrShowQuery.rows[0].type === "movie"){
       const movieQuery = await pool.query(
         "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
@@ -252,7 +256,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         cast: castQuery.rows,
         crew: crewQuery.rows,
         collection: collectionQuery.rows[0],
-        // movieDetails: movieQuery.rows[0]
+        video: videoQuery.rows,
       });
     }
     else {
@@ -289,7 +293,8 @@ app.get("/getMovieShowDetails", async (req, res) => {
         crew: crewQuery.rows,
         episodes: episodeQuery.rows,
         seasons: seasonQuery.rows,
-        showDetails: showQuery.rows[0]
+        showDetails: showQuery.rows[0],
+        video: videoQuery.rows,
       });
     }
   } catch (error) {
@@ -402,6 +407,7 @@ app.get("/getShowsByPopularity", async (req, res) => {
 app.get("/filterItems", async (req, res) => {
   try {
     const {
+      searchText,
       personId,
       genreId,
       year,
@@ -418,7 +424,7 @@ app.get("/filterItems", async (req, res) => {
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
-    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity FROM movies_shows ms";
+    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
 
     let conditions = [];
     let values = [];
@@ -479,9 +485,6 @@ app.get("/filterItems", async (req, res) => {
 
     baseQuery += ` LIMIT $${idx++} OFFSET $${idx++}`;
     values.push(limit, offset);
-
-    console.log(baseQuery);
-    console.log(values);
     
     const movies = await pool.query(baseQuery, values);
     const items = await Promise.all(movies.rows.map(async (movie) => {
@@ -495,8 +498,8 @@ app.get("/filterItems", async (req, res) => {
       );
       return {
         ...movie,
-        cast : castResult.rows.map((r) => ({character : r.character, name : r.name})),
-        crew : crewResult.rows.map((r) => ({job_title : r.job_title, name : r.name}))
+        cast : castResult.rows,
+        crew : crewResult.rows
       }
     }));
 
@@ -523,10 +526,10 @@ app.get("/listGenres", async (req, res) => {
 
 app.get("/matchingPersons", async (req, res) => {
   try {
-    const { searchText } = req.query;
+    const { searchText, searchLimit } = req.query;
     const personQuery = await pool.query(
-      "SELECT id, name, popularity, profile_path, known_for_department as image FROM person WHERE name ILIKE $1 ORDER BY popularity DESC",
-      [`${searchText}%`]
+      "SELECT id, name, popularity, profile_path, known_for_department as image FROM person WHERE name ILIKE $1 ORDER BY popularity DESC LIMIT $2",
+      [`${searchText}%`, searchLimit]
     );
     res.status(200).json(personQuery.rows);
   } catch (error) {

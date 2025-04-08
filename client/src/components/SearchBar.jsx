@@ -1,0 +1,31 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
+import "../css/SearchBar.css";
+
+const SearchBar = ( { handleSearch, setParentSearchText = null } ) => {
+    const [searchText, setSearchText] = useState("");
+
+    return (
+        <div class="search-bar-container">
+            <input
+                class="search-bar-input"
+                type="text"
+                placeholder="Search for a movie, tv show, person......"
+                aria-label="Search"
+                value={searchText}
+                onChange={(e) => {
+                    setSearchText(e.target.value);
+                    if (setParentSearchText) setParentSearchText(e.target.value);
+                }}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        handleSearch(searchText);
+                    }
+                }}
+            />
+            <button class="search-bar-button" onClick={() => handleSearch(searchText)}>Search</button>
+        </div>
+    )
+}
+
+export default SearchBar;

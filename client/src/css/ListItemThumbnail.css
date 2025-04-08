@@ -48,6 +48,7 @@
     position: relative;
     transition: transform 0.3s ease-out;
     width: max-content;
+    margin: 20px;
 }
 
 .listItemThumbnail-item-wrapper {

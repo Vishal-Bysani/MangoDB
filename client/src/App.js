@@ -10,6 +10,7 @@ import Person from "./pages/Person";
 import NotFound from "./pages/Notfound";
 import ListPersons from "./pages/ListPersons";
 import Genre from "./pages/Genre";
+import Search from "./pages/Search";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
       <Route path="/person/:personId" element={<Person />} />
       <Route path="/items/:itemId/list-persons/:role/" element={<ListPersons />} />
       <Route path="/genre/:genreId" element={<Genre />} />
+      <Route path="/search/:query" element={<Search />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

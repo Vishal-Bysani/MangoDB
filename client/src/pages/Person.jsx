@@ -71,7 +71,7 @@ const Person = () => {
 
                 <div className="person-content">
                     <div className="person-main">
-                        <div style={{display: 'flex', gap: '30px'}}>
+                        <div style={{display: 'flex', gap: '50px'}}>
                             <img 
                                 src={person.image} 
                                 alt={person.name} 

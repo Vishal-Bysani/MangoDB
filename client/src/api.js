@@ -50,7 +50,6 @@ const signupUser = async (username, password, email) => {
 const getItemDetails = async (itemId) => {
     const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`);
     const data = await response.json();
-    console.log(data);
     return data;
 }
 
@@ -245,7 +244,8 @@ const getTrendingShows = async (pageNo = 1, pageLimit = 25) => {
     return data.shows;
 }
 
-const getFilteredItems = async ({personId = null,
+const getFilteredItems = async ({searchText = null,
+                                personId = null,
                                 genreId = null,
                                 year = null,
                                 minRating = null,
@@ -255,8 +255,8 @@ const getFilteredItems = async ({personId = null,
                                 forShow = true,
                                 pageNo = 1,
                                 pageLimit = 10 }) => {
-    
     let baseUrl = `${apiUrl}/filterItems?`;
+    if (searchText) baseUrl += `searchText=${searchText}&`;
     if (personId) baseUrl += `personId=${personId}&`;
     if (genreId) baseUrl += `genreId=${genreId}&`;
     if (year) baseUrl += `year=${year}&`;
@@ -270,13 +270,6 @@ const getFilteredItems = async ({personId = null,
     const response = await fetch(baseUrl);
     const data = await response.json();
     return data.items;
-    return [
-        { itemId: 8, title: "The Office", rating: 9.0, image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
-        { itemId: 8, title: "The Office", rating: 9.0, image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
-        { itemId: 8, title: "The Office", rating: 9.0, image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
-        { itemId: 8, title: "The Office", rating: 9.0, image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
-        { itemId: 8, title: "The Office", rating: 9.0, image: "https://m.media-amazon.com/images/M/MV5BZjQwYzBlYzUtZjhhOS00ZDQ0LWE0NzAtYTk4MjgzZTNkZWEzXkEyXkFqcGc@._V1_QL75_UX190_CR0,2,190,281_.jpg", year: 2008 },
-    ];
 }
 
 const getUserDetails = async () => {
@@ -300,4 +293,16 @@ const getUserDetails = async () => {
     }
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, toggleFavorite, signupUser, getUserDetails };
+const getGenreList = async () => {
+    const response = await fetch(`${apiUrl}/listGenres`);
+    const data = await response.json();
+    return data;
+}
+
+const getMatchingPersons = async (searchText, searchLimit = 5) => {
+    const response = await fetch(`${apiUrl}/matchingPersons?searchText=${searchText}&searchLimit=${searchLimit}`);
+    const data = await response.json();
+    return data;
+}
+
+export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, toggleFavorite, signupUser, getUserDetails, getGenreList, getMatchingPersons };

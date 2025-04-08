@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
 import "../css/ListPersonThumbnail.css";
 import PersonThumbnail from "./PersonThumbnail";
 const ListPersonThumbnail = ({ title, titleFontSize = "30px", personThumbnails }) => {

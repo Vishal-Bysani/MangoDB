@@ -273,7 +273,7 @@ const Item = () => {
                                 <iframe 
                                     width="100%" 
                                     height="100%" 
-                                    src={item.trailerLink ? item.trailerLink.replace('watch?v=', 'embed/') : "https://www.youtube.com/embed/dQw4w9WgXcQ"} 
+                                    src={item.video && item.video.find(v => v.type === "Trailer") ? item.video.find(v => v.type === "Trailer").video.replace('watch?v=', 'embed/') : "https://www.youtube.com/embed/dQw4w9WgXcQ"} 
                                     title="YouTube video player"
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 

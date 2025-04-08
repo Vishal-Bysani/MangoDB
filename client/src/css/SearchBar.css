@@ -1,0 +1,35 @@
+.search-bar-container {
+    width: 65%;
+    margin: 0 auto;
+    display: flex;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.search-bar-input {
+    flex-grow: 1;
+    padding: 15px 25px;
+    font-size: 20px;
+    border: none;
+    outline: none;
+    border-radius: 50px 0 0 50px;
+    background-color: white;
+    color: black;
+}
+
+.search-bar-button {
+    padding: 0 30px;
+    background-color: #10e3a5;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 0 50px 50px 0;
+    transition: background-color 0.2s;
+}
+
+.search-bar-button:hover {
+    background-color: #0cc992;
+}

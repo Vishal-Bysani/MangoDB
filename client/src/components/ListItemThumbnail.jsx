@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
 import ItemThumbnail from "./ItemThumbnail";
 import "../css/ListItemThumbnail.css";
 
