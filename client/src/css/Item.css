@@ -8,7 +8,7 @@ body {
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
-  background-size: 100% 40%;
+  background-size: 100% 860px;
   width: 100%;
   height: 100%;
   margin-top: 100px;
@@ -63,7 +63,7 @@ body {
   display: flex;
   margin-bottom: 20px;
   position: relative;
-  height: 500px;
+  height: 600px;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -74,7 +74,7 @@ body {
 }
 
 .item-poster img {
-  width: 100%;
+  /* width: 100%; */
   height: 100%;
   object-fit: cover;
   border-radius: 16px;
@@ -527,4 +527,15 @@ body {
 
 .favorite-button.favorite-active {
     color: #ff4444;
+}
+
+.login-alert-tooltip {
+  position: absolute;
+  background-color: #1a1a1a;
+  color: #10e3a5;
+  padding: 10px;
+  border: 1px solid #10e3a5;
+  border-radius: 5px;
+  z-index: 1000;
+  font-size: 12px;
 }

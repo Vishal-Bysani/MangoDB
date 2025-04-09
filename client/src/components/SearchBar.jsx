@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import "../css/SearchBar.css";
 
-const SearchBar = ( { handleSearch, setParentSearchText = null } ) => {
-    const [searchText, setSearchText] = useState("");
+const SearchBar = ( { handleSearch, setParentSearchText = null, initialSearchText = "" } ) => {
+    const [searchText, setSearchText] = useState(initialSearchText);
 
     return (
-        <div class="search-bar-container">
+        <div className="search-bar-container">
             <input
-                class="search-bar-input"
+                className="search-bar-input"
                 type="text"
                 placeholder="Search for a movie, tv show, person......"
                 aria-label="Search"
@@ -23,7 +23,7 @@ const SearchBar = ( { handleSearch, setParentSearchText = null } ) => {
                     }
                 }}
             />
-            <button class="search-bar-button" onClick={() => handleSearch(searchText)}>Search</button>
+            <button className="search-bar-button" onClick={() => handleSearch(searchText)}>Search</button>
         </div>
     )
 }

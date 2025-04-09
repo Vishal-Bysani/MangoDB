@@ -62,8 +62,11 @@ const Search = () => {
             <div className="search-page-header">
                 <SearchBar handleSearch={(searchText) => {
                         setSearchQuery(searchText);
+                        setPageNo(1);
+                        handleFilterSubmit();
                     }}
                     setParentSearchText={setSearchQuery}
+                    initialSearchText={searchQuery}
                 />
             </div>
             <div className="search-page-container">
@@ -186,7 +189,7 @@ const Search = () => {
                             </label>
                         </div>
                         <div className="search-page-submit-button">
-                            <button onClick={handleFilterSubmit}>Submit</button>
+                            <button onClick={() => {setPageNo(1); handleFilterSubmit()}}>Submit</button>
                         </div>
                     </div>
                 </div>

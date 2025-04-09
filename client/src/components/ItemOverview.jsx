@@ -20,10 +20,15 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                     />
                 </div>
                 <div className="item-overview-info-container">
-                    <h1 onClick={() => navigate(`/item/${itemId}`)} style={{ cursor: "pointer", fontSize: "36px", fontWeight: "bolder", color: "#10e3a5" }}>{title}</h1>
+                    <p onClick={() => navigate(`/item/${itemId}`)} style={{ cursor: "pointer", fontSize: "36px", fontWeight: "bolder", color: "#10e3a5", marginBottom: "10px" }}>{title}</p>
+                    <div className="item-overview-rating-container">
+                        <p style={{fontWeight: 'bold'}}><span className="item-overview-yellow-star">★</span> {parseFloat(rating).toFixed(1)}/10</p>
+                        { userRating > 0 && <p style={{fontWeight: 'bold'}}><span className="item-overview-blue-star">★</span> {parseFloat(userRating).toFixed(1)}/10</p> }
+                    </div>
                     { year && <p>{year}</p> }
                     { startYear && endYear && <p>{startYear} - {endYear}</p> }
-                    <p>{description}</p>
+                    { cast && cast.length > 0 && <p>{cast.slice(0, 4).map(c => c.name).join(', ')}</p> }
+                    <p style={{marginTop: "10px", fontSize: "18px", fontWeight: "normal"}}>{description}</p>
                 </div>
             </div>
         </div>

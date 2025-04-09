@@ -230,7 +230,22 @@ const Item = () => {
                                     <h4 style={{fontSize: '15px', fontWeight: 'bold', width: '120px'}} >YOUR RATING</h4>
                                     <div className="rate-button">
                                         <button className="rate-button">
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} onClick={() => setIsRatingPopupOpen(true)}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }} onClick={(e) => {
+                                                    if (loggedInData.loggedIn) {
+                                                        setIsRatingPopupOpen(true);
+                                                    } else {
+                                                        const tooltip = document.createElement("div");
+                                                        tooltip.className = "login-alert-tooltip";
+                                                        tooltip.textContent = "You need to log in to rate this item.";
+                                                        tooltip.style.top = `${e.clientY + 20}px`;
+                                                        tooltip.style.left = `${e.clientX - 30}px`;
+                                                        document.body.appendChild(tooltip);
+
+                                                        setTimeout(() => {
+                                                            tooltip.remove();
+                                                        }, 3000);
+                                                    }
+                                                }}>
                                                 { rating > 0 ? (
                                                     <>
                                                         <span className="star-outline">★</span>
@@ -351,11 +366,26 @@ const Item = () => {
                         <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.cast} />
                     )}
 
-                    {item.reviews && <div>
+                    {item.reviews && item.reviews.length > 0 && <div>
                         <div style={{display: 'flex'}}>
                             <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
                             <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`, {state: {title: item.title}})}></p>
-                            <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={() => setIsReviewPopupOpen(true)}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
+                            <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={(e) => {
+                                if (loggedInData.loggedIn) {
+                                    setIsReviewPopupOpen(true);
+                                } else {
+                                    const tooltip = document.createElement("div");
+                                    tooltip.className = "login-alert-tooltip";
+                                    tooltip.textContent = "You need to log in to review this item.";
+                                    tooltip.style.top = `${e.clientY + 20 + window.scrollY}px`;
+                                    tooltip.style.left = `${e.clientX - 30}px`;
+                                    document.body.appendChild(tooltip);
+
+                                    setTimeout(() => {
+                                        tooltip.remove();
+                                    }, 3000);
+                                }
+                            }}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
                         </div>
                         <div className="review-container">
                             {item.reviews.slice(0,3).map(review => (
