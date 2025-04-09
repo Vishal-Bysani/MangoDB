@@ -148,7 +148,7 @@ const Item = () => {
             {/* <div className="item-page-container" style={{backgroundImage: `url(${item.backdrop})`}}> */}
             <div className="item-page-container">
                 <div className="item-page">
-                    {item.type === "tv" && (
+                    {item.category === "tv" && (
                         <>
                             <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/episodes`)}>
                                 <p style={{textDecoration: 'none'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Episode Guide</p>
@@ -167,7 +167,7 @@ const Item = () => {
                                 > ❤ </button>
                             </div>
                             <div className="item-metadata">
-                                {item.type === "tv" ? (
+                                {item.category === "tv" ? (
                                     <>
                                         <span>TV Series</span>
                                         <span>&nbsp;·&nbsp;</span>
@@ -211,8 +211,9 @@ const Item = () => {
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px'}}>
                                         <img src="/rotten-mangoes.png" alt="Logo" style={{width: "30px"}}>
                                         </img>
-                                            <span className="rating-value" style={{fontSize: '24px'}}>96%</span>
+                                            <span className="rating-value" style={{fontSize: '24px'}}>{item.rotten_mangoes}</span>
                                         </div>
+                                        <span className="rating-count">{parseInt(item.rotten_mangoes_votes) >= 1000000 ? ( Math.floor(parseInt(item.rotten_mangoes_votes)/100000)/10 + ' M') : ( parseInt(item.rotten_mangoes_votes) >= 1000 ? (  Math.floor(parseInt(item.rotten_mangoes_votes)/100)/10 + ' K') : (item.rotten_mangoes_votes) )}</span>
                                     </div>
                                 </div>
                                 <div className="mangodb-rating">
@@ -278,11 +279,11 @@ const Item = () => {
                             <div className="item-trailer-container">
                                 <div className="item-poster">
                                     <img 
-                                        src={item.image} 
+                                        src={item.image ? item.image : "/item-backdrop.svg"}
                                         alt={item.title} 
                                         onError={(e) => {
                                             e.target.onerror = null;
-                                            e.target.src = "/mangodb-logo.png"; // Fallback image
+                                            e.target.src = "/item-backdrop.svg"; // Fallback image
                                         }}
                                     />
                                 </div>

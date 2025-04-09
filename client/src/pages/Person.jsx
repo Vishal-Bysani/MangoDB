@@ -73,7 +73,7 @@ const Person = () => {
                     <div className="person-main">
                         <div style={{display: 'flex', gap: '50px'}}>
                             <img 
-                                src={person.image} 
+                                src={person.image ? person.image : "/person-backdrop.svg"} 
                                 alt={person.name} 
                                 className="person-image"
                                 onError={(e) => {
@@ -84,10 +84,10 @@ const Person = () => {
                             <div className="person-description">
                                 <p>{person.description}</p>
                                 <div style={{display: "flex", gap: '10px'}}>
-                                    <span style={{display: 'flex'}}>
+                                    { person.birthday && <span style={{display: 'flex'}}>
                                         <p style={{fontWeight: 'bolder'}}>Born:&nbsp;</p>
                                         <p> {moment(person.birthday).format('DD MMMM YYYY')} </p>
-                                    </span>
+                                    </span> }
                                     {person.deathday && (
                                         <>  
                                             <p>·</p>

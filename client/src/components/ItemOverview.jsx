@@ -9,11 +9,11 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
             <div className="item-overview-content">
                 <div className="item-overview-image-container">
                     <img
-                        src={image}
+                        src={image ? image : "/item-backdrop.svg"}
                         alt={title}
                         onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = "/mangodb-logo.png";
+                            e.target.src = "/item-backdrop.svg";
                         }}
                         className="item-overview-image"
                         onClick={() => navigate(`/item/${itemId}`)}

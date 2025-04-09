@@ -41,11 +41,11 @@ const Profile = () => {
                     <div className="profile-stats-container">
                         <div className="profile-image-container">
                             <img
-                                src={user.image ? user.image : "/mangodb-logo.png"}
+                                src={user.image ? user.image : "/person-backdrop.svg"}
                                 alt="Profile"
                                 onError={(e) => {
                                     e.target.onerror = null;
-                                    e.target.src = "/mangodb-logo.png";
+                                    e.target.src = "/person-backdrop.svg";
                                 }}
                                 className="profile-image"
                             />

@@ -9,7 +9,8 @@ import SearchBar from "../components/SearchBar";
 
 const Search = () => {
     const { query } = useParams();
-    const totalPages = 10;
+
+    const [totalPages, setTotalPages] = useState(null);
 
     const [searchQuery, setSearchQuery] = useState(query);
 
@@ -201,8 +202,8 @@ const Search = () => {
             </div>
             <div className="search-page-pagination-container">
                     <button className="search-page-pagination-button" onClick={() => setPageNo(Math.max(pageNo - 1, 1))} disabled={pageNo === 1}>Previous</button>
-                    <span className="search-page-pagination-info">{pageNo} of {totalPages}</span>
-                <button className="search-page-pagination-button" onClick={() => setPageNo(Math.min(pageNo + 1, totalPages))} disabled={pageNo === totalPages}>Next</button>
+                    <span className="search-page-pagination-info">{pageNo} { totalPages && `of ${totalPages}`}</span>
+                <button className="search-page-pagination-button" onClick={() => setPageNo(Math.min(pageNo + 1, totalPages ? totalPages : pageNo + 1))} disabled={pageNo === totalPages}>Next</button>
             </div>
         </div>
     )

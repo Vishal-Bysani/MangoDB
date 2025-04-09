@@ -57,7 +57,7 @@ const ListPersons = () => {
                     {persons.map(person => (
                         <div className="list-person-card" key={person.id}>
                             <img 
-                                src={person.image} 
+                                src={person.image ? person.image : "/person-backdrop.svg"} 
                                 alt={person.name}
                                 onError={(e) => {
                                     e.target.onerror = null;

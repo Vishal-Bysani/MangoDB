@@ -6,15 +6,15 @@ const cors = require("cors");
 const { Pool } = require("pg");
 const app = express();
 const port = 4000;
+const config = require('./config');
 
 // PostgreSQL connection
-// NOTE: use YOUR postgres username and password here
 const pool = new Pool({
-  user: 'imdbuser',
-  host: 'localhost',
-  database: 'imdb',
-  password: '123',
-  port: 5432,
+  user: config.user,
+  host: config.host,
+  database: config.database,
+  password: config.password,
+  port: config.port,
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -191,7 +191,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const movieOrShowQuery = await pool.query(
-      "SELECT id, title,rotten_mangoes,rotten_mangoes_votes, category as type, poster_path as image, backdrop_path as backdrop, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating,vote_count as numRating, popularity, overview as description, origin_country FROM movies_shows WHERE id = $1",
+      "SELECT id, title, rotten_mangoes, rotten_mangoes_votes, category as type, poster_path as image, backdrop_path as backdrop, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating, vote_count as \"numRating\", popularity, overview as description, origin_country FROM movies_shows WHERE id = $1",
       [id]
     );
     if(movieOrShowQuery.rows.length === 0){
@@ -430,7 +430,7 @@ app.get("/filterItems", async (req, res) => {
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
-    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path, ms.rotten_mangoes, ms.rotten_mangoes_votes as image, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
+    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, ms.rotten_mangoes, ms.rotten_mangoes_votes, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
 
     let conditions = [];
     let values = [];

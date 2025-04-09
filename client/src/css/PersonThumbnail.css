@@ -28,3 +28,10 @@
     color: #666;
     font-size: 14px;
 }
+
+.person-thumbnail-image-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    min-height: 315px;
+}

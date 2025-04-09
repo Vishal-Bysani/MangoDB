@@ -77,12 +77,12 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
                 >
                   <div className="search-result-content">
                     <img 
-                      src={item.image} 
+                      src={item.image ? item.image : "/item-backdrop.svg"} 
                       alt={item.title} 
                       className="search-result-image" 
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "/mangodb-logo.png"; // Fallback image
+                        e.target.src = "/item-backdrop.svg"; // Fallback image
                       }}
                     />
                     <div className="search-result-info">
