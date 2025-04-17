@@ -179,7 +179,7 @@ app.post("/login",  async (req, res) => {
     }
     req.session.email = dbUser.email;
     req.session.username = dbUser.username;
-    // console.log("User logged in successfully:", req.session);
+    console.log("User logged in successfully:", req.session);
     res.status(200).json({message:"Login successful"});
   }
   catch (err) {
@@ -306,6 +306,13 @@ app.get("/getMovieShowDetails", async (req, res) => {
       "SELECT video_path as video, type FROM movies_shows JOIN movies_shows_videos ON movies_shows.id = movies_shows_videos.id WHERE movies_shows.id = $1",
       [id]
     );
+    const favouriteQuery = await pool.query(
+      "SELECT * FROM favourites WHERE username = $1 AND id = $2",
+      [req.session.username, id]
+    );
+    console.log("favouriteQuery: " + favouriteQuery.rows);
+    console.log("req.session.username: " + req.session.username);
+    console.log("id: " + id);
     if(movieOrShowQuery.rows[0].type === "movie"){
       const movieQuery = await pool.query(
         "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
@@ -341,6 +348,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         collection: collectionQuery.rows[0],
         video: videoQuery.rows,
         backdrop: movieOrShowQuery.rows[0].backdrop,
+        favourite: favouriteQuery.rows.length > 0,
       });
     }
     else {
@@ -382,6 +390,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         showDetails: showQuery.rows[0],
         video: videoQuery.rows,
         backdrop: movieOrShowQuery.rows[0].backdrop,
+        favourite: favouriteQuery.rows.length > 0,
       });
     }
   } catch (error) {
@@ -960,18 +969,18 @@ app.get("/getUserDetails", async (req, res) => {
       [username]
     );
     const followersQuery = await pool.query(
-      "SELECT * FROM following WHERE followed_username = $1",
+      "SELECT username FROM following WHERE followed_username = $1",
       [username]
     );
     const followingQuery = await pool.query(
-      "SELECT * FROM following WHERE username = $1",
+      "SELECT followed_username as username FROM following WHERE following.username = $1",
       [username]
     );
     console.log("joinDateQuery.rows: " + JSON.stringify(joinDateQuery.rows));
     console.log(joinDateQuery.rows[0].joinDate);
     res.status(200).json({
       joinDate: joinDateQuery.rows[0].joinDate.toISOString().split('T')[0],
-      favorites: favouritesQuery.rows,
+      favourites: favouritesQuery.rows,
       watchlist: watchlistQuery.rows,
       watchedList: watchedListQuery.rows,
       followers: followersQuery.rows,
