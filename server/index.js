@@ -855,6 +855,48 @@ app.post("/removeFromWatchedList", isAuthenticated, async (req, res) => {
   }
 });
 
+app.get("/getFollowers", isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const followersQuery = await pool.query(
+      "SELECT * FROM following WHERE followed_username = $1",
+      [username]
+    );
+    res.status(200).json(followersQuery.rows);
+  } catch (error) {
+    console.error("Error fetching followers:", error);
+    res.status(500).json({ message: "Error getting followers" });
+  }
+});
+
+app.get("/getFollowing", isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const followingQuery = await pool.query(
+      "SELECT * FROM following WHERE username = $1",
+      [username]
+    );
+    res.status(200).json(followingQuery.rows);
+  } catch (error) {
+    console.error("Error fetching following:", error);
+    res.status(500).json({ message: "Error getting following" });
+  }
+});
+
+app.post("/followUser", isAuthenticated, async (req, res) => {
+  try {
+    const { followed_username } = req.query;
+    const username = req.session.username;
+    const followUserQuery = await pool.query(
+      "INSERT INTO following (username, followed_username) VALUES ($1, $2)",
+      [username, followed_username]
+    );
+    res.status(200).json({message: "Followed user"});
+  } catch (error) {
+    console.error("Error following user:", error);
+    res.status(500).json({ message: "Error following user" });
+  }
+});
 
 ////////////////////////////////////////////////////
 // Start the server
