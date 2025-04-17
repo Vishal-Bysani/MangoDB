@@ -310,9 +310,6 @@ app.get("/getMovieShowDetails", async (req, res) => {
       "SELECT * FROM favourites WHERE username = $1 AND id = $2",
       [req.session.username, id]
     );
-    console.log("favouriteQuery: " + favouriteQuery.rows);
-    console.log("req.session.username: " + req.session.username);
-    console.log("id: " + id);
     if(movieOrShowQuery.rows[0].type === "movie"){
       const movieQuery = await pool.query(
         "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
@@ -951,7 +948,6 @@ app.post("/followUser", isAuthenticated, async (req, res) => {
 app.get("/getUserDetails", async (req, res) => {
   try {
     const username = req.query.username;
-    console.log("username: " + username);
     const joinDateQuery = await pool.query(
       "SELECT DATE(registration_time) AS \"joinDate\" FROM users WHERE username = $1",
       [username]
@@ -976,8 +972,6 @@ app.get("/getUserDetails", async (req, res) => {
       "SELECT followed_username as username FROM following WHERE following.username = $1",
       [username]
     );
-    console.log("joinDateQuery.rows: " + JSON.stringify(joinDateQuery.rows));
-    console.log(joinDateQuery.rows[0].joinDate);
     res.status(200).json({
       joinDate: joinDateQuery.rows[0].joinDate.toISOString().split('T')[0],
       favourites: favouritesQuery.rows,
