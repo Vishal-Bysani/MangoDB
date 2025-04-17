@@ -83,10 +83,8 @@ app.post('/signup', async (req, res) => {
       html: `<p>Click <a href="${url}">here</a> to verify your email.</p>`,
     });
     
-    req.session.email = result.rows[0].email;
-    req.session.username = result.rows[0].username;
     console.log("Email sent successfully:", result.rows[0]);
-    res.status(200).json({message: "User Registered Successfully", mail_sent : true});
+    res.status(200).json({message: "Email sent successfully", mail_sent : true});
   }
   catch (error){
     console.error("Error signing up:", error);
@@ -111,12 +109,25 @@ app.get("/verify-email", async (req, res) => {
       return res.status(400).json({ message: "Token is required" });
     }
     const {email} = jwt.verify(token, config.JWT_SECRET);
-    console.log("Email verification token:", email);
-    console.log("Email verification token:", token);
     const result = await pool.query("UPDATE users SET is_authenticated = true WHERE email = $1", [email]);
     if (result.rowCount === 0) {
-      return res.status(400).json({ message: "Invalid token" });
+      return res.status(400).send(
+        `<html>
+          <head>
+            <title>Oops!</title>
+          </head>
+          <body style="text-align: center; font-family: Arial, sans-serif, padding-top :100px;">
+            <h1>⚠️ Invalid or Expired Link</h1>
+            <p>Please try signing up again or request a new verification link.</p>
+          </body>
+        </html>`
+      );
     }
+
+    const user = await pool.query("SELECT username FROM users WHERE email = $1", [email]);
+    req.session.username = user.rows[0].username;
+    req.session.email = email;
+
     res.status(200).send(
       `<html>
         <head>
@@ -128,7 +139,6 @@ app.get("/verify-email", async (req, res) => {
         </body>
       </html>`
     )
-    res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
     console.error("Error verifying email:", error);
     res.status(400).send(
@@ -142,7 +152,7 @@ app.get("/verify-email", async (req, res) => {
         </body>
       </html>`
     )
-  }
+  };
 });
 
 // return JSON object with the following fields: {email, password}
@@ -151,10 +161,10 @@ app.post("/login",  async (req, res) => {
     const {user, password} = req.body;
     let user_row;
     if(user.includes("@")){
-      user_row = await pool.query("SELECT * FROM users WHERE email = $1", [user]);
+      user_row = await pool.query("SELECT * FROM users WHERE email = $1 AND is_authenticated = true", [user]);
     }
     else{
-      user_row = await pool.query("SELECT * FROM users WHERE username = $1", [user]);
+      user_row = await pool.query("SELECT * FROM users WHERE username = $1 AND is_authenticated = true", [user]);
     }
     // console.log("Received login request:", user_row.rows);
     if(user_row.rows.length === 0){
