@@ -179,7 +179,7 @@ app.post("/login",  async (req, res) => {
     }
     req.session.email = dbUser.email;
     req.session.username = dbUser.username;
-    console.log("User logged in successfully:", req.session);
+    // console.log("User logged in successfully:", req.session);
     res.status(200).json({message:"Login successful"});
   }
   catch (err) {
