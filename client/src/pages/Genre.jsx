@@ -45,8 +45,8 @@ const Genre = () => {
             <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             <div className="genre-container">
                 <h1 className="genre-title">{genreName}</h1>
-                { genreMovies && genreMovies.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Movies`} titleFontSize="44px" itemThumbnails={genreMovies} /> }
-                { genreShows && genreShows.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Shows`} titleFontSize="44px" itemThumbnails={genreShows} /> }
+                { genreMovies && genreMovies.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Movies`} titleFontSize="44px" itemThumbnails={genreMovies} loggedIn={loggedInData.loggedIn}/> }
+                { genreShows && genreShows.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Shows`} titleFontSize="44px" itemThumbnails={genreShows} loggedIn={loggedInData.loggedIn}/> }
             </div>
         </>
     );

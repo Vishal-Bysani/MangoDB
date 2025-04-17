@@ -1,9 +1,12 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { toggleWatchListed } from "../api";
 import "../css/ItemThumbnail.css";
 
-const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, crew }, ref) => {
+const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, crew, isWatchListed, loggedIn }, ref) => {
     const navigate = useNavigate();
+    const [watchListed, setWatchListed] = useState(isWatchListed);
+    
     return (
         <>
             <div 
@@ -21,9 +24,32 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
                             e.target.src = "/item-backdrop.svg";
                         }}
                     />
+                    <button className="ItemThumbnail-plus-button" onClick={(e) => { e.stopPropagation(); if (loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } }} aria-label="Add to list">
+                        { !watchListed ? 
+                            <p style={{fontSize: '20px', color: 'white'}}>+</p>
+                        :
+                            <div className="ItemThumbnail-tick-icon">
+                                <svg 
+                                    width="16" 
+                                    height="16" 
+                                    viewBox="0 0 24 24" 
+                                    fill="none" 
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path 
+                                        d="M20 6L9 17L4 12" 
+                                        stroke="#00e6c3" 
+                                        strokeWidth="3" 
+                                        strokeLinecap="round" 
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                            </div>
+                        }
+                    </button>
                 </div>
                 <div className="ItemThumbnail-rating-container">
-                    <p style={{fontWeight: 'bold'}}><span className="ItemThumbnail-yellow-star">★</span> {parseFloat(rating).toFixed(1)}/10</p>
+                    { rating && <p style={{fontWeight: 'bold'}}><span className="ItemThumbnail-yellow-star">★</span> {parseFloat(rating).toFixed(1)}/10</p> }
                     { userRating > 0 && <p style={{fontWeight: 'bold'}}><span className="ItemThumbnail-blue-star">★</span> {parseFloat(userRating).toFixed(1)}/10</p> }
                 </div>
                 <h4>{title}</h4>

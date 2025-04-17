@@ -58,6 +58,7 @@ body {
     text-align: center;
     min-height: 80px;
     width: 150px;
+    cursor: pointer;
 }
 
 .stat-label {

@@ -46,4 +46,27 @@
     height: 100%;
     border-radius: 4px;
     min-height: 315px;
+    position: relative;
+}
+
+.ItemThumbnail-plus-button {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 0 0 30% 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+}
+
+.ItemThumbnail-plus-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 1;
 }

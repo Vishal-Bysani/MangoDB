@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ItemThumbnail from "./ItemThumbnail";
 import "../css/ListItemThumbnail.css";
 
-const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails }) => {
+const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, loggedIn }) => {
     const [startingIndex, setStartingIndex] = useState(0);
     const [rowLimit, setRowLimit] = useState(5);
     const containerRef = useRef(null);
@@ -90,6 +90,8 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails }) => {
                                     endYear={itemThumbnail.endYear}
                                     cast={itemThumbnail.cast}
                                     crew={itemThumbnail.crew}
+                                    isWatchListed={itemThumbnail.isWatchListed}
+                                    loggedIn={loggedIn}
                                 />
                             </div>
                         ))}

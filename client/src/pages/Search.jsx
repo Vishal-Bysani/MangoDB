@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import Navbar from "../components/NavBar";
 import "../css/Search.css";
-import { getGenreList, getFilteredItems, getMatchingPersons } from "../api";
+import { getGenreList, getFilteredItems, getMatchingPersons, getLoggedIn } from "../api";
 import ListItemOverview from "../components/ListItemOverview";
 import SearchDropdown from "../components/SearchDropdown";
 import SearchBar from "../components/SearchBar";
@@ -36,8 +36,9 @@ const Search = () => {
     const [forMovie, setForMovie] = useState(true);
     const [forShow, setForShow] = useState(true);
 
-    
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
     const [pageNo, setPageNo] = useState(1);
+
     
     const pageLimit = 10;
 
@@ -57,9 +58,20 @@ const Search = () => {
         handleFilterSubmit();
     }, [pageNo]);
 
+
+    useEffect(() => {
+        getLoggedIn().then(response => {
+            if (response.status === 200) {
+                response.json().then(data => {
+                    setLoggedInData(data);
+                });
+            }
+        });
+    }, []);
+
     return (
         <div>
-            <Navbar />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             <div className="search-page-header">
                 <SearchBar handleSearch={(searchText) => {
                         setSearchQuery(searchText);
@@ -196,7 +208,7 @@ const Search = () => {
                 </div>
                 <div className="search-page-results-container">
                     <div className="search-page-results-container-title">
-                        { matchingItems && matchingItems.length > 0 ? <ListItemOverview  itemOverviewList={matchingItems} /> : <div className="search-page-results-container-no-results">No results found</div>}
+                        { matchingItems && matchingItems.length > 0 ? <ListItemOverview  itemOverviewList={matchingItems} loggedIn={loggedInData.loggedIn}/> : <div className="search-page-results-container-no-results">No results found</div>}
                     </div>
                 </div>
             </div>

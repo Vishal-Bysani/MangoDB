@@ -13,6 +13,7 @@ const Signup = () => {
     email: "",
   });
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,7 +35,7 @@ const Signup = () => {
 
     signupUser(formData.username, formData.password, formData.email).then(response => {
       if (response.status === 200) {
-        navigate("/dashboard");
+        setMessage("Email successfully sent to your email address. Please verify your email to continue. Reload once done.");
       } else {
         setError(response.json().then(data => data.message));
       }
@@ -49,6 +50,7 @@ const Signup = () => {
       <div className="signup-card">
         <h2>Sign Up</h2>
         {error && <p className="error-message">{error}</p>}
+        {message && <p className="message">{message}</p>}
         <form onSubmit={handleSubmit} method="POST">
           <div className="form-group">
             <label htmlFor="username">Username</label>

@@ -511,7 +511,7 @@ body {
   font-family: inherit;
 }
 
-.favorite-button {
+.favourite-button {
     background: none;
     border: none;
     font-size: 44px;
@@ -521,11 +521,11 @@ body {
     transition: color 0.2s ease;
 }
 
-.favorite-button:hover {
+.favourite-button:hover {
     color: #ff4444;
 }
 
-.favorite-button.favorite-active {
+.favourite-button.favourite-active {
     color: #ff4444;
 }
 

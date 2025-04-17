@@ -107,7 +107,7 @@ const Person = () => {
                             </div>
                         </div>
                         { person.knownFor && person.knownFor.length > 0 && (
-                            <ListItemThumbnail title="Known For" itemThumbnails={person.knownFor} />
+                            <ListItemThumbnail title="Known For" itemThumbnails={person.knownFor} loggedIn={loggedInData.loggedIn}/>
                         )}
 
                         {person.awards && person.awards.length > 0 && (

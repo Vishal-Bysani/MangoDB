@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { getLoggedIn, getItemDetails, submitRating, submitReview, toggleFavorite } from "../api";
+import { getLoggedIn, getItemDetails, submitRating, submitReview, setFavourite, toggleWatchListed } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/Item.css"
 import ListPersonThumbnail from "../components/ListPersonThumbnail";
@@ -31,7 +31,7 @@ const Item = () => {
     const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
     const [directors, setDirectors] = useState([]);
     const [writers, setWriters] = useState([]);
-
+    const [watchListed, setWatchListed] = useState(false);
     useEffect(() => {
         getLoggedIn().then(response => {
             if (response.status === 200) {
@@ -48,8 +48,10 @@ const Item = () => {
             const data = await getItemDetails(itemId);
             setItem(data);
             if (data && data.user_rating) setRating(data.user_rating);
-            setDirectors(data.crew.filter(crew => crew.job_title === "Director"));
-            setWriters(data.crew.filter(crew => crew.department_name === "Writing"));
+            if (data.crew) {
+                setDirectors(data.crew.filter(crew => crew.job_title === "Director"));
+                setWriters(data.crew.filter(crew => crew.department_name === "Writing"));
+            }
             setLoading(false);
         };
         fetchItemDetails();
@@ -161,9 +163,16 @@ const Item = () => {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
                                 <h1 className="item-title">{item.title}</h1>
                                 <button 
-                                    className={`favorite-button ${item.favorite ? 'favorite-active' : ''}`}
-                                    onClick={() => { toggleFavorite(item.id); setItem(prevItem => ({...prevItem, favorite: !prevItem.favorite})); }}
-                                    aria-label="Toggle favorite"
+                                    className={`favourite-button ${item.favourite ? 'favourite-active' : ''}`}
+                                    onClick={() => {
+                                        if (loggedInData.loggedIn) {
+                                            setFavourite(item.id, !item.favourite);
+                                            setItem(prevItem => ({...prevItem, favourite: !prevItem.favourite}));
+                                        } else {
+                                            navigate("/login");
+                                        }
+                                    }}
+                                    aria-label="Toggle favourite"
                                 > ❤ </button>
                             </div>
                             <div className="item-metadata">
@@ -286,6 +295,29 @@ const Item = () => {
                                             e.target.src = "/item-backdrop.svg"; // Fallback image
                                         }}
                                     />
+                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } }} aria-label="Add to list">
+                                        { !watchListed ? 
+                                            <p style={{fontSize: '20px', color: 'white'}}>+</p>
+                                        :
+                                            <div className="ItemThumbnail-tick-icon">
+                                                <svg 
+                                                    width="16" 
+                                                    height="16" 
+                                                    viewBox="0 0 24 24" 
+                                                    fill="none" 
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path 
+                                                        d="M20 6L9 17L4 12" 
+                                                        stroke="#00e6c3" 
+                                                        strokeWidth="3" 
+                                                        strokeLinecap="round" 
+                                                        strokeLinejoin="round"
+                                                    />
+                                                </svg>
+                                            </div>
+                                        }
+                                    </button>
                                 </div>
                                 <div className="item-trailer">
                                     <iframe 
@@ -367,27 +399,27 @@ const Item = () => {
                         <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.cast} />
                     )}
 
-                    {item.reviews && item.reviews.length > 0 && <div>
-                        <div style={{display: 'flex'}}>
-                            <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
-                            <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`, {state: {title: item.title}})}></p>
-                            <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={(e) => {
-                                if (loggedInData.loggedIn) {
-                                    setIsReviewPopupOpen(true);
-                                } else {
-                                    const tooltip = document.createElement("div");
-                                    tooltip.className = "login-alert-tooltip";
-                                    tooltip.textContent = "You need to log in to review this item.";
-                                    tooltip.style.top = `${e.clientY + 20 + window.scrollY}px`;
-                                    tooltip.style.left = `${e.clientX - 30}px`;
-                                    document.body.appendChild(tooltip);
+                    <div style={{display: 'flex'}}>
+                        <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
+                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`, {state: {title: item.title, reviews: item.reviews}})}></p>
+                        <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={(e) => {
+                            if (loggedInData.loggedIn) {
+                                setIsReviewPopupOpen(true);
+                            } else {
+                                const tooltip = document.createElement("div");
+                                tooltip.className = "login-alert-tooltip";
+                                tooltip.textContent = "You need to log in to review this item.";
+                                tooltip.style.top = `${e.clientY + 20 + window.scrollY}px`;
+                                tooltip.style.left = `${e.clientX - 30}px`;
+                                document.body.appendChild(tooltip);
 
-                                    setTimeout(() => {
-                                        tooltip.remove();
-                                    }, 3000);
-                                }
-                            }}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
-                        </div>
+                                setTimeout(() => {
+                                    tooltip.remove();
+                                }, 3000);
+                            }
+                        }}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
+                    </div>
+                    {item.reviews && item.reviews.length > 0 && <div>
                         <div className="review-container">
                             {item.reviews.slice(0,3).map(review => (
                                 <div key={review.id} className="review">

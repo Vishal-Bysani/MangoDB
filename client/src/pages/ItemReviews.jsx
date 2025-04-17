@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn, getItemReviews } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/ItemReviews.css";
@@ -11,6 +11,7 @@ const ItemReviews = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,17 +22,12 @@ const ItemReviews = () => {
                 });
             }
         });
+        if (location.state) {
+            setItemReviews(location.state.reviews);
+            setTitle(location.state.title);
+            if (location.state.reviews) setTotalPages(Math.ceil(location.state.reviews.length / 5));
+        }
     }, []);
-
-    useEffect(() => {
-        const fetchReviews = async () => {
-            const reviews = await getItemReviews(itemId, currentPage);
-            setItemReviews(reviews.reviews);
-            setTotalPages(reviews.totalPages);
-            setTitle(reviews.title);
-        };
-        fetchReviews();
-    }, [itemId, currentPage]);
 
 
     return (
@@ -40,7 +36,7 @@ const ItemReviews = () => {
             <div className="item-reviews-page" style={{marginTop: '200px'}}>
                 <h1 className="item-reviews-title" onClick={() => navigate(`/item/${itemId}`)} style={{cursor: 'pointer'}}>{title}</h1>
                 <div className="reviews-container">
-                    {itemReviews && itemReviews.map(review => (
+                    {itemReviews && itemReviews.slice((currentPage - 1) * 5, currentPage * 5).map(review => (
                         <div key={review.reviewId} className="review-card">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                                 <span className="star">★</span>

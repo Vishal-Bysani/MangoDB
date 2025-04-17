@@ -1,9 +1,11 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { toggleWatchListed } from "../api";
 import "../css/ItemOverview.css";
 
-const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, crew , description }, ref) => {
+const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, crew , description, loggedIn }, ref) => {
     const navigate = useNavigate();
+    const [watchListed, setWatchListed] = useState(false);
     return (
         <div className="item-overview-container" ref={ref}>
             <div className="item-overview-content">
@@ -18,6 +20,29 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                         className="item-overview-image"
                         onClick={() => navigate(`/item/${itemId}`)}
                     />
+                    <button className="ItemThumbnail-plus-button" style={{width: '50px', height: '50px'}} onClick={(e) => { e.stopPropagation(); if (loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } }} aria-label="Add to list">
+                        { !watchListed ? 
+                            <p style={{fontSize: '20px', color: 'white'}}>+</p>
+                        :
+                            <div className="ItemThumbnail-tick-icon">
+                                <svg 
+                                    width="16" 
+                                    height="16" 
+                                    viewBox="0 0 24 24" 
+                                    fill="none" 
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path 
+                                        d="M20 6L9 17L4 12" 
+                                        stroke="#00e6c3" 
+                                        strokeWidth="3" 
+                                        strokeLinecap="round" 
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                            </div>
+                        }
+                    </button>
                 </div>
                 <div className="item-overview-info-container">
                     <p onClick={() => navigate(`/item/${itemId}`)} style={{ cursor: "pointer", fontSize: "36px", fontWeight: "bolder", color: "#10e3a5", marginBottom: "10px" }}>{title}</p>

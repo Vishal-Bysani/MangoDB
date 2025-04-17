@@ -51,8 +51,8 @@ const Home = () => {
                     }} />
                 </div>
             <div className="home-container">
-                { trendingMovies && trendingMovies.length > 0 && <ListItemThumbnail title="Trending Movies" titleFontSize="44px" itemThumbnails={trendingMovies} /> }
-                { trendingShows && trendingShows.length > 0 && <ListItemThumbnail title="Trending Shows" titleFontSize="44px" itemThumbnails={trendingShows} /> }
+                { trendingMovies && trendingMovies.length > 0 && <ListItemThumbnail title="Trending Movies" titleFontSize="44px" itemThumbnails={trendingMovies} loggedIn={loggedInData.loggedIn}/> }
+                { trendingShows && trendingShows.length > 0 && <ListItemThumbnail title="Trending Shows" titleFontSize="44px" itemThumbnails={trendingShows} loggedIn={loggedInData.loggedIn}/> }
             </div>
         </>
     );

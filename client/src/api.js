@@ -48,7 +48,7 @@ const signupUser = async (username, password, email) => {
 }
 
 const getItemDetails = async (itemId) => {
-    const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`);
+    const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`, { credentials: "include" });
     const data = await response.json();
     return data;
 }
@@ -69,7 +69,7 @@ const submitRating = async (itemId, rating) => {
 }
 
 const submitReview = async (itemId, rating, review) => {
-    fetch(`${apiUrl}/submitEpisodeRatingReview?id=${itemId}&rating=${rating}&review=${review}`, {
+    fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}`, {
         method: "POST",
         credentials: "include",
     });
@@ -82,9 +82,19 @@ const getPersonDetails = async (personId) => {
     return data;
 }
 
-const toggleFavorite = async (itemId) => {
+const setFavourite = async (itemId, favourite) => {
     // TODO
-    console.log("Toggling favorite for item: " + itemId)
+    if (favourite) {
+        fetch(`${apiUrl}/addToFavourites?id=${itemId}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    } else {
+        fetch(`${apiUrl}/removeFromFavourites?id=${itemId}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    }
 }
 
 const getItemReviews = async (itemId, page = 1, limit = 5) => {
@@ -272,25 +282,13 @@ const getFilteredItems = async ({searchText = null,
     return data.items;
 }
 
-const getUserDetails = async () => {
-    // TODO
-    return {
-        userId: 101,
-        username: "Atharva",
-        joinDate: "2023-04-10",
-        favorites: [
-            { itemId: 1, title: "The Dark Knight", rating: 9.0, userRating: 10, image: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", year: 2008 },
-            { itemId: 2, title: "The Godfather", rating: 9.0, userRating: 10, image: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY281_CR4,0,190,281_.jpg", year: 1972 },
-        ],
-        watchlist: [
-            { itemId: 2, title: "The Godfather", rating: 9.0, userRating: 10, image: "https://m.media-amazon.com/images/M/MV5BNGEwYjgwOGQtYjg5ZS00Njc1LTk2ZGEtM2QwZWQ2NjdhZTE5XkEyXkFqcGc@._V1_QL75_UY281_CR4,0,190,281_.jpg", year: 1972 },
-            { itemId: 1, title: "The Dark Knight", rating: 9.0, userRating: 10, image: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_QL75_UX380_CR0,0,380,562_.jpg", year: 2008 },
-        ],
-        reviews: [
-            { itemId: 1, title: "The Dark Knight", reviewId: 1, rating: 9.0, text: "This is a review", date: "2023-04-10" },
-            { itemId: 2, title: "The Godfather", reviewId: 2, rating: 9.0, text: "This is a review", date: "2023-04-10" },
-        ]
-    }
+const getUserDetails = async (username) => {
+    const userDetails = await fetch(`${apiUrl}/getUserDetails?username=${username}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    const userDetailsData = await userDetails.json();
+    return userDetailsData;
 }
 
 const getGenreList = async () => {
@@ -305,4 +303,27 @@ const getMatchingPersons = async (searchText, searchLimit = 5) => {
     return data;
 }
 
-export { getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, toggleFavorite, signupUser, getUserDetails, getGenreList, getMatchingPersons };
+const followUser = async (followedUsername) => {
+    const response = await fetch(`${apiUrl}/followUser?followed_username=${followedUsername}`, {
+        method: "POST",
+        credentials: "include",
+    });
+    const data = await response.json();
+    return data;
+}
+
+const toggleWatchListed = async (itemId, watchListed) => {
+    if (watchListed) {
+        fetch(`${apiUrl}/addToWatchlist?id=${itemId}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    } else {
+        fetch(`${apiUrl}/removeFromWatchlist?id=${itemId}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    }
+}
+
+export { toggleWatchListed, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser };

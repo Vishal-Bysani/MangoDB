@@ -11,6 +11,7 @@ import NotFound from "./pages/Notfound";
 import ListPersons from "./pages/ListPersons";
 import Genre from "./pages/Genre";
 import Search from "./pages/Search";
+import ListProfileOverview from "./pages/ListProfileOverview";
 
 function App() {
   return (
@@ -19,13 +20,15 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Home />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/profile/:username" element={<Profile />} />
       <Route path="/item/:itemId" element={<Item />} />
       <Route path="/item/:itemId/reviews" element={<ItemReviews />} />
       <Route path="/person/:personId" element={<Person />} />
       <Route path="/items/:itemId/list-persons/:role/" element={<ListPersons />} />
       <Route path="/genre/:genreId" element={<Genre />} />
       <Route path="/search/:query" element={<Search />} />
+      <Route path="/profile/:username/followers" element={<ListProfileOverview title="Followers" />} />
+      <Route path="/profile/:username/following" element={<ListProfileOverview title="Following" />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

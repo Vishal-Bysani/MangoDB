@@ -105,10 +105,9 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
         {loggedIn ? (
           <>
             <div className="nav-button-div">
-              <button className="nav-button" onClick={() => navigate("/profile")}> {userName} </button>
+              <button className="nav-button" onClick={() => navigate(`/profile/${userName}`)}> {userName} </button>
             </div>
             <div className="nav-button-div">
-              {/* TODO: Define an onClick action for logout */}
               <button className="nav-button" onClick={() => { logoutUser(); setLoggedIn(false); navigate("/"); }}>Logout</button>
             </div>
           </>

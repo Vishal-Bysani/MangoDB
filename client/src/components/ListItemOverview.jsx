@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ItemOverview from "./ItemOverview";
 import "../css/ListItemOverview.css";
 
-const ListItemOverview = ( { title, itemOverviewList }) => {
+const ListItemOverview = ( { title, itemOverviewList, loggedIn }) => {
     return (
         <div className="list-item-overview-container">
             { title && <h1 className="list-item-overview-container-title">{title}</h1> }
@@ -19,6 +19,7 @@ const ListItemOverview = ( { title, itemOverviewList }) => {
                     cast={itemOverview.cast}
                     crew={itemOverview.crew}
                     description={itemOverview.description}
+                    loggedIn={loggedIn}
                 />
             ))}
         </div>

@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import { getUserDetails, getLoggedIn } from "../api";
+import { useNavigate, useParams } from "react-router";
+import { getUserDetails, getLoggedIn, followUser } from "../api";
 import Navbar from "../components/NavBar";
 import "../css/Profile.css";
 import moment from "moment";
 import ListItemThumbnail from "../components/ListItemThumbnail";
 
 const Profile = () => {
+    const { username } = useParams();
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
     const [loggedInData, setLoggedInData] = useState(null);
 
     useEffect(() => {
         const fetchUser = async () => {
-            const user = await getUserDetails();
+            const user = await getUserDetails(username);
             setUser(user);
         };
         fetchUser();
@@ -23,7 +24,6 @@ const Profile = () => {
         const fetchLoggedInData = async () => {
             getLoggedIn().then(response => {
                 response.json().then(data => {
-                    if (!data.loggedIn) navigate("/login");
                     setLoggedInData(data);
                 });
             });
@@ -34,7 +34,7 @@ const Profile = () => {
     return (
         <>
             { loggedInData && (
-                <Navbar isLoggedIn={loggedInData.isLoggedIn} userName={loggedInData.username} />
+                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             )}
             { user && (
                 <div className="profile-container">
@@ -51,31 +51,60 @@ const Profile = () => {
                             />
                         </div>
                         <div>
-                            <p style={{ fontSize: "50px", fontWeight: "bold", marginBottom: "10px" }}>{user.username}</p>
-                            <p style={{ fontSize: "20px", marginTop: "0px" }}> Joined {moment(user.joinDate).format("MMM YYYY")} </p>
+                            <div style={{ display: "flex", alignItems: "center", gap: "50px" }}>
+                                <p style={{ fontSize: "50px", fontWeight: "bold", marginBottom: "10px" }}>{username}</p>
+                                {loggedInData && loggedInData.username !== username && (
+                                    <button 
+                                        style={{
+                                            padding: "10px 20px",
+                                            fontSize: "18px",
+                                            backgroundColor: "#10e3a5",
+                                            color: "black",
+                                            border: "none",
+                                            borderRadius: "8px",
+                                            cursor: "pointer",
+                                            fontWeight: "bold",
+                                            height: "fit-content",
+                                            marginTop: "40px"
+                                        }}
+                                        onClick={() => {
+                                            if (loggedInData.loggedIn) {
+                                                followUser(username);
+                                            } else {
+                                                navigate("/login");
+                                            }
+                                        }}
+                                    >
+                                        Follow
+                                    </button>
+                                )}
+                            </div>
+                            { user.joinDate && <p style={{ fontSize: "20px", marginTop: "0px" }}> Joined {moment(user.joinDate).format("MMM YYYY")} </p> }
                         </div>
                         
                         <div className="profile-stats-grid">
                             <div className="profile-stat-card">
-                                <div className="stat-label">Favorites</div>
-                                <div className="stat-value">{user.favorites ? user.favorites.length : 0}</div>
+                                <div className="stat-label">Favourites</div>
+                                <div className="stat-value">{user.favourites ? user.favourites.length : 0}</div>
                             </div>
                             <div className="profile-stat-card">
                                 <div className="stat-label">Watchlist</div>
                                 <div className="stat-value">{user.watchlist ? user.watchlist.length : 0}</div>
                             </div>
-                            <div className="profile-stat-card">
-                                <div className="stat-label">Reviews</div>
-                                <div className="stat-value">{user.reviews ? user.reviews.length : 0}</div>
+                            <div className="profile-stat-card" onClick={() => navigate(`/profile/${username}/followers`, {state: {profileList: user.followers}})}>
+                                <div className="stat-label">Followers</div>
+                                <div className="stat-value">{user.followers ? user.followers.length : 0}</div>
                             </div>
-                            <div className="profile-stat-card">
-                                <div className="stat-label">More</div>
--                            </div>
+                            <div className="profile-stat-card" onClick={() => navigate(`/profile/${username}/following`, {state: {profileList: user.following}})}>
+                                <div className="stat-label">Following</div>
+                                <div className="stat-value">{user.following ? user.following.length : 0}</div>
+                            </div>
                         </div>
                     </div>
                     <div className="profile-items-container">
-                        <ListItemThumbnail title="Favorites" itemThumbnails={user.favorites} fontSize="44px" />
-                        <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} fontSize="44px" />
+                        { user.favourites && user.favourites.length > 0 && <ListItemThumbnail title="Favourites" itemThumbnails={user.favourites} fontSize="44px" loggedIn={loggedInData.loggedIn}/> }
+                        { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} fontSize="44px" loggedIn={loggedInData.loggedIn}/> }
+                        { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} fontSize="44px" loggedIn={loggedInData.loggedIn}/> }
                     </div>
                 </div>
             )}
