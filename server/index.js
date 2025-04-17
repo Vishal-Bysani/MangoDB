@@ -721,7 +721,7 @@ app.get("/getFavourites", isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const favouritesQuery = await pool.query(
-      "SELECT id, title, category, poster_path as image FROM movies_shows JOIN favourites ON movies_shows.id = favourites.id WHERE favourites.username = $1",
+      "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN favourites ON movies_shows.id = favourites.id WHERE favourites.username = $1",
       [username]
     );
     res.status(200).json(favouritesQuery.rows);
@@ -765,7 +765,7 @@ app.get("/getWatchlist", isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const watchlistQuery = await pool.query(
-      "SELECT id, title, category, poster_path as image FROM movies_shows JOIN watchlist ON movies_shows.id = watchlist.id WHERE watchlist.username = $1",
+      "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN watchlist ON movies_shows.id = watchlist.id WHERE watchlist.username = $1",
       [username]
     );
     res.status(200).json(watchlistQuery.rows);
@@ -809,7 +809,7 @@ app.get("/getWatchedList", isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const watchedListQuery = await pool.query(
-      "SELECT id, title, category, poster_path as image FROM movies_shows JOIN watched_list ON movies_shows.id = watched_list.id WHERE watched_list.username = $1",
+      "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN watchedlist ON movies_shows.id = watchedlist.id WHERE watchedlist.username = $1",
       [username]
     );
     res.status(200).json(watchedListQuery.rows);
@@ -825,7 +825,7 @@ app.post("/addToWatchedList", isAuthenticated, async (req, res) => {
     const username = req.session.username;
     await pool.query('BEGIN');
     const addToWatchedListQuery = await pool.query(
-      "INSERT INTO watched_list (username, id) VALUES ($1, $2)",
+      "INSERT INTO watchedlist (username, id) VALUES ($1, $2)",
       [username, id]
     );
     await pool.query(
@@ -845,7 +845,7 @@ app.post("/removeFromWatchedList", isAuthenticated, async (req, res) => {
     const { id } = req.query;
     const username = req.session.username;
     const removeFromWatchedListQuery = await pool.query(
-      "DELETE FROM watched_list WHERE username = $1 AND id = $2",
+      "DELETE FROM watchedlist WHERE username = $1 AND id = $2",
       [username, id]
     );
     res.status(200).json({message: "Removed from watched list"});
@@ -895,6 +895,50 @@ app.post("/followUser", isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error("Error following user:", error);
     res.status(500).json({ message: "Error following user" });
+  }
+});
+
+app.get("/getUserDetails", async (req, res) => {
+  try {
+    const username = req.query.username;
+    console.log("username: " + username);
+    const joinDateQuery = await pool.query(
+      "SELECT DATE(registration_time) AS \"joinDate\" FROM users WHERE username = $1",
+      [username]
+    );
+    const favouritesQuery = await pool.query(
+      "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN favourites ON movies_shows.id = favourites.id WHERE favourites.username = $1",
+      [username]
+    );
+    const watchlistQuery = await pool.query(
+      "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN watchlist ON movies_shows.id = watchlist.id WHERE watchlist.username = $1",
+      [username]
+    );
+    const watchedListQuery = await pool.query(
+      "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN watchedlist ON movies_shows.id = watchedlist.id WHERE watchedlist.username = $1",
+      [username]
+    );
+    const followersQuery = await pool.query(
+      "SELECT * FROM following WHERE followed_username = $1",
+      [username]
+    );
+    const followingQuery = await pool.query(
+      "SELECT * FROM following WHERE username = $1",
+      [username]
+    );
+    console.log("joinDateQuery.rows: " + JSON.stringify(joinDateQuery.rows));
+    console.log(joinDateQuery.rows[0].joinDate);
+    res.status(200).json({
+      joinDate: joinDateQuery.rows[0].joinDate.toISOString().split('T')[0],
+      favorites: favouritesQuery.rows,
+      watchlist: watchlistQuery.rows,
+      watchedList: watchedListQuery.rows,
+      followers: followersQuery.rows,
+      following: followingQuery.rows
+    });
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res.status(500).json({ message: "Error getting user details" });
   }
 });
 

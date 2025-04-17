@@ -1,8 +1,8 @@
 module.exports = {
-    user: 'imdbuser',
+    user: 'atharva',
     host: 'localhost',
-    database: 'imdb',
-    password: '123',
+    database: 'atharva',
+    password: 'atharva',
     port: 5432,
     email : 'mangodb.auth@gmail.com',
     pass : 'epry rrcd cqgk lfjm',
