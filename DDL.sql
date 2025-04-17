@@ -26,6 +26,31 @@ CREATE TABLE IF NOT EXISTS users (
     registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
 
+CREATE TABLE IF NOT EXISTS favourites (
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    PRIMARY KEY (username, id)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS watchlist (
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    PRIMARY KEY (username, id)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS watchedlist (
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    PRIMARY KEY (username, id)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS following(
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
+    followed_username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- Followed User ID
+    PRIMARY KEY (username, followed_username)  -- Composite Primary Key
+);
+
+
 CREATE TABLE IF NOT EXISTS countries (
     iso_3166_1 TEXT NOT NULL PRIMARY KEY,
     english_name TEXT NOT NULL,
@@ -117,6 +142,14 @@ CREATE TABLE IF NOT EXISTS movies_shows_production_company (
     PRIMARY KEY (id, production_company_id)  -- Composite Primary Key
 );
 
+CREATE TABLE IF NOT EXISTS movies_shows_reviews_ratings (
+    username TEXT REFERENCES users(username),
+    id INTEGER REFERENCES movies_shows(id),
+    review TEXT,
+    rating INTEGER NOT NULL,
+    PRIMARY KEY (username, id)
+);
+
 CREATE TABLE IF NOT EXISTS movies_details (
     id INTEGER PRIMARY KEY REFERENCES movies_shows(id) ON DELETE CASCADE,                   -- Unique ID from TMDb
     belongs_to_collection INTEGER REFERENCES collections(id) ON DELETE SET NULL,  -- Collection ID
@@ -150,6 +183,14 @@ CREATE TABLE IF NOT EXISTS episodes (
     still_path TEXT,                        -- URL Path for Still Image
     vote_average NUMERIC,                      -- Average Rating
     vote_count INTEGER                       -- Number of Votes
+);
+
+CREATE TABLE IF NOT EXISTS episodes_shows_reviews_ratings (
+    username TEXT REFERENCES users(username),
+    id INTEGER REFERENCES episodes(id),
+    review TEXT,
+    rating INTEGER NOT NULL,
+    PRIMARY KEY (username, id)
 );
 
 CREATE TABLE IF NOT EXISTS person (
@@ -189,30 +230,6 @@ CREATE TABLE IF NOT EXISTS shows_details (
     id INTEGER PRIMARY KEY REFERENCES movies_shows(id) ON DELETE CASCADE,                   -- Unique ID from TMDb
     number_of_episodes INTEGER DEFAULT 0,                   -- Total Number of Episodes
     number_of_seasons INTEGER DEFAULT 0                  -- Total Number of Seasons
-);
-
-CREATE TABLE IF NOT EXISTS favourites (
-    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
-    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
-    PRIMARY KEY (username, id)  -- Composite Primary Key
-);
-
-CREATE TABLE IF NOT EXISTS watchlist (
-    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
-    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
-    PRIMARY KEY (username, id)  -- Composite Primary Key
-);
-
-CREATE TABLE IF NOT EXISTS watchedlist (
-    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
-    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
-    PRIMARY KEY (username, id)  -- Composite Primary Key
-);
-
-CREATE TABLE IF NOT EXISTS following(
-    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
-    followed_username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- Followed User ID
-    PRIMARY KEY (username, followed_username)  -- Composite Primary Key
 );
 
 CREATE TABLE IF NOT EXISTS movies_shows_videos (
