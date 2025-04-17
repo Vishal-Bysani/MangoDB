@@ -1,14 +1,18 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
+const jwt = require("jsonwebtoken");
+const {v4: uuidv4} = require("uuid");
+const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const { Pool } = require("pg");
 const app = express();
 const port = 4000;
 const config = require('./config');
-
+const cron = require('node-cron');
 // PostgreSQL connection
+
 const pool = new Pool({
   user: config.user,
   host: config.host,
@@ -17,6 +21,13 @@ const pool = new Pool({
   port: config.port,
 });
 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: config.email,
+    pass: config.pass,
+  },
+});
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -35,7 +46,7 @@ app.use(
     secret: "your_secret_key",
     resave: false,
     saveUninitialized: true,
-    cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+    cookie: { httpOnly: true, maxAge: config.SESSION_EXPIRY }, // 1 hour
   })
 );
 
@@ -64,14 +75,73 @@ app.post('/signup', async (req, res) => {
     }
     const hashPassword = await bcrypt.hash(password, 10);
     const result = await pool.query("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING username,email", [username, email, hashPassword]);
+    const token = jwt.sign({email: email}, config.JWT_SECRET, {expiresIn: config.JWT_EXPIRY});
+    const url = `${config.BASE_URL}/verify-email?token=${token}`;
+    await transporter.sendMail({
+      to: email,
+      subject: "Verify your email for MangoDB",
+      html: `<p>Click <a href="${url}">here</a> to verify your email.</p>`,
+    });
+    
     req.session.email = result.rows[0].email;
     req.session.username = result.rows[0].username;
-    console.log("User registered successfully:", result.rows[0]);
-    res.status(200).json({message: "User Registered Successfully"});
+    console.log("Email sent successfully:", result.rows[0]);
+    res.status(200).json({message: "User Registered Successfully", mail_sent : true});
   }
   catch (error){
     console.error("Error signing up:", error);
-    res.status(500).json({message: "Error signing up"});
+    res.status(500).json({message: "Error signing up", mail_sent : false});
+  }
+});
+
+cron.schedule('*/1 * * * *', async () => {
+  try {
+    await pool.query("DELETE FROM users WHERE is_authenticated = false AND registration_time < NOW() - INTERVAL {$1}", [config.JWT_EXPIRY]);
+    console.log("Deleted unverified users older than {$1}", [config.JWT_EXPIRY]);
+  } catch (error) {
+    console.error("Error sending reminder email:", error);
+  }
+});
+
+app.get("/verify-email", async (req, res) => {
+  console.log("Received email verification request:", req.query);
+  try {
+    const {token} = req.query;
+    if (!token) {
+      return res.status(400).json({ message: "Token is required" });
+    }
+    const {email} = jwt.verify(token, config.JWT_SECRET);
+    console.log("Email verification token:", email);
+    console.log("Email verification token:", token);
+    const result = await pool.query("UPDATE users SET is_authenticated = true WHERE email = $1", [email]);
+    if (result.rowCount === 0) {
+      return res.status(400).json({ message: "Invalid token" });
+    }
+    res.status(200).send(
+      `<html>
+        <head>
+          <title>Email Verified</title>
+        </head>
+        <body style="text-align: center; font-family: Arial, sans-serif, padding-top :100px;">
+          <h1>Email Verified Successfully 🎉</h1>
+          <p>Thank you for verifying your email. You can now log in to your account and enjoy the website.</p>
+        </body>
+      </html>`
+    )
+    res.status(200).json({ message: "Email verified successfully" });
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res.status(400).send(
+      `<html>
+        <head>
+          <title>Oops!</title>
+        </head>
+        <body style="text-align: center; font-family: Arial, sans-serif, padding-top :100px;">
+          <h1>⚠️ Invalid or Expired Link</h1>
+          <p>Please try signing up again or request a new verification link.</p>
+        </body>
+      </html>`
+    )
   }
 });
 

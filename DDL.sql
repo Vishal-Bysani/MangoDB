@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     is_critic BOOLEAN DEFAULT FALSE,
-    is_authenticated BOOLEAN DEFAULT FALSE
+    is_authenticated BOOLEAN DEFAULT FALSE,
+    registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE TABLE IF NOT EXISTS countries (
@@ -194,6 +195,24 @@ CREATE TABLE IF NOT EXISTS favourites (
     username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
     id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
     PRIMARY KEY (username, id)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS watchlist (
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    PRIMARY KEY (username, id)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS watchedlist (
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
+    id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
+    PRIMARY KEY (username, id)  -- Composite Primary Key
+);
+
+CREATE TABLE IF NOT EXISTS following(
+    username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
+    followed_username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- Followed User ID
+    PRIMARY KEY (username, followed_username)  -- Composite Primary Key
 );
 
 CREATE TABLE IF NOT EXISTS movies_shows_videos (
