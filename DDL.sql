@@ -252,3 +252,28 @@ CREATE TABLE IF NOT EXISTS certifications (
     meaning TEXT,  -- Meaning
     PRIMARY KEY (iso_3166_1, certificate)
 );
+
+CREATE TABLE books (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    publisher TEXT,
+    published_date TEXT,
+    page_count INT,
+    average_rating FLOAT,
+    ratings_count INT,
+    overview TEXT,
+    preview_link TEXT
+);
+CREATE TABLE authors(
+    author_id SERIAL PRIMARY KEY,
+    name TEXT
+);
+CREATE TABLE authors_books (
+    id INTEGER,
+    author_id INTEGER,
+    PRIMARY KEY (id,author_id)
+);
+CREATE TABLE book_categories(
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
