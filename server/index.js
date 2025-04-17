@@ -360,18 +360,14 @@ app.get("/getMovieShowDetails", async (req, res) => {
     }
     else {
       const episodeQuery = await pool.query(
-        "SELECT * FROM episodes WHERE show_id = $1",
+        "SELECT COUNT(*) as count FROM episodes WHERE show_id = $1",
         [id]
       );
       const seasonQuery = await pool.query(
         "SELECT * FROM seasons WHERE show_id = $1",
         [id]
       );
-      const showQuery = await pool.query(
-        "SELECT * FROM shows_details WHERE id = $1",
-        [id]
-      );
-
+      console.log("Received show details: " + JSON.stringify(movieOrShowQuery.rows[0]));
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
         rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
@@ -392,9 +388,8 @@ app.get("/getMovieShowDetails", async (req, res) => {
         productionCompany: productionQuery.rows,
         cast: castQuery.rows,
         crew: crewQuery.rows,
-        episodes: episodeQuery.rows,
+        episodes: episodeQuery.rows[0].count,
         seasons: seasonQuery.rows,
-        showDetails: showQuery.rows[0],
         video: videoQuery.rows,
         backdrop: movieOrShowQuery.rows[0].backdrop,
         favourite: favouriteQuery.rows.length > 0,
@@ -416,7 +411,7 @@ app.get("/getSeasonDetails", async (req, res) => {
     if(seasonQuery.rows.length === 0){
       return res.status(400).json({message: "Season not found"});
     }
-    const episodeQuery = await pool.query("SELECT * FROM episodes WHERE show_id = $1 AND season_id = $2", [show_id, season_id]);
+    const episodeQuery = await pool.query("SELECT * FROM episodes WHERE show_id = $1 AND season_id = $2 ORDER BY episode_number", [show_id, season_id]);
     
     const response = {
       season_id: seasonQuery.rows[0].id,

@@ -1,0 +1,74 @@
+.item-seasons-page {
+    margin-top: 140px;
+}
+
+.item-seasons-page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.item-seasons-image-container {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+
+.item-seasons-image-container img {
+    object-fit: cover;
+    border-radius: 16px;
+    width: 60%;
+    height: auto;
+}
+
+.item-season-details {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+
+.item-seasons-content {
+    display: flex;
+}
+
+.season-navigator-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 30px 0;
+}
+
+.season-navigator {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    padding: 0 15px;
+}
+
+.season-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #e9e9e9;
+    border: none;
+    color: #333;
+    transition: all 0.2s ease;
+    margin: 5px;
+}
+
+.season-button.active {
+    background-color: #f7ca18;
+    color: #000;
+}
+
+.season-button:hover:not(.active) {
+    background-color: #d4d4d4;
+}

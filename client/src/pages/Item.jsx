@@ -150,11 +150,11 @@ const Item = () => {
             {/* <div className="item-page-container" style={{backgroundImage: `url(${item.backdrop})`}}> */}
             <div className="item-page-container">
                 <div className="item-page">
-                    {item.category === "tv" && (
+                    {item.type === "tv" && (
                         <>
-                            <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/episodes`)}>
-                                <p style={{textDecoration: 'none'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Episode Guide</p>
-                                <p className="forward-arrow" style={{marginLeft: '10px', marginTop: '19px'}}></p>
+                            <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/seasons`, {state: {title: item.title, seasons: item.seasons}})}>
+                                <p style={{textDecoration: 'none', fontSize: '20px'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>{item.seasons.length} { item.seasons.length === 1 ? "Season" : "Seasons"} </p>
+                                <p className="forward-arrow" style={{marginLeft: '10px', marginTop: '25px'}}></p>
                             </div>
                         </>
                     )}
@@ -176,7 +176,7 @@ const Item = () => {
                                 > ❤ </button>
                             </div>
                             <div className="item-metadata">
-                                {item.category === "tv" ? (
+                                {item.type === "tv" ? (
                                     <>
                                         <span>TV Series</span>
                                         <span>&nbsp;·&nbsp;</span>
@@ -368,7 +368,7 @@ const Item = () => {
                                         <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
                                     </div>
                                 )}
-                                
+
                                 { item.cast && item.cast.length > 0 && (
                                     <div className="crew-section">
                                         <h3>Stars</h3>
@@ -395,6 +395,13 @@ const Item = () => {
                         
                     </div>
 
+                    { item.type === "tv" && (
+                        <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/seasons`, {state: {title: item.title, seasons: item.seasons}})}>
+                            <p style={{textDecoration: 'none', fontSize: '32px', fontWeight: 'bold'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Seasons</p>
+                            <p className="forward-arrow" style={{marginLeft: '40px', marginTop: '47px'}}></p>
+                        </div>
+                    )}
+                    
                     {item.cast && item.cast.length > 0 && (
                         <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.cast} />
                     )}

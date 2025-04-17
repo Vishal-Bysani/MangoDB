@@ -65,7 +65,6 @@ const submitRating = async (itemId, rating) => {
         method: "POST",
         credentials: "include",
     });
-    console.log("Received rating: " + rating)
 }
 
 const submitReview = async (itemId, rating, review) => {
@@ -73,7 +72,6 @@ const submitReview = async (itemId, rating, review) => {
         method: "POST",
         credentials: "include",
     });
-    console.log("Received review: " + review)
 }
 
 const getPersonDetails = async (personId) => {
@@ -326,4 +324,10 @@ const toggleWatchListed = async (itemId, watchListed) => {
     }
 }
 
-export { toggleWatchListed, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser };
+const getSeasonDetails = async (showId, seasonId) => {
+    const response = await fetch(`${apiUrl}/getSeasonDetails?show_id=${showId}&season_id=${seasonId}`);
+    const data = await response.json();
+    return data;
+}
+
+export { toggleWatchListed, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser, getSeasonDetails };
