@@ -7,10 +7,11 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const { Pool } = require("pg");
-const app = express();
-const port = 4000;
 const config = require('./config');
 const cron = require('node-cron');
+const { spawn } = require("child_process");
+const app = express();
+const port = 4000;
 // PostgreSQL connection
 
 const pool = new Pool({
@@ -389,6 +390,46 @@ app.get("/getMovieShowDetails", async (req, res) => {
   }
 }
 );
+
+app.get("/getSeasonDetails", async (req, res) => {
+  try {
+    const {show_id, season_id} = req.query;
+    const seasonQuery = await pool.query("SELECT * FROM seasons WHERE show_id = $1 AND id = $2", [show_id, season_id]);
+    if(seasonQuery.rows.length === 0){
+      return res.status(400).json({message: "Season not found"});
+    }
+    const episodeQuery = await pool.query("SELECT * FROM episodes WHERE show_id = $1 AND season_id = $2", [show_id, season_id]);
+    
+    const response = {
+      season_id: seasonQuery.rows[0].id,
+      season_number: seasonQuery.rows[0].season_number,
+      season_name: seasonQuery.rows[0].name,
+      season_overview: seasonQuery.rows[0].overview,
+      season_air_date: seasonQuery.rows[0].air_date,
+      season_poster_path: seasonQuery.rows[0].poster_path,
+      season_episode_count: seasonQuery.rows[0].episode_count,
+      season_vote_average: seasonQuery.rows[0].vote_average,
+    };
+
+    if (episodeQuery.rows.length > 0) {
+      response.episodes = episodeQuery.rows.map((ep) => ({
+        id: ep.id,
+        episode_number: ep.episode_number,
+        name: ep.name,
+        overview: ep.overview,
+        air_date: ep.air_date,
+        still_path: ep.still_path,
+        vote_average: ep.vote_average,
+        vote_count: ep.vote_count,
+        runtime : ep.runtime
+      }));
+    }
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching season details:", error);
+    res.status(500).json({ message: "Error getting season details" });
+  }
+});
 
 app.get("/getPersonDetails", async (req, res) => {
   try {
