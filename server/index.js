@@ -310,6 +310,10 @@ app.get("/getMovieShowDetails", async (req, res) => {
       "SELECT * FROM favourites WHERE username = $1 AND id = $2",
       [req.session.username, id]
     );
+    const ratingQuery = await pool.query(
+      "SELECT rating FROM movies_shows_reviews_ratings WHERE username = $1 AND id = $2",
+      [req.session.username, id]
+    );
     if(movieOrShowQuery.rows[0].type === "movie"){
       const movieQuery = await pool.query(
         "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
@@ -346,6 +350,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         video: videoQuery.rows,
         backdrop: movieOrShowQuery.rows[0].backdrop,
         favourite: favouriteQuery.rows.length > 0,
+        user_rating: ratingQuery.rows.length > 0 ? ratingQuery.rows[0].rating : null,
       });
     }
     else {
@@ -388,6 +393,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         video: videoQuery.rows,
         backdrop: movieOrShowQuery.rows[0].backdrop,
         favourite: favouriteQuery.rows.length > 0,
+        user_rating: ratingQuery.rows.length > 0 ? ratingQuery.rows[0].rating : null,
       });
     }
   } catch (error) {
