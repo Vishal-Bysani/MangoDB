@@ -629,65 +629,6 @@ app.get("/matchingPersons", async (req, res) => {
   }
 });
 
-// app.post("/submitRating", isAuthenticated, async (req, res) => {
-//   try {
-//     const { id, rating } = req.query;
-//     const username = req.session.username;
-//     await pool.query(
-//       "INSERT INTO movies_shows_reviews_ratings (username, id, rating) VALUES ($1, $2, $3)",
-//       [username, id, rating]
-//     );
-//     await pool.query(
-//       `UPDATE movies_shows
-//       SET vote_average = ((vote_average * vote_count) + $1) / (vote_count + 1),
-//           vote_count = vote_count + 1
-//       WHERE id = $2`,
-//       [rating, id]
-//     );
-//     res.status(200).json({
-//       message: "Rating submitted successfully"
-//     });
-//   } catch (error) {
-//     console.error("Error submitting rating:", error);
-//     res.status(500).json({ message: "Error submitting rating" });
-//   }
-// });
-
-// app.post("/submitEpisodeRating", isAuthenticated, async (req, res) => {
-//   try {
-//     const { id, rating } = req.query;
-//     const username = req.session.username;
-//     await pool.query(
-//       "INSERT INTO episode_reviews_ratings (username, id, rating) VALUES ($1, $2, $3)",
-//       [username, id, rating]
-//     );
-//     await pool.query(
-//       `UPDATE episodes
-//       SET vote_average = ((vote_average * vote_count) + $1) / (vote_count + 1),
-//           vote_count = vote_count + 1
-//       WHERE id = $2`,
-//       [rating, id]
-//     );
-//     const seasonResult = await pool.query(
-//       "SELECT season_id FROM episodes WHERE id = $1",
-//       [id]
-//     );
-//     const season_id = seasonResult.rows[0].season_id;
-//     await pool.query(
-//       `UPDATE seasons
-//       SET vote_average = (SELECT CASE WHEN SUM(vote_count) = 0 THEN 0 ELSE SUM(vote_average * vote_count) / SUM(vote_count) END FROM episodes WHERE season_id = $1),
-//       WHERE id = $1`,
-//       [season_id]
-//     );
-//     res.status(200).json({
-//       message: "Rating submitted successfully"
-//     });
-//   } catch (error) {
-//     console.error("Error submitting rating:", error);
-//     res.status(500).json({ message: "Error submitting rating" });
-//   }
-// });
-
 app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
   try {
     const { id, rating, review } = req.query;
@@ -736,7 +677,7 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
 app.post("/submitEpisodeRatingReview", isAuthenticated, async (req, res) => {
   try {
     const { id, rating, review } = req.query;
-    const username = req.session.userId;
+    const username = req.session.username;
     const ratingOrReviewExists = await pool.query(
       "SELECT * FROM episode_reviews_ratings WHERE username = $1 AND id = $2",
       [username, id]
@@ -775,6 +716,145 @@ app.post("/submitEpisodeRatingReview", isAuthenticated, async (req, res) => {
     res.status(500).json({ message: "Error submitting review" });
   }
 });
+
+app.get("/getFavourites", isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const favouritesQuery = await pool.query(
+      "SELECT id, title, category, poster_path as image FROM movies_shows JOIN favourites ON movies_shows.id = favourites.id WHERE favourites.username = $1",
+      [username]
+    );
+    res.status(200).json(favouritesQuery.rows);
+  } catch (error) {
+    console.error("Error fetching favourites:", error);
+    res.status(500).json({ message: "Error getting favourites" });
+  }
+});
+
+app.post("/addToFavourites", isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.query;
+    const username = req.session.username;
+    const addToFavouritesQuery = await pool.query(
+      "INSERT INTO favourites (username, id) VALUES ($1, $2)",
+      [username, id]
+    );
+    res.status(200).json({message: "Added to favourites"});
+  } catch (error) {
+    console.error("Error adding to favourites:", error);
+    res.status(500).json({ message: "Error adding to favourites" });
+  }
+});
+
+app.post("/removeFromFavourites", isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.query;
+    const username = req.session.username;
+    const removeFromFavouritesQuery = await pool.query(
+      "DELETE FROM favourites WHERE username = $1 AND id = $2",
+      [username, id]
+    );
+    res.status(200).json({message: "Removed from favourites"});
+  } catch (error) {
+    console.error("Error removing from favourites:", error);
+    res.status(500).json({ message: "Error removing from favourites" });
+  }
+});
+
+app.get("/getWatchlist", isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const watchlistQuery = await pool.query(
+      "SELECT id, title, category, poster_path as image FROM movies_shows JOIN watchlist ON movies_shows.id = watchlist.id WHERE watchlist.username = $1",
+      [username]
+    );
+    res.status(200).json(watchlistQuery.rows);
+  } catch (error) {
+    console.error("Error fetching watchlist:", error);
+    res.status(500).json({ message: "Error getting watchlist" });
+  }
+});
+
+app.post("/addToWatchlist", isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.query;
+    const username = req.session.username;
+    const addToWatchlistQuery = await pool.query(
+      "INSERT INTO watchlist (username, id) VALUES ($1, $2)",
+      [username, id]
+    );
+    res.status(200).json({message: "Added to watchlist"});
+  } catch (error) {
+    console.error("Error adding to watchlist:", error);
+    res.status(500).json({ message: "Error adding to watchlist" });
+  }
+});
+
+app.post("/removeFromWatchlist", isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.query;
+    const username = req.session.username;
+    const removeFromWatchlistQuery = await pool.query(
+      "DELETE FROM watchlist WHERE username = $1 AND id = $2",
+      [username, id]
+    );
+    res.status(200).json({message: "Removed from watchlist"});
+  } catch (error) {
+    console.error("Error removing from watchlist:", error);
+    res.status(500).json({ message: "Error removing from watchlist" });
+  }
+});
+
+app.get("/getWatchedList", isAuthenticated, async (req, res) => {
+  try {
+    const username = req.session.username;
+    const watchedListQuery = await pool.query(
+      "SELECT id, title, category, poster_path as image FROM movies_shows JOIN watched_list ON movies_shows.id = watched_list.id WHERE watched_list.username = $1",
+      [username]
+    );
+    res.status(200).json(watchedListQuery.rows);
+  } catch (error) {
+    console.error("Error fetching watched list:", error);
+    res.status(500).json({ message: "Error getting watched list" });
+  }
+});
+
+app.post("/addToWatchedList", isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.query;
+    const username = req.session.username;
+    await pool.query('BEGIN');
+    const addToWatchedListQuery = await pool.query(
+      "INSERT INTO watched_list (username, id) VALUES ($1, $2)",
+      [username, id]
+    );
+    await pool.query(
+      "DELETE FROM watchlist WHERE username = $1 AND id = $2",
+      [username, id]
+    );
+    await pool.query('COMMIT');
+    res.status(200).json({message: "Added to watched list"});
+  } catch (error) {
+    console.error("Error adding to watched list:", error);
+    res.status(500).json({ message: "Error adding to watched list" });
+  }
+});
+
+app.post("/removeFromWatchedList", isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.query;
+    const username = req.session.username;
+    const removeFromWatchedListQuery = await pool.query(
+      "DELETE FROM watched_list WHERE username = $1 AND id = $2",
+      [username, id]
+    );
+    res.status(200).json({message: "Removed from watched list"});
+  } catch (error) {
+    console.error("Error removing from watched list:", error);
+    res.status(500).json({ message: "Error removing from watched list" });
+  }
+});
+
 
 ////////////////////////////////////////////////////
 // Start the server
