@@ -64,6 +64,11 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
             className="search-input"
             value={searchText}
             onChange={handleSearchChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                navigate(`/search/${searchText}`);
+              }
+            }}
           />
           
           {/* Search results dropdown */}
