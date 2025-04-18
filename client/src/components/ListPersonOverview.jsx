@@ -5,7 +5,7 @@ import Navbar from "../components/NavBar";
 import PersonOverview from "./ProfileOverview";
 import "../css/ItemOverview.css";
 
-const ListPersonOverview = ({ title, personOverviewList }) => {
+const ListPersonOverview = ({ title, ref }) => {
     const location = useLocation();
     const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
     const [profileList, setProfileList] = useState([]);
@@ -24,7 +24,7 @@ const ListPersonOverview = ({ title, personOverviewList }) => {
             { loggedInData && (
                 <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             )}
-            <div className="item-overview-container">
+            <div className="item-overview-container" ref={ref}>
                 { title && <h1 className="list-item-overview-container-title">{title}</h1> }
                 {profileList && profileList.map((personOverview) => (
                     <PersonOverview key={personOverview.personId}

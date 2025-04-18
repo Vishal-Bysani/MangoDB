@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getUserDetails, getLoggedIn, followUser } from "../api";
 import Navbar from "../components/NavBar";
@@ -11,6 +11,8 @@ const Profile = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
     const [loggedInData, setLoggedInData] = useState(null);
+    const favouriteRef = useRef(null);
+    const watchlistRef = useRef(null);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -83,11 +85,31 @@ const Profile = () => {
                         </div>
                         
                         <div className="profile-stats-grid">
-                            <div className="profile-stat-card">
+                            <div className="profile-stat-card" onClick={() => {
+                                if (favouriteRef.current) {
+                                    const elementPosition = favouriteRef.current.getBoundingClientRect().top;
+                                    const offsetPosition = elementPosition + window.scrollY - 120;
+                                    
+                                    window.scrollTo({
+                                        top: offsetPosition,
+                                        behavior: 'smooth'
+                                    });
+                                }
+                            }}>
                                 <div className="stat-label">Favourites</div>
                                 <div className="stat-value">{user.favourites ? user.favourites.length : 0}</div>
                             </div>
-                            <div className="profile-stat-card">
+                            <div className="profile-stat-card" onClick={() => {
+                                if (watchlistRef.current) {
+                                    const elementPosition = watchlistRef.current.getBoundingClientRect().top;
+                                    const offsetPosition = elementPosition + window.scrollY - 120;
+                                    
+                                    window.scrollTo({
+                                        top: offsetPosition,
+                                        behavior: 'smooth'
+                                    });
+                                }
+                            }}>
                                 <div className="stat-label">Watchlist</div>
                                 <div className="stat-value">{user.watchlist ? user.watchlist.length : 0}</div>
                             </div>
@@ -102,9 +124,9 @@ const Profile = () => {
                         </div>
                     </div>
                     <div className="profile-items-container">
-                        { user.favourites && user.favourites.length > 0 && <ListItemThumbnail title="Favourites" itemThumbnails={user.favourites} fontSize="44px" loggedIn={loggedInData.loggedIn}/> }
-                        { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} fontSize="44px" loggedIn={loggedInData.loggedIn}/> }
-                        { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} fontSize="44px" loggedIn={loggedInData.loggedIn}/> }
+                        { user.favourites && user.favourites.length > 0 && <ListItemThumbnail title="Favourites" itemThumbnails={user.favourites} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={favouriteRef}/> }
+                        { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={watchlistRef}/> }
+                        { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} titleFontSize="36px" loggedIn={loggedInData.loggedIn}/> }
                     </div>
                 </div>
             )}

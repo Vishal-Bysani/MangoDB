@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../css/ListPersonThumbnail.css";
 import PersonThumbnail from "./PersonThumbnail";
-const ListPersonThumbnail = ({ title, titleFontSize = "30px", personThumbnails }) => {
+const ListPersonThumbnail = ({ title, titleFontSize = "30px", personThumbnails, ref }) => {
     const [startingIndex, setStartingIndex] = useState(0);
     const [rowLimit, setRowLimit] = useState(4);
     const containerRef = useRef(null);
@@ -64,7 +64,7 @@ const ListPersonThumbnail = ({ title, titleFontSize = "30px", personThumbnails }
     }
     return (
         <>
-            <h2 className="listPersonThumbnail-title" style={{ fontSize: titleFontSize }}>{title}</h2>
+            <h2 className="listPersonThumbnail-title" style={{ fontSize: titleFontSize }} ref={ref}>{title}</h2>
             <div className="listPersonThumbnail-container" ref={containerRef}>
                 <button className="listPersonThumbnail-button" onClick={handlePrevious} disabled={startingIndex === 0}>
                     <p className="backward-arrow"></p>

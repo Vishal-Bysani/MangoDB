@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import EpisodeOverview from "./EpisodeOverview";
 import "../css/ListEpisodeOverview.css";
 
-const ListEpisodeOverview = ({ title, titleFontSize, episodes, seriesId, seasonId, loggedIn }) => {
+const ListEpisodeOverview = ({ title, titleFontSize, episodes, seriesId, seasonId, loggedIn, ref }) => {
   
   return (
-    <div className="list-episode-overview-container">
+    <div className="list-episode-overview-container" ref={ref}>
       { title && <h2 className="list-episode-overview-container-title" style={{ fontSize: titleFontSize }}>{title}</h2> }
       
       {episodes.map((episode) => (

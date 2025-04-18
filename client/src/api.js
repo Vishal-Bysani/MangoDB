@@ -65,10 +65,18 @@ const submitRating = async (itemId, rating) => {
         method: "POST",
         credentials: "include",
     });
+    fetch(`${apiUrl}/addToWatchedList?id=${itemId}`, {
+        method: "POST",
+        credentials: "include",
+    });
 }
 
 const submitReview = async (itemId, rating, review) => {
     fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}`, {
+        method: "POST",
+        credentials: "include",
+    });
+    fetch(`${apiUrl}/addToWatchedList?id=${itemId}`, {
         method: "POST",
         credentials: "include",
     });

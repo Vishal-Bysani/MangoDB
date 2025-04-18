@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ItemThumbnail from "./ItemThumbnail";
 import "../css/ListItemThumbnail.css";
 
-const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, loggedIn }) => {
+const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, loggedIn, ref }) => {
     const [startingIndex, setStartingIndex] = useState(0);
     const [rowLimit, setRowLimit] = useState(5);
     const containerRef = useRef(null);
@@ -63,7 +63,7 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, loggedIn }) =
     }
     return (
         <>
-            <h2 className="listItemThumbnail-item-thumbnail-title" style={{ fontSize: titleFontSize }}>{title}</h2>
+            <h2 className="listItemThumbnail-item-thumbnail-title" style={{ fontSize: titleFontSize }} ref={ref}>{title}</h2>
             <div className="listItemThumbnail-container" ref={containerRef}>
                 <button className="listItemThumbnail-button" onClick={handlePrevious} disabled={startingIndex === 0}>
                     <p className="backward-arrow"></p>
