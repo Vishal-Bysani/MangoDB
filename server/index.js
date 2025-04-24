@@ -10,6 +10,7 @@ const { Pool } = require("pg");
 const config = require('./config');
 const cron = require('node-cron');
 const { spawn } = require("child_process");
+const { title } = require("process");
 const app = express();
 const port = 4000;
 // PostgreSQL connection
@@ -231,7 +232,12 @@ app.get("/getMatchingItem", async (req, res) => {
       [`%${text}%`]
     );
 
-    res.status(200).json(movieQuery.rows.concat(castQuery.rows));
+    const bookQuery = await pool.query(
+      "SELECT id, title, author, average_rating,ratings_count, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
+      [`%${text}%`]
+    );
+
+    res.status(200).json(movieQuery.rows.concat(castQuery.rows).concat(bookQuery.rows));
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
     res.status(500).json({ message: "Error getting movie details" });
@@ -255,10 +261,15 @@ app.get("/getMatchingItemPages", async (req, res) => {
       "SELECT id, name, popularity, known_for_department, profile_path FROM person WHERE name ILIKE $1 ORDER BY popularity DESC",
       [`%${text}%`]
     );
+    const bookQuery = await pool.query(
+      "SELECT id, title, author, average_rating,ratings_count, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
+      [`%${text}%`]
+    );
 
     res.status(200).json({
       movies: movieQuery.rows.slice(offset, offset + limit),
-      cast: castQuery.rows.slice(offset, offset + limit)
+      cast: castQuery.rows.slice(offset, offset + limit),
+      books : bookQuery.rows.slice(offset, offset + limit)
     });
 
   } catch (error) {
@@ -408,6 +419,7 @@ app.get("/getSeasonDetails", async (req, res) => {
   try {
     const {show_id, season_id} = req.query;
     const seasonQuery = await pool.query("SELECT * FROM seasons WHERE show_id = $1 AND id = $2", [show_id, season_id]);
+    const season_videos = await pool.query("SELECT * FROM seasons_videos WHERE id = $1", [season_id]);
     if(seasonQuery.rows.length === 0){
       return res.status(400).json({message: "Season not found"});
     }
@@ -422,6 +434,7 @@ app.get("/getSeasonDetails", async (req, res) => {
       season_poster_path: seasonQuery.rows[0].poster_path,
       season_episode_count: seasonQuery.rows[0].episode_count,
       season_vote_average: seasonQuery.rows[0].vote_average,
+      season_videos: season_videos.rows
     };
 
     if (episodeQuery.rows.length > 0) {
@@ -488,7 +501,7 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
     const offset = (page - 1) * limit;
 
     const movieOrShowQuery = await pool.query(
-      "SELECT id, title, category, rotten_mangoes, rotten_mangoes_votes, poster_path, release_date, vote_average FROM movies_shows JOIN movies_details ON movies_shows.id = movies_details.id WHERE belongs_to_collection = $1 ORDER BY popularity DESC, vote_average",
+      "SELECT id, title, category, rotten_mangoes, rotten_mangoes_votes, poster_path, release_date, vote_average FROM movies_shows JOIN movies_details ON movies_shows.id = movies_details.id WHERE belongs_to_collection = $1 ORDER BY release_date",
       [collection_id]
     );
     const collectionQuery = await pool.query(
@@ -541,6 +554,25 @@ app.get("/getShowsByPopularity", async (req, res) => {
   } catch (error) {
     console.error("Error fetching shows: ", error);
     res.status(500).json({ message: "Error getting shows details" });
+  }
+});
+
+app.get("/getBooksByPopularity", async (req, res) => {
+  try {
+    const {pageNo, pageLimit} = req.query;
+    const page = parseInt(pageNo);
+    const limit = parseInt(pageLimit);
+    const offset = (page - 1) * limit;
+
+    const BookQuery = await pool.query(
+      "SELECT id, title, publisher,published_date, page_count, cover_url AS image, average_rating, maturity_rating as rating FROM books ORDER BY popularity DESC, rating DESC"
+    );
+    res.status(200).json({
+      books : BookQuery.rows.slice(offset, offset + limit)
+    });
+  } catch (error) {
+    console.error("Error fetching books: ", error);
+    res.status(500).json({ message: "Error getting books details" });
   }
 });
 
@@ -990,6 +1022,68 @@ app.get("/getUserDetails", async (req, res) => {
   } catch (error) {
     console.error("Error fetching user details:", error);
     res.status(500).json({ message: "Error getting user details" });
+  }
+});
+app.get("/getBooksDetails", async (req, res) => {
+  try {
+    const { id } = req.query;
+    const bookQuery = await pool.query(
+      "SELECT * FROM books WHERE id = $1",
+      [id]
+    );
+    const authorQuery = await pool.query(
+      "SELECT authors.name from authors_books join authors on authors.id = author_books.author_id WHERE authors_books.id = $1",
+      [id]
+    );
+    const genreQuery = await pool.query(
+      "SELECT books_categories.name FROM books_genres join books_categories on books_categories.id = books_genres.genre_id WHERE books_genres.id = $1",
+      [id]
+    );
+    const collectionQuery = await pool.query(
+      "SELECT name FROM books_collections WHERE id = $1",
+      [bookQuery.rows[0].collection_id]
+    );
+    const similarbookQuery = await pool.query(
+      "SELECT id, title, cover_url ,maturity_rating, average_rating FROM books WHERE author_id = $1 ORDER BY published_date",
+      [author_id]
+    );
+    if(bookQuery.rows.length === 0){
+      return res.status(400).json({message: "Book not found"});
+    }
+    res.status(200).json({
+      title : bookQuery.rows[0].title,
+      publisher : bookQuery.rows[0].publisher,
+      published_date : bookQuery.rows[0].published_date,
+      page_count : bookQuery.rows[0].page_count,
+      vote_average : bookQuery.rows[0].average_rating,
+      vote_count : bookQuery.rows[0].ratings_count,
+      overview : bookQuery.rows[0].overview,
+      maturity_rating : bookQuery.rows[0].maturity_rating,
+      authors : authorQuery.rows,
+      genres : genreQuery.rows,
+      collection : collectionQuery.rows[0],
+      similarbookQuery : similarbookQuery.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching book:", error);
+    res.status(500).json({ message: "Error getting book details" });
+  }
+});
+app.get("/getBooksByAuthorId", async (req, res) => {
+  try {
+    const { author_id, pageNo, pageLimit } = req.query;
+    const page = parseInt(pageNo);
+    const limit = parseInt(pageLimit);
+    const offset = (page - 1) * limit;
+
+    const bookQuery = await pool.query(
+      "SELECT id, title, publisher, published_date, page_count, category, poster_path,maturity_rating release_date, average_rating, ratings_count, overview, preview_link FROM books WHERE author_id = $1 ORDER BY published_date",
+      [author_id]
+    );
+    res.status(200).json(bookQuery.rows.slice(offset, offset + limit));
+  } catch (error) {
+    console.error("Error fetching book details :", error);
+    res.status(500).json({ message: "Error getting book details" });
   }
 });
 
