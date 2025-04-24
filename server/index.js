@@ -1032,7 +1032,7 @@ app.get("/getBooksDetails", async (req, res) => {
       [id]
     );
     const authorQuery = await pool.query(
-      "SELECT authors.name from authors_books join authors on authors.id = author_books.author_id WHERE authors_books.id = $1",
+      "SELECT authors.name from authors_books join authors on authors.author_id = author_books.author_id WHERE authors_books.id = $1",
       [id]
     );
     const genreQuery = await pool.query(
