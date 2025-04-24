@@ -10,7 +10,7 @@ const Person = () => {
     const navigate = useNavigate();
     const [person, setPerson] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
 
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -27,6 +27,7 @@ const Person = () => {
             setLoading(true);
             const data = await getPersonDetails(personId);
             setPerson(data);
+            if (data && data.name) document.title = data.name;
             setLoading(false);
         };
         fetchPersonDetails();

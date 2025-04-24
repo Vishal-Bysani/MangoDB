@@ -13,6 +13,7 @@ import Genre from "./pages/Genre";
 import Search from "./pages/Search";
 import ListProfileOverview from "./pages/ListProfileOverview";
 import ItemSeasons from "./pages/ItemSeasons";
+import Collection from "./pages/Collection";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
       <Route path="/person/:personId" element={<Person />} />
       <Route path="/items/:itemId/list-persons/:role/" element={<ListPersons />} />
       <Route path="/genre/:genreId" element={<Genre />} />
+      <Route path="/collection/:collectionId" element={<Collection />} />
       <Route path="/search/:query" element={<Search />} />
       <Route path="/profile/:username/followers" element={<ListProfileOverview title="Followers" />} />
       <Route path="/profile/:username/following" element={<ListProfileOverview title="Following" />} />

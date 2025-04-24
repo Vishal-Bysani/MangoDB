@@ -35,17 +35,17 @@ const EpisodeOverview = forwardRef(({
         </div>
         <div className="episode-overview-info-container">
           <p 
-            style={{ cursor: "pointer", fontSize: "36px", fontWeight: "bolder", color: "#10e3a5", marginBottom: "10px" }}
+            style={{ cursor: "pointer", fontSize: "20px", fontWeight: "bolder", color: "#10e3a5", marginBottom: "10px" }}
           >
             {episode_number}. {name}
           </p>
           <div className="episode-overview-rating-container">
             <p style={{fontWeight: 'bold'}}><span className="episode-overview-yellow-star">★</span> {parseFloat(vote_average).toFixed(1)}/10</p>
             {userRating > 0 && <p style={{fontWeight: 'bold'}}><span className="episode-overview-blue-star">★</span> {parseFloat(userRating).toFixed(1)}/10</p>}
-          </div>
-          <p>Aired on {moment(air_date).format("DD MMMM YYYY")}</p>
-          {runtime && <p>Runtime: {runtime} min</p>}
-          <p style={{marginTop: "10px", fontSize: "18px", fontWeight: "normal"}}>{overview}</p>
+            <p>Aired on {moment(air_date).format("DD MMMM YYYY")}</p>
+            {runtime && <p>Runtime: {runtime} min</p>}
+            </div>
+          <p style={{marginTop: "10px", fontSize: "14px", fontWeight: "normal"}}>{overview}</p>
         </div>
       </div>
     </div>

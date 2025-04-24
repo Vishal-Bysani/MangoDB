@@ -48,10 +48,11 @@ const Item = () => {
             const data = await getItemDetails(itemId);
             setItem(data);
             if (data && data.user_rating) setRating(data.user_rating);
-            if (data.crew) {
+            if (data && data.crew) {
                 setDirectors(data.crew.filter(crew => crew.job_title === "Director"));
                 setWriters(data.crew.filter(crew => crew.department_name === "Writing"));
             }
+            if (data && data.title) document.title = data.title;
             setLoading(false);
         };
         fetchItemDetails();
@@ -277,7 +278,6 @@ const Item = () => {
                     <div className="item-content">
                         <div className="item-main">
                             <div className="item-trailer-container">
-                                <div className="item-poster">
                                     <img 
                                         src={item.image ? item.image : "/item-backdrop.svg"}
                                         alt={item.title} 
@@ -285,6 +285,7 @@ const Item = () => {
                                             e.target.onerror = null;
                                             e.target.src = "/item-backdrop.svg"; // Fallback image
                                         }}
+                                        className="item-image"
                                     />
                                     <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } }} aria-label="Add to list">
                                         { !watchListed ? 
@@ -309,7 +310,6 @@ const Item = () => {
                                             </div>
                                         }
                                     </button>
-                                </div>
                                 <div className="item-trailer">
                                     <iframe 
                                         width="100%" 
@@ -372,14 +372,24 @@ const Item = () => {
                                         <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {personHeaders: item.cast, title: item.title}})}></p>
                                     </div>
                                 )}
-                                        {item.productionCompany && item.productionCompany.length > 0 && (
-                                        <div className="crew-section">
-                                            <h3>Production Company</h3>
-                                            <p className="crew-name" style={{ marginLeft: '16px' }}>
-                                            {item.productionCompany[0].name}
-                                            </p>
-                                        </div>
-                                        )}
+
+                                {item.productionCompany && item.productionCompany.length > 0 && (
+                                    <div className="crew-section">
+                                        <h3>Production Company</h3>
+                                        <p className="crew-name" style={{ marginLeft: '16px' }}>
+                                        {item.productionCompany[0].name}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {item.collection && (
+                                    <div className="crew-section">
+                                        <h3>Part Of</h3>
+                                        <p className="crew-name" style={{ marginLeft: '16px' }} onClick={() => navigate(`/collection/${item.collection.id}`)}>
+                                            {item.collection.name}
+                                        </p>
+                                    </div>
+                                )}
 
                             </div>
                         </div>
@@ -411,15 +421,18 @@ const Item = () => {
                     {item.reviews && item.reviews.length > 0 && <div>
                         <div className="review-container">
                             {item.reviews.slice(0,3).map(review => (
-                                <div key={review.id} className="review">
-                                    <div className="review-rating">
-                                        <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                        {parseFloat(review.rating).toFixed(1)}/10
-                                    </div>
-                                    <div className="review-text">
-                                        {review.text}
-                                    </div>
-                                </div>
+                                <>
+                                    { review.text && <div key={review.id} className="review">
+                                            <div className="review-rating">
+                                                <span className="star-outline" style={{marginRight: '8px'}}>★</span>
+                                                {parseFloat(review.rating).toFixed(1)}/10
+                                            </div>
+                                            <div className="review-text">
+                                                {review.text}
+                                            </div>
+                                        </div>
+                                    }
+                                </>
                             ))}
                         </div>
                     </div>}

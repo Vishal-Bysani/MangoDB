@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { apiUrl } from "./config/config.js";
 import { Navigate } from "react-router";
+import Collection from "./pages/Collection.jsx";
 
 const getLoggedIn = async () => {
     return fetch(`${apiUrl}/isLoggedIn`, {
@@ -53,7 +54,6 @@ const getItemDetails = async (itemId) => {
     return data;
 }
 
-// TODO: Properly integrate with API
 const getMatchingItems = async (text) => {
     const response = await fetch(`${apiUrl}/getMatchingItem?text=${text}`);
     const data = await response.json();
@@ -89,7 +89,6 @@ const getPersonDetails = async (personId) => {
 }
 
 const setFavourite = async (itemId, favourite) => {
-    // TODO
     if (favourite) {
         fetch(`${apiUrl}/addToFavourites?id=${itemId}`, {
             method: "POST",
@@ -338,4 +337,10 @@ const getSeasonDetails = async (showId, seasonId) => {
     return data;
 }
 
-export { toggleWatchListed, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser, getSeasonDetails };
+const getCollectionDetails = async (collectionId, pageNo = 1, pageLimit = 1000) => {
+    const response = await fetch(`${apiUrl}/getMovieShowByCollectionId?collection_id=${collectionId}&pageNo=${pageNo}&pageLimit=${pageLimit}`);
+    const data = await response.json();
+    return data;
+}
+
+export { toggleWatchListed, getCollectionDetails, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, getItemReviews, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser, getSeasonDetails };

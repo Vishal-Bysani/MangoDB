@@ -20,7 +20,7 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                         className="item-overview-image"
                         onClick={() => navigate(`/item/${itemId}`)}
                     />
-                    <button className="ItemThumbnail-plus-button" style={{width: '50px', height: '50px'}} onClick={(e) => { e.stopPropagation(); if (loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } }} aria-label="Add to list">
+                    <button className="ItemThumbnail-plus-button" style={{width: '50px', height: '50px'}} onClick={(e) => { e.stopPropagation(); if (loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
                         { !watchListed ? 
                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                         :
