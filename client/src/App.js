@@ -7,7 +7,7 @@ import Profile from "./pages/Profile";
 import Item from "./pages/Item";
 import ItemReviews from "./pages/ItemReviews";
 import Person from "./pages/Person";
-import NotFound from "./pages/Notfound";
+import NotFound from "./pages/NotFound";
 import ListPersons from "./pages/ListPersons";
 import Genre from "./pages/Genre";
 import Search from "./pages/Search";

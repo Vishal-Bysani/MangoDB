@@ -4,6 +4,7 @@ import { getLoggedIn, getItemDetails, submitRating, submitReview, setFavourite, 
 import Navbar from "../components/Navbar";
 import "../css/Item.css"
 import ListPersonThumbnail from "../components/ListPersonThumbnail";
+import Loading from "../components/Loading";
 
 const Popup = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
@@ -28,7 +29,7 @@ const Item = () => {
     const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
     const [userReviewText, setUserReviewText] = useState("");
     const [hoverRating, setHoverRating] = useState(0);
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
     const [directors, setDirectors] = useState([]);
     const [writers, setWriters] = useState([]);
     const [watchListed, setWatchListed] = useState(false);
@@ -61,8 +62,8 @@ const Item = () => {
     if (loading) {
         return (
             <>
-                <Navbar />
-                <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
+                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+                <Loading/>
             </>
         )
     }

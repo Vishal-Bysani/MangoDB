@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
-import { getLoggedIn, getItemReviews } from "../api";
+import { getLoggedIn } from "../api";
 import Navbar from "../components/Navbar";
 import "../css/ItemReviews.css";
 
@@ -10,7 +10,7 @@ const ItemReviews = () => {
     const [title, setTitle] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
     const location = useLocation();
     const navigate = useNavigate();
 

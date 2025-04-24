@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn } from "../api";
 import Navbar from "../components/Navbar";
+import Loading from "../components/Loading";
 import "../css/ListPersons.css";
 
 const ListPersons = () => {
@@ -11,7 +12,7 @@ const ListPersons = () => {
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState("");
     const location = useLocation();
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
     
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -34,7 +35,7 @@ const ListPersons = () => {
         return (
             <>
                 <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
-                <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
+                <Loading/>
             </>
         )
     }
