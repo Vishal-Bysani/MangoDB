@@ -287,7 +287,7 @@ const Item = () => {
                                         }}
                                         className="item-image"
                                     />
-                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } }} aria-label="Add to list">
+                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login", { state: { parentLink : `/item/${itemId}` }}); } }} aria-label="Add to list">
                                         { !watchListed ? 
                                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                                         :
