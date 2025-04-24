@@ -45,7 +45,7 @@ const SeasonNavigator = ( { seasonIndex, setSeasonIndex, totalSeasons }) => {
 
 const ItemSeasons = () => {
     const { itemId } = useParams();
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
     const location = useLocation();
     const navigate = useNavigate();
     const [title, setTitle] = useState("");

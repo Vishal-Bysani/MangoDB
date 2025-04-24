@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getLoggedIn, getPersonDetails } from "../api";
 import Navbar from "../components/Navbar";
+import Loading from "../components/Loading";
 import "../css/Person.css";
 import ListItemThumbnail from "../components/ListItemThumbnail";
 import moment from "moment";
+
 const Person = () => {
     const { personId } = useParams();
     const navigate = useNavigate();
@@ -37,7 +39,7 @@ const Person = () => {
         return (
             <>
                 <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
-                <div className="loading" style={{marginTop: '120px'}}>Loading...</div>
+                <Loading/>
             </>
         )
     }

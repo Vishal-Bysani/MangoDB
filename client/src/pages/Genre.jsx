@@ -4,11 +4,13 @@ import Navbar from "../components/Navbar";
 import "../css/Genre.css";
 import { getLoggedIn, getFilteredItems } from "../api";
 import ListItemThumbnail from "../components/ListItemThumbnail";
+import Loading from "../components/Loading";
+
 const Genre = () => {
     const navigate = useNavigate();
     const { genreId } = useParams();
     const [loading, setLoading] = useState(true);
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
     const [genreName, setGenreName] = useState(null);
     const [genreMovies, setGenreMovies] = useState([]);
     const [genreShows, setGenreShows] = useState([]);
@@ -37,7 +39,12 @@ const Genre = () => {
     }, [genreId]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <>
+                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+                <Loading/>
+            </>
+        )
     }
     
     return (

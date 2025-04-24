@@ -7,7 +7,7 @@ import "../css/ItemOverview.css";
 
 const ListProfileOverview = ({ title }) => {
     const location = useLocation();
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, userName: ""});
+    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
     const [profileList, setProfileList] = useState([]);
 
     useEffect(() => {
