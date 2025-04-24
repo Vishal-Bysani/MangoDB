@@ -262,8 +262,10 @@ CREATE TABLE books (
     average_rating FLOAT,
     ratings_count INT,
     overview TEXT,
-    preview_link TEXT
+    preview_link TEXT,
+    cover_url TEXT
 );
+
 CREATE TABLE authors(
     author_id SERIAL PRIMARY KEY,
     name TEXT
@@ -273,7 +275,14 @@ CREATE TABLE authors_books (
     author_id INTEGER,
     PRIMARY KEY (id,author_id)
 );
-CREATE TABLE book_categories(
+
+CREATE TABLE books_genres (
+    id INTEGER REFERENCES books(id),
+    genre_id INTEGER REFERENCES book_categories(id),
+    PRIMARY KEY (id, genre_id)
+);
+
+CREATE TABLE books_categories(
     id SERIAL PRIMARY KEY,
     name TEXT
 );
