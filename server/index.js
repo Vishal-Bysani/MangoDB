@@ -477,7 +477,7 @@ app.get("/getPersonDetails", async (req, res) => {
       [id]
     );
     const bookQuery = await pool.query(
-      "SELECT id, title, published_date, cover_url AS image, average_rating, maturity_rating as rating FROM books JOIN authors_books ON books.id = authors_books.id WHERE authors_books.author_id = $1",
+      "SELECT id, title, 'book' as category, cover_url AS image, published_date, average_rating as rating FROM books JOIN authors_books ON books.id = authors_books.id WHERE authors_books.author_id = $1",
       [id]
     );
     res.status(200).json({
@@ -916,7 +916,7 @@ app.get("/getFavourites", isAuthenticated, async (req, res) => {
       [username]
     );
     const favouritesBooksQuery = await pool.query(
-      "SELECT books.id, title, cover_url as image FROM books JOIN books_favourites ON books.id = books_favourites.id WHERE books_favourites.username = $1",
+      "SELECT books.id, title, 'book' as category, cover_url as image FROM books JOIN books_favourites ON books.id = books_favourites.id WHERE books_favourites.username = $1",
       [username]
     );
 
