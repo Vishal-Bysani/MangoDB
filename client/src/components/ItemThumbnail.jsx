@@ -24,7 +24,7 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
                             e.target.src = "/item-backdrop.svg";
                         }}
                     />
-                    <button className="ItemThumbnail-plus-button" onClick={(e) => { e.stopPropagation(); if (loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } }} aria-label="Add to list">
+                    <button className="ItemThumbnail-plus-button" onClick={(e) => { e.stopPropagation(); if (loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
                         { !watchListed ? 
                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                         :

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getUserDetails, getLoggedIn, followUser } from "../api";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import "../css/Profile.css";
 import moment from "moment";
 import ListItemThumbnail from "../components/ListItemThumbnail";
@@ -73,7 +73,7 @@ const Profile = () => {
                                             if (loggedInData.loggedIn) {
                                                 followUser(username);
                                             } else {
-                                                navigate("/login");
+                                                navigate("/login", { state: { parentLink : `/profile/${username}` }});
                                             }
                                         }}
                                     >

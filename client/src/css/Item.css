@@ -528,14 +528,3 @@ body {
 .favourite-button.favourite-active {
     color: #ff4444;
 }
-
-.login-alert-tooltip {
-  position: absolute;
-  background-color: #1a1a1a;
-  color: #10e3a5;
-  padding: 10px;
-  border: 1px solid #10e3a5;
-  border-radius: 5px;
-  z-index: 1000;
-  font-size: 12px;
-}

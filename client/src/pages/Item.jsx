@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getLoggedIn, getItemDetails, submitRating, submitReview, setFavourite, toggleWatchListed } from "../api";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import "../css/Item.css"
 import ListPersonThumbnail from "../components/ListPersonThumbnail";
 
@@ -169,7 +169,7 @@ const Item = () => {
                                             setFavourite(item.id, !item.favourite);
                                             setItem(prevItem => ({...prevItem, favourite: !prevItem.favourite}));
                                         } else {
-                                            navigate("/login");
+                                            navigate("/login", { state: { parentLink : `/item/${itemId}` }});
                                         }
                                     }}
                                     aria-label="Toggle favourite"
@@ -244,16 +244,7 @@ const Item = () => {
                                                     if (loggedInData.loggedIn) {
                                                         setIsRatingPopupOpen(true);
                                                     } else {
-                                                        const tooltip = document.createElement("div");
-                                                        tooltip.className = "login-alert-tooltip";
-                                                        tooltip.textContent = "You need to log in to rate this item.";
-                                                        tooltip.style.top = `${e.clientY + 20}px`;
-                                                        tooltip.style.left = `${e.clientX - 30}px`;
-                                                        document.body.appendChild(tooltip);
-
-                                                        setTimeout(() => {
-                                                            tooltip.remove();
-                                                        }, 3000);
+                                                        navigate("/login", { state: { parentLink : `/item/${itemId}` }});
                                                     }
                                                 }}>
                                                 { rating > 0 ? (
@@ -413,16 +404,7 @@ const Item = () => {
                             if (loggedInData.loggedIn) {
                                 setIsReviewPopupOpen(true);
                             } else {
-                                const tooltip = document.createElement("div");
-                                tooltip.className = "login-alert-tooltip";
-                                tooltip.textContent = "You need to log in to review this item.";
-                                tooltip.style.top = `${e.clientY + 20 + window.scrollY}px`;
-                                tooltip.style.left = `${e.clientX - 30}px`;
-                                document.body.appendChild(tooltip);
-
-                                setTimeout(() => {
-                                    tooltip.remove();
-                                }, 3000);
+                                navigate("/login", { state: { parentLink : `/item/${itemId}` }});
                             }
                         }}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
                     </div>
