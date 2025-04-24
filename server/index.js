@@ -233,11 +233,19 @@ app.get("/getMatchingItem", async (req, res) => {
     );
 
     const bookQuery = await pool.query(
-      "SELECT id, title, author, average_rating,ratings_count, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
+      "SELECT id, title, average_rating,ratings_count, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
       [`%${text}%`]
     );
 
-    res.status(200).json(movieQuery.rows.concat(castQuery.rows).concat(bookQuery.rows));
+    let books = bookQuery.rows;
+    for(const book of books){
+      const authorQuery = await pool.query(
+        "SELECT authors.name FROM authors NATURAL JOIN authors_books WHERE id = $1", [book.id]
+      );
+      book.authors = authorQuery.rows.map(row => row.name);
+    }
+
+    res.status(200).json(movieQuery.rows.concat(castQuery.rows).concat(books));
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
     res.status(500).json({ message: "Error getting movie details" });
@@ -262,14 +270,23 @@ app.get("/getMatchingItemPages", async (req, res) => {
       [`%${text}%`]
     );
     const bookQuery = await pool.query(
-      "SELECT id, title, author, average_rating,ratings_count, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
+      "SELECT id, title, average_rating,ratings_count, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
       [`%${text}%`]
     );
+
+    let books = bookQuery.rows;
+    for(const book of books){
+      const authorQuery = await pool.query(
+        "SELECT authors.name FROM authors NATURAL JOIN authors_books WHERE id = $1", [book.id]
+      );
+      book.authors = authorQuery.rows.map(row => row.name);
+    }
+
 
     res.status(200).json({
       movies: movieQuery.rows.slice(offset, offset + limit),
       cast: castQuery.rows.slice(offset, offset + limit),
-      books : bookQuery.rows.slice(offset, offset + limit)
+      books : books.slice(offset, offset + limit)
     });
 
   } catch (error) {
