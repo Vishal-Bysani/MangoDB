@@ -263,7 +263,8 @@ CREATE TABLE books (
     ratings_count INT,
     overview TEXT,
     preview_link TEXT,
-    cover_url TEXT
+    cover_url TEXT,
+    maturity_rating TEXT
 );
 
 CREATE TABLE authors(
@@ -278,7 +279,7 @@ CREATE TABLE authors_books (
 
 CREATE TABLE books_genres (
     id INTEGER REFERENCES books(id),
-    genre_id INTEGER REFERENCES book_categories(id),
+    genre_id INTEGER REFERENCES books_categories(id),
     PRIMARY KEY (id, genre_id)
 );
 
