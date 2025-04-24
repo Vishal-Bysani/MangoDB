@@ -414,7 +414,8 @@ def insert_movies_shows_trailers():
         print("Show ID:", show_id)
         print("Season ID:", id)
         print("Season Number:", season_number)
-        response = requests.get(API_URL + f"/tv/{show_id}/season/{season_number}/videos?language=en-US", headers=HEADERS)
+        cursor.execute("SELECT tmdb_id FROM movies_shows WHERE id = %s", [show_id])
+        response = requests.get(API_URL + f"/tv/{cursor.fetchone()[0]}/season/{season_number}/videos?language=en-US", headers=HEADERS)
         if response.status_code == 200:
             trailers = response.json()["results"]
             for trailer in trailers:
