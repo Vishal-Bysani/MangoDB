@@ -78,7 +78,7 @@ const ItemSeasons = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.userName} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
             <div className="item-seasons-page">
                 <div className="item-seasons-page-container">
                     <h1 style={{fontSize: "50px", fontWeight: "bold", marginBottom: "40px", marginLeft: "10%"}}>
