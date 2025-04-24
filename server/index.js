@@ -233,19 +233,11 @@ app.get("/getMatchingItem", async (req, res) => {
     );
 
     const bookQuery = await pool.query(
-      "SELECT id, title, average_rating,ratings_count, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
+      "SELECT id, title, average_rating, ratings_count, 'book' as category, published_date, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
       [`%${text}%`]
     );
 
-    let books = bookQuery.rows;
-    for(const book of books){
-      const authorQuery = await pool.query(
-        "SELECT authors.name FROM authors NATURAL JOIN authors_books WHERE id = $1", [book.id]
-      );
-      book.authors = authorQuery.rows.map(row => row.name);
-    }
-
-    res.status(200).json(movieQuery.rows.concat(castQuery.rows).concat(books));
+    res.status(200).json(movieQuery.rows.concat(castQuery.rows).concat(bookQuery.rows));
   } catch (error) {
     console.error("Error fetching movie or cast:", error);
     res.status(500).json({ message: "Error getting movie details" });
@@ -261,32 +253,24 @@ app.get("/getMatchingItemPages", async (req, res) => {
     const offset = (page - 1) * limit;
 
     const movieQuery = await pool.query(
-      "SELECT id, title,rotten_mangoes,rotten_mangoes_votes, category, poster_path, release_date, vote_average FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC",
-      [`%${text}%`]
+      "SELECT id, title, rotten_mangoes, rotten_mangoes_votes, category, poster_path, release_date, vote_average FROM movies_shows WHERE title ILIKE $1 ORDER BY popularity DESC, vote_average DESC LIMIT $2 OFFSET $3",
+      [`%${text}%`, limit, offset]
     );
 
     const castQuery = await pool.query(
-      "SELECT id, name, popularity, known_for_department, profile_path FROM person WHERE name ILIKE $1 ORDER BY popularity DESC",
-      [`%${text}%`]
+      "SELECT id, name, popularity, known_for_department, profile_path FROM person WHERE name ILIKE $1 ORDER BY popularity DESC LIMIT $2 OFFSET $3",
+      [`%${text}%`, limit, offset]
     );
+
     const bookQuery = await pool.query(
-      "SELECT id, title, average_rating,ratings_count, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
-      [`%${text}%`]
+      "SELECT id, title, average_rating, ratings_count, 'book' as category, published_date, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT $2 OFFSET $3",
+      [`%${text}%`, limit, offset]
     );
-
-    let books = bookQuery.rows;
-    for(const book of books){
-      const authorQuery = await pool.query(
-        "SELECT authors.name FROM authors NATURAL JOIN authors_books WHERE id = $1", [book.id]
-      );
-      book.authors = authorQuery.rows.map(row => row.name);
-    }
-
 
     res.status(200).json({
-      movies: movieQuery.rows.slice(offset, offset + limit),
-      cast: castQuery.rows.slice(offset, offset + limit),
-      books : books.slice(offset, offset + limit)
+      movies: movieQuery.rows,
+      cast: castQuery.rows,
+      books : bookQuery.rows
     });
 
   } catch (error) {
@@ -492,6 +476,10 @@ app.get("/getPersonDetails", async (req, res) => {
       "SELECT DISTINCT job_title as role FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1",
       [id]
     );
+    const bookQuery = await pool.query(
+      "SELECT id, title, published_date, cover_url AS image, average_rating, maturity_rating as rating FROM books JOIN authors_books ON books.id = authors_books.id WHERE authors_books.author_id = $1",
+      [id]
+    );
     res.status(200).json({
       id: personQuery.rows[0].id,
       name: personQuery.rows[0].name,
@@ -501,6 +489,7 @@ app.get("/getPersonDetails", async (req, res) => {
       birthday: personQuery.rows[0].birthday,
       deathday: personQuery.rows[0].deathday,
       knownFor : moviesShowsQuery.rows,
+      books: bookQuery.rows,
       roles : distinctRoles.rows.map(role => role.role).concat(personQuery.rows[0].known_for_department),
       gender: personQuery.rows[0].gender,
     });
@@ -513,21 +502,20 @@ app.get("/getPersonDetails", async (req, res) => {
 app.get("/getMovieShowByCollectionId", async (req, res) => {
   try {
     const { collection_id, pageNo, pageLimit } = req.query;
-    console.log(collection_id + " " + pageNo + " " + pageLimit);
     const page = parseInt(pageNo);
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
     const movieOrShowQuery = await pool.query(
-      "SELECT movies_shows.id, title, category, rotten_mangoes, rotten_mangoes_votes, poster_path, release_date, vote_average FROM movies_shows JOIN movies_details ON movies_shows.id = movies_details.id WHERE belongs_to_collection = $1 ORDER BY release_date",
-      [collection_id]
+      "SELECT movies_shows.id, title, category, rotten_mangoes, rotten_mangoes_votes, poster_path, release_date, vote_average FROM movies_shows JOIN movies_details ON movies_shows.id = movies_details.id WHERE belongs_to_collection = $1 ORDER BY release_date DESC LIMIT $2 OFFSET $3",
+      [collection_id, limit, offset]
     );
     const collectionQuery = await pool.query(
-      "SELECT name, overview as description, poster_path AS image FROM collections WHERE id = $1",
+      "SELECT name, overview AS description, poster_path AS image FROM collections WHERE id = $1",
       [collection_id]
     );
     res.status(200).json({
-      moviesOrShow: movieOrShowQuery.rows.slice(offset, offset + limit),
+      moviesOrShow: movieOrShowQuery.rows,
       collection: collectionQuery.rows[0]
     });
   } catch (error) {
@@ -544,11 +532,12 @@ app.get("/getMoviesByPopularity", async (req, res) => {
     const offset = (page - 1) * limit; 
 
     const movieQuery = await pool.query(
-      "SELECT id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as year, vote_average as rating FROM movies_shows WHERE category = 'movie' ORDER BY popularity DESC, rating DESC"
+      "SELECT id, title, category, poster_path as image, EXTRACT(YEAR FROM release_date) as year, vote_average as rating FROM movies_shows WHERE category = 'movie' ORDER BY popularity DESC, rating DESC LIMIT $1 OFFSET $2",
+      [limit, offset]
     );
     
     res.status(200).json({
-      movies : movieQuery.rows.slice(offset, offset + limit)
+      movies : movieQuery.rows
     });
   } catch (error) {
     console.error("Error fetching movies :", error);
@@ -563,11 +552,12 @@ app.get("/getShowsByPopularity", async (req, res) => {
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
-    const ShowQuery = await pool.query(
-      "SELECT id, title, category, poster_path AS image, EXTRACT(YEAR FROM release_date) as year, vote_average as rating FROM movies_shows WHERE category = 'tv' ORDER BY popularity DESC, rating DESC"
+    const showQuery = await pool.query(
+      "SELECT id, title, category, poster_path AS image, EXTRACT(YEAR FROM release_date) as year, vote_average as rating FROM movies_shows WHERE category = 'tv' ORDER BY popularity DESC, rating DESC LIMIT $1 OFFSET $2",
+      [limit, offset]
     );
     res.status(200).json({
-      shows : ShowQuery.rows.slice(offset, offset + limit)
+      shows : showQuery.rows
     });
   } catch (error) {
     console.error("Error fetching shows: ", error);
@@ -582,11 +572,12 @@ app.get("/getBooksByPopularity", async (req, res) => {
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
-    const BookQuery = await pool.query(
-      "SELECT id, title, publisher,published_date, page_count, cover_url AS image, average_rating, maturity_rating as rating FROM books ORDER BY popularity DESC, rating DESC"
+    const bookQuery = await pool.query(
+      "SELECT id, title, publisher, published_date, cover_url AS image, average_rating, maturity_rating as rating FROM books ORDER BY popularity DESC, average_rating DESC LIMIT $1 OFFSET $2",
+      [limit, offset]
     );
     res.status(200).json({
-      books : BookQuery.rows.slice(offset, offset + limit)
+      books : bookQuery.rows
     });
   } catch (error) {
     console.error("Error fetching books: ", error);
@@ -604,6 +595,7 @@ app.get("/filterItems", async (req, res) => {
       minRating,
       orderByRating,
       orderByPopularity,
+      forBook,
       forMovie,
       forShow,
       pageNo = 1,
@@ -614,11 +606,71 @@ app.get("/filterItems", async (req, res) => {
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
-    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, ms.rotten_mangoes, ms.rotten_mangoes_votes, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
-
     let conditions = [];
     let values = [];
     let idx = 1;
+    let bookItems = [];
+
+    if (forBook){
+      let bookQuery = "SELECT id, title, publisher, published_date, page_count, cover_url AS image, average_rating, popularity, overview as description, maturity_rating as rating FROM books";
+
+      if (genreId) {
+        let genreName = await pool.query(
+          "SELECT name FROM genres WHERE id = $1",
+          [parseInt(genreId)]
+        );
+        genreName = genreName.rows[0].name;
+        bookQuery += ` JOIN books_genres bg ON books.id = bg.id`;
+        bookQuery += ` JOIN genres g ON bg.genre_id = g.id`;
+        conditions.push(`(bg.genre_id = $${idx++} OR g.name ILIKE $${idx++} OR $${idx++} ILIKE '%' || g.name || '%')`);
+        values.push(parseInt(genreId));
+        values.push(`%${genreName}%`);
+        values.push(`${genreName}`);
+      }
+      if (personId) {
+        bookQuery += ` JOIN authors_books ab ON books.id = ab.id`;
+        conditions.push(`ab.author_id = $${idx++}`);
+        values.push(parseInt(personId));
+      }
+      if (year) {
+        conditions.push(`EXTRACT(YEAR FROM books.published_date) = $${idx++}`);
+        values.push(parseInt(year));
+      }
+      if (minRating) {
+        conditions.push(`books.average_rating >= $${idx++}`);
+        values.push(parseFloat(minRating));
+      }
+      if (searchText) {
+        conditions.push(`books.title ILIKE $${idx++}`);
+        values.push(`%${searchText}%`);
+      }
+      if (conditions.length) {
+        bookQuery += ` WHERE ` + conditions.join(" AND ");
+      }
+      const bookOrderConditions = [];
+      if (orderByPopularity) bookOrderConditions.push(`books.popularity DESC`);
+      if (orderByRating) bookOrderConditions.push(`books.average_rating DESC`);
+      if (!bookOrderConditions.length) bookOrderConditions.push(`books.popularity DESC`);
+      bookQuery += ` ORDER BY ${bookOrderConditions.join(", ")}`;
+
+      bookQuery += ` LIMIT $${idx++} OFFSET $${idx++}`;
+      values.push(limit, offset);
+      
+      const books = await pool.query(bookQuery, values);
+      bookItems = await Promise.all(books.rows.map(async (book) => {
+        const authorQuery = await pool.query(
+          "SELECT person.name FROM person JOIN authors_books ON person.id = authors_books.author_id WHERE authors_books.id = $1", [book.id]
+        );
+        book.authors = authorQuery.rows.map(row => row.name);
+        return book;
+      }));
+    }
+
+    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, ms.rotten_mangoes, ms.rotten_mangoes_votes, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
+
+    conditions = [];
+    values = [];
+    idx = 1;
 
     if (genreId) {
       let genreName = await pool.query(
@@ -682,7 +734,7 @@ app.get("/filterItems", async (req, res) => {
     values.push(limit, offset);
     
     const movies = await pool.query(baseQuery, values);
-    const items = await Promise.all(movies.rows.map(async (movie) => {
+    const movieItems = await Promise.all(movies.rows.map(async (movie) => {
       const castResult = await pool.query(
         "SELECT character, person.name FROM cast_movies_shows JOIN person ON cast_movies_shows.person_id = person.id WHERE cast_movies_shows.id = $1",
         [movie.id]
@@ -699,7 +751,8 @@ app.get("/filterItems", async (req, res) => {
     }));
 
     res.status(200).json({
-        items
+        moviesOrShows: movieItems,
+        books: bookItems
     })
   } catch (error) {
     console.error("Error fetching filtered items:", error);
@@ -1167,12 +1220,24 @@ app.get("/getUserDetails", async (req, res) => {
       "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN favourites ON movies_shows.id = favourites.id WHERE favourites.username = $1",
       [username]
     );
+    const booksFavouritesQuery = await pool.query(
+      "SELECT books.id, title, cover_url as image FROM books JOIN books_favourites ON books.id = books_favourites.id WHERE books_favourites.username = $1",
+      [username]
+    );
     const watchlistQuery = await pool.query(
       "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN watchlist ON movies_shows.id = watchlist.id WHERE watchlist.username = $1",
       [username]
     );
+    const wantToReadListQuery = await pool.query(
+      "SELECT books.id, title, cover_url as image FROM books JOIN wanttoreadlist ON books.id = wanttoreadlist.id WHERE wanttoreadlist.username = $1",
+      [username]
+    );
     const watchedListQuery = await pool.query(
       "SELECT movies_shows.id, title, category, poster_path as image FROM movies_shows JOIN watchedlist ON movies_shows.id = watchedlist.id WHERE watchedlist.username = $1",
+      [username]
+    );
+    const readListQuery = await pool.query(
+      "SELECT books.id, title, cover_url as image FROM books JOIN readlist ON books.id = readlist.id WHERE readlist.username = $1",
       [username]
     );
     const followersQuery = await pool.query(
@@ -1185,9 +1250,12 @@ app.get("/getUserDetails", async (req, res) => {
     );
     res.status(200).json({
       joinDate: joinDateQuery.rows[0].joinDate.toISOString().split('T')[0],
-      favourites: favouritesQuery.rows,
+      favouriteMovies: favouritesQuery.rows,
+      favouriteBooks: booksFavouritesQuery.rows,
       watchlist: watchlistQuery.rows,
+      wantToReadList: wantToReadListQuery.rows,
       watchedList: watchedListQuery.rows,
+      readList: readListQuery.rows,
       followers: followersQuery.rows,
       following: followingQuery.rows
     });
@@ -1203,25 +1271,21 @@ app.get("/getBooksDetails", async (req, res) => {
       "SELECT * FROM books WHERE id = $1",
       [id]
     );
-    const authorQuery = await pool.query(
-      "SELECT authors.name from authors_books join authors on authors.author_id = author_books.author_id WHERE authors_books.id = $1",
-      [id]
-    );
-    const genreQuery = await pool.query(
-      "SELECT books_categories.name FROM books_genres join books_categories on books_categories.id = books_genres.genre_id WHERE books_genres.id = $1",
-      [id]
-    );
-    const collectionQuery = await pool.query(
-      "SELECT name FROM books_collections WHERE id = $1",
-      [bookQuery.rows[0].collection_id]
-    );
-    const similarbookQuery = await pool.query(
-      "SELECT id, title, cover_url ,maturity_rating, average_rating FROM books WHERE author_id = $1 ORDER BY published_date",
-      [author_id]
-    );
     if(bookQuery.rows.length === 0){
       return res.status(400).json({message: "Book not found"});
     }
+    const authorsQuery = await pool.query(
+      "SELECT person.name FROM authors_books JOIN person ON person.id = author_books.author_id WHERE authors_books.id = $1",
+      [id]
+    );
+    const genreQuery = await pool.query(
+      "SELECT genres.name FROM books_genres JOIN genres ON genres.id = books_genres.genre_id WHERE books_genres.id = $1",
+      [id]
+    );
+    const similarBookQuery = await pool.query(
+      "SELECT books.id, title, published_date, cover_url AS image, average_rating as vote_average, maturity_rating as rating FROM books JOIN authors_books ON books.id = authors_books.id WHERE authors_books.author_id = ANY (SELECT author_id FROM authors_books WHERE id = $1) AND books.id != $1 ORDER BY random() LIMIT 10",
+      [id]
+    );
     res.status(200).json({
       title : bookQuery.rows[0].title,
       publisher : bookQuery.rows[0].publisher,
@@ -1231,10 +1295,9 @@ app.get("/getBooksDetails", async (req, res) => {
       vote_count : bookQuery.rows[0].ratings_count,
       overview : bookQuery.rows[0].overview,
       maturity_rating : bookQuery.rows[0].maturity_rating,
-      authors : authorQuery.rows,
+      authors : authorsQuery.rows,
       genres : genreQuery.rows,
-      collection : collectionQuery.rows[0],
-      similarbookQuery : similarbookQuery.rows,
+      similar_books : similarBookQuery.rows,
     });
   } catch (error) {
     console.error("Error fetching book:", error);
@@ -1249,10 +1312,10 @@ app.get("/getBooksByAuthorId", async (req, res) => {
     const offset = (page - 1) * limit;
 
     const bookQuery = await pool.query(
-      "SELECT id, title, publisher, published_date, page_count, category, poster_path,maturity_rating release_date, average_rating, ratings_count, overview, preview_link FROM books WHERE author_id = $1 ORDER BY published_date",
-      [author_id]
+      "SELECT id, title, publisher, published_date, page_count, cover_url AS image, average_rating as vote_average, maturity_rating as rating FROM books JOIN authors_books ON books.id = authors_books.id WHERE authors_books.author_id = $1 ORDER BY published_date DESC LIMIT $2 OFFSET $3",
+      [author_id, limit, offset]
     );
-    res.status(200).json(bookQuery.rows.slice(offset, offset + limit));
+    res.status(200).json(bookQuery.rows);
   } catch (error) {
     console.error("Error fetching book details :", error);
     res.status(500).json({ message: "Error getting book details" });
