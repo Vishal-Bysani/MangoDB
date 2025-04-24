@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn } from "../api";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import PersonOverview from "./ProfileOverview";
 import "../css/ItemOverview.css";
 

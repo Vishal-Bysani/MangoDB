@@ -264,7 +264,8 @@ CREATE TABLE books (
     overview TEXT,
     preview_link TEXT,
     cover_url TEXT,
-    maturity_rating TEXT
+    maturity_rating TEXT,
+    popularity NUMERIC,
 );
 
 CREATE TABLE authors(

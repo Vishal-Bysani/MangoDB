@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { apiUrl } from "../config/config";
 import "../css/Login.css";
 import { getLoggedIn, loginUser } from "../api";
 
 const Login = () => {
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -34,8 +35,8 @@ const Login = () => {
 
         loginUser(formData.user, formData.password).then(response => {
             if (response.status === 200) {
-                // console.log("Login successful");
-                navigate("/dashboard");
+                if (location.state.parentLink) navigate(location.state.parentLink);
+                else navigate("/dashboard");
             } else {
                 setError(response.json().then(data => data.message));
             }

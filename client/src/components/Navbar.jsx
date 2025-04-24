@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { apiUrl } from "../config/config";
-import "../css/NavBar.css";
+import "../css/Navbar.css";
 import { getMatchingItems, logoutUser } from "../api"
 
 const Navbar = ({isLoggedIn = false, userName = ""}) => {

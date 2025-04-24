@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import "../css/Genre.css";
 import { getLoggedIn, getFilteredItems } from "../api";
 import ListItemThumbnail from "../components/ListItemThumbnail";

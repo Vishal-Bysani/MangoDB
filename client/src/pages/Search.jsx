@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import "../css/Search.css";
 import { getGenreList, getFilteredItems, getMatchingPersons, getLoggedIn } from "../api";
 import ListItemOverview from "../components/ListItemOverview";
@@ -52,7 +52,18 @@ const Search = () => {
 
     const handleFilterSubmit = () => {
         getFilteredItems({searchText: searchQuery, genreId: genreId, personId: personId, year: year, minRating: minRating, orderByRating: orderByRating, orderByPopularity: orderByPopularity, forMovie: forMovie, forShow: forShow, pageNo: pageNo, pageLimit: pageLimit}).then(setMatchingItems);
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     }
+
+    useEffect(() => {
+        if (pageNo > 1 && matchingItems.length === 0) {
+            setTotalPages(Math.max(pageNo - 1, 1));
+            setPageNo(Math.max(pageNo - 1, 1));
+        }
+    }, [matchingItems]);
 
     useEffect(() => {
         handleFilterSubmit();
@@ -76,6 +87,7 @@ const Search = () => {
                 <SearchBar handleSearch={(searchText) => {
                         setSearchQuery(searchText);
                         setPageNo(1);
+                        setTotalPages(null);
                         handleFilterSubmit();
                     }}
                     setParentSearchText={setSearchQuery}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import "../css/Home.css";
 import { getTrendingMovies, getTrendingShows, getLoggedIn } from "../api";
 import ListItemThumbnail from "../components/ListItemThumbnail";

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn, getItemReviews } from "../api";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import "../css/ItemReviews.css";
 
 const ItemReviews = () => {

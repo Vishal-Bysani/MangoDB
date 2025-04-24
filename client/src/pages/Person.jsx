@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getLoggedIn, getPersonDetails } from "../api";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import "../css/Person.css";
 import ListItemThumbnail from "../components/ListItemThumbnail";
 import moment from "moment";

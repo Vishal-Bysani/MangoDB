@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn, getSeasonDetails } from "../api";
 import moment from "moment";
-import Navbar from "../components/NavBar";
+import Navbar from "../components/Navbar";
 import "../css/ItemSeasons.css";
 import ListEpisodeOverview from "../components/ListEpisodeOverview";
 
