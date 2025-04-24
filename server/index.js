@@ -352,7 +352,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         [id]
       ); 
       const collectionQuery = await pool.query(
-        "SELECT name FROM collections WHERE id = $1",
+        "SELECT id, name FROM collections WHERE id = $1",
         [movieQuery.rows[0].belongs_to_collection]
       );
       res.status(200).json({
@@ -513,16 +513,17 @@ app.get("/getPersonDetails", async (req, res) => {
 app.get("/getMovieShowByCollectionId", async (req, res) => {
   try {
     const { collection_id, pageNo, pageLimit } = req.query;
+    console.log(collection_id + " " + pageNo + " " + pageLimit);
     const page = parseInt(pageNo);
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
 
     const movieOrShowQuery = await pool.query(
-      "SELECT id, title, category, rotten_mangoes, rotten_mangoes_votes, poster_path, release_date, vote_average FROM movies_shows JOIN movies_details ON movies_shows.id = movies_details.id WHERE belongs_to_collection = $1 ORDER BY release_date",
+      "SELECT movies_shows.id, title, category, rotten_mangoes, rotten_mangoes_votes, poster_path, release_date, vote_average FROM movies_shows JOIN movies_details ON movies_shows.id = movies_details.id WHERE belongs_to_collection = $1 ORDER BY release_date",
       [collection_id]
     );
     const collectionQuery = await pool.query(
-      "SELECT name, overview, poster_path FROM collections WHERE id = $1",
+      "SELECT name, overview as description, poster_path AS image FROM collections WHERE id = $1",
       [collection_id]
     );
     res.status(200).json({
