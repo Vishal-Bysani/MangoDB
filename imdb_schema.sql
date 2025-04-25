@@ -64,6 +64,18 @@ CREATE TABLE public.books (
 ALTER TABLE public.books OWNER TO imdbuser;
 
 --
+-- Name: books_favourites; Type: TABLE; Schema: public; Owner: imdbuser
+--
+
+CREATE TABLE public.books_favourites (
+    username text NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.books_favourites OWNER TO imdbuser;
+
+--
 -- Name: books_genres; Type: TABLE; Schema: public; Owner: imdbuser
 --
 
@@ -96,6 +108,20 @@ ALTER SEQUENCE public.books_id_seq OWNER TO imdbuser;
 
 ALTER SEQUENCE public.books_id_seq OWNED BY public.books.id;
 
+
+--
+-- Name: books_reviews_ratings; Type: TABLE; Schema: public; Owner: imdbuser
+--
+
+CREATE TABLE public.books_reviews_ratings (
+    username text NOT NULL,
+    id integer NOT NULL,
+    review text,
+    rating integer NOT NULL
+);
+
+
+ALTER TABLE public.books_reviews_ratings OWNER TO imdbuser;
 
 --
 -- Name: cast_movies_shows; Type: TABLE; Schema: public; Owner: imdbuser
@@ -533,6 +559,18 @@ ALTER SEQUENCE public.production_companies_id_seq OWNED BY public.production_com
 
 
 --
+-- Name: readlist; Type: TABLE; Schema: public; Owner: imdbuser
+--
+
+CREATE TABLE public.readlist (
+    username text NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.readlist OWNER TO imdbuser;
+
+--
 -- Name: seasons; Type: TABLE; Schema: public; Owner: imdbuser
 --
 
@@ -616,6 +654,18 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO imdbuser;
 
 --
+-- Name: wanttoreadlist; Type: TABLE; Schema: public; Owner: imdbuser
+--
+
+CREATE TABLE public.wanttoreadlist (
+    username text NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.wanttoreadlist OWNER TO imdbuser;
+
+--
 -- Name: watchedlist; Type: TABLE; Schema: public; Owner: imdbuser
 --
 
@@ -697,6 +747,14 @@ ALTER TABLE ONLY public.authors_books
 
 
 --
+-- Name: books_favourites books_favourites_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.books_favourites
+    ADD CONSTRAINT books_favourites_pkey PRIMARY KEY (username, id);
+
+
+--
 -- Name: books_genres books_genres_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
 --
 
@@ -710,6 +768,14 @@ ALTER TABLE ONLY public.books_genres
 
 ALTER TABLE ONLY public.books
     ADD CONSTRAINT books_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: books_reviews_ratings books_reviews_ratings_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.books_reviews_ratings
+    ADD CONSTRAINT books_reviews_ratings_pkey PRIMARY KEY (username, id);
 
 
 --
@@ -897,6 +963,14 @@ ALTER TABLE ONLY public.production_companies
 
 
 --
+-- Name: readlist readlist_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.readlist
+    ADD CONSTRAINT readlist_pkey PRIMARY KEY (username, id);
+
+
+--
 -- Name: seasons seasons_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
 --
 
@@ -937,6 +1011,14 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: wanttoreadlist wanttoreadlist_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.wanttoreadlist
+    ADD CONSTRAINT wanttoreadlist_pkey PRIMARY KEY (username, id);
+
+
+--
 -- Name: watchedlist watchedlist_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
 --
 
@@ -953,11 +1035,43 @@ ALTER TABLE ONLY public.watchlist
 
 
 --
+-- Name: books_favourites books_favourites_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.books_favourites
+    ADD CONSTRAINT books_favourites_id_fkey FOREIGN KEY (id) REFERENCES public.books(id) ON DELETE CASCADE;
+
+
+--
+-- Name: books_favourites books_favourites_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.books_favourites
+    ADD CONSTRAINT books_favourites_username_fkey FOREIGN KEY (username) REFERENCES public.users(username) ON DELETE CASCADE;
+
+
+--
 -- Name: books_genres books_genres_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
 --
 
 ALTER TABLE ONLY public.books_genres
     ADD CONSTRAINT books_genres_id_fkey FOREIGN KEY (id) REFERENCES public.books(id);
+
+
+--
+-- Name: books_reviews_ratings books_reviews_ratings_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.books_reviews_ratings
+    ADD CONSTRAINT books_reviews_ratings_id_fkey FOREIGN KEY (id) REFERENCES public.books(id);
+
+
+--
+-- Name: books_reviews_ratings books_reviews_ratings_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.books_reviews_ratings
+    ADD CONSTRAINT books_reviews_ratings_username_fkey FOREIGN KEY (username) REFERENCES public.users(username);
 
 
 --
@@ -1193,6 +1307,22 @@ ALTER TABLE ONLY public.production_companies
 
 
 --
+-- Name: readlist readlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.readlist
+    ADD CONSTRAINT readlist_id_fkey FOREIGN KEY (id) REFERENCES public.books(id) ON DELETE CASCADE;
+
+
+--
+-- Name: readlist readlist_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.readlist
+    ADD CONSTRAINT readlist_username_fkey FOREIGN KEY (username) REFERENCES public.users(username) ON DELETE CASCADE;
+
+
+--
 -- Name: seasons seasons_show_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
 --
 
@@ -1214,6 +1344,22 @@ ALTER TABLE ONLY public.seasons_videos
 
 ALTER TABLE ONLY public.shows_details
     ADD CONSTRAINT shows_details_id_fkey FOREIGN KEY (id) REFERENCES public.movies_shows(id) ON DELETE CASCADE;
+
+
+--
+-- Name: wanttoreadlist wanttoreadlist_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.wanttoreadlist
+    ADD CONSTRAINT wanttoreadlist_id_fkey FOREIGN KEY (id) REFERENCES public.books(id) ON DELETE CASCADE;
+
+
+--
+-- Name: wanttoreadlist wanttoreadlist_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.wanttoreadlist
+    ADD CONSTRAINT wanttoreadlist_username_fkey FOREIGN KEY (username) REFERENCES public.users(username) ON DELETE CASCADE;
 
 
 --
