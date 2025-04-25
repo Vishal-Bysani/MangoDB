@@ -89,15 +89,29 @@ const getPersonDetails = async (personId) => {
 
 const setFavourite = async (itemId, favourite, forBook = false) => {
     if (favourite) {
-        fetch(`${apiUrl}/addToFavourites?id=${itemId}&forBook=${forBook}`, {
-            method: "POST",
-            credentials: "include",
-        });
+        if (forBook) {
+            fetch(`${apiUrl}/addToFavourites?id=${itemId}&forBook=${forBook}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        } else {
+            fetch(`${apiUrl}/addToFavourites?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        }
     } else {
-        fetch(`${apiUrl}/removeFromFavourites?id=${itemId}&forBook=${forBook}`, {
-            method: "POST",
-            credentials: "include",
-        });
+        if (forBook) {
+            fetch(`${apiUrl}/removeFromFavourites?id=${itemId}&forBook=${forBook}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        } else {
+            fetch(`${apiUrl}/removeFromFavourites?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        }
     }
 }
 
