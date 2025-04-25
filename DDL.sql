@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     is_critic BOOLEAN DEFAULT FALSE,
     is_authenticated BOOLEAN DEFAULT FALSE,
-    registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS countries (
