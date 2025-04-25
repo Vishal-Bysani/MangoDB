@@ -168,7 +168,7 @@ const getFilteredItems = async ({searchText = null,
     if (pageLimit) baseUrl += `pageLimit=${pageLimit}&`;
     const response = await fetch(baseUrl);
     const data = await response.json();
-    return data.items;
+    return data.moviesOrShows;
 }
 
 const getUserDetails = async (username) => {
