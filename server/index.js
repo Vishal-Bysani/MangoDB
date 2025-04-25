@@ -182,7 +182,7 @@ app.get("/verify-email", async (req, res) => {
           <title>Email Verified</title>
         </head>
         <body style="text-align: center; font-family: Arial, sans-serif, padding-top :100px;">
-          <h1>Email Verified Successfully 🎉</h1>
+          <h1>Email Verified Successfully 🎉🎉</h1>
           <p>Thank you for verifying your email. You can now log in to your account and enjoy the website.</p>
         </body>
       </html>`
@@ -195,7 +195,7 @@ app.get("/verify-email", async (req, res) => {
           <title>Oops!</title>
         </head>
         <body style="text-align: center; font-family: Arial, sans-serif, padding-top :100px;">
-          <h1>⚠️ Invalid or Expired Link</h1>
+          <h1>Invalid or Expired Link ❗❗</h1>
           <p>Please try signing up again or request a new verification link.</p>
         </body>
       </html>`
