@@ -233,7 +233,7 @@ app.get("/getMatchingItem", async (req, res) => {
     );
 
     const bookQuery = await pool.query(
-      "SELECT id, title, average_rating, ratings_count, 'book' as category, published_date, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
+      "SELECT id, title, average_rating as rating, popularity, ratings_count, 'book' as category, published_date, cover_url as image FROM books WHERE title ILIKE $1 ORDER BY popularity DESC LIMIT 10",
       [`%${text}%`]
     );
 
@@ -1264,6 +1264,7 @@ app.get("/getUserDetails", async (req, res) => {
     res.status(500).json({ message: "Error getting user details" });
   }
 });
+
 app.get("/getBooksDetails", async (req, res) => {
   try {
     const { id } = req.query;
@@ -1304,6 +1305,7 @@ app.get("/getBooksDetails", async (req, res) => {
     res.status(500).json({ message: "Error getting book details" });
   }
 });
+
 app.get("/getBooksByAuthorId", async (req, res) => {
   try {
     const { author_id, pageNo, pageLimit } = req.query;

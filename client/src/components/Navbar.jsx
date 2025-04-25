@@ -82,9 +82,9 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
                 >
                   <div className="search-result-content">
                     <img 
-                      src={item.image ? item.image : "/item-backdrop.svg"} 
+                      src={item.image ? item.image : (item.published_date ? "/item-backdrop.svg" : (item.popularity ? "/person-backdrop.svg" : "/item-backdrop.svg"))} 
                       alt={item.title} 
-                      className="search-result-image" 
+                      className="search-result-image"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/item-backdrop.svg"; // Fallback image
@@ -93,6 +93,7 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
                     <div className="search-result-info">
                       <div className="search-result-text">
                         <div className="search-result-title">{item.title}</div>
+                        { item.published_date && <div className="search-result-year">{item.published_date}</div> }
                         { item.startYear && !item.endYear && <div className="search-result-year">{item.startYear}</div> }
                         { item.startYear && item.endYear && <div className="search-result-year">{item.startYear} - {item.endYear}</div> }
                         { item.role && <div className="search-result-year">{item.role}</div> }

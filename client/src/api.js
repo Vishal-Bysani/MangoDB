@@ -49,7 +49,7 @@ const signupUser = async (username, password, email) => {
 }
 
 const getItemDetails = async (itemId) => {
-    await new Promise(resolve => setTimeout(resolve, 1000000));
+    // await new Promise(resolve => setTimeout(resolve, 2000));
     const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`, { credentials: "include" });
     const data = await response.json();
     return data;

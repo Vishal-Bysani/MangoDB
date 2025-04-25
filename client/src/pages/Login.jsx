@@ -35,7 +35,7 @@ const Login = () => {
 
         loginUser(formData.user, formData.password).then(response => {
             if (response.status === 200) {
-                if (location.state.parentLink) navigate(location.state.parentLink);
+                if (location.state && location.state.parentLink) navigate(location.state.parentLink);
                 else navigate("/dashboard");
             } else {
                 setError(response.json().then(data => data.message));
