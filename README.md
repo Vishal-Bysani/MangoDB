@@ -53,6 +53,7 @@ npm run start
 ├── server/                # Node.js backend
 │   |── index.js           # Server entry point
 │   └── package.json       # Backend dependencies
+├── summarize.py           # Summarizer   
 ├── package.json           # Project dependencies and scripts
 └── README.md              # Project documentation
 ```
