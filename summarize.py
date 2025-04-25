@@ -1,15 +1,13 @@
 # summarize.py
-import sys
-import json
 import torch
 from transformers import pipeline,AutoTokenizer, AutoModelForSeq2SeqLM
 
-# model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn", cache_dir = "./model")
-# tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn", cache_dir = "./model")
-# model.save_pretrained("./model")
-# tokenizer.save_pretrained("./model")import torch
+# model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn", cache_dir = "./models/fbcnn")
+# tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn", cache_dir = "./models/fbcnn")
+# model.save_pretrained("./models/fbcnn")
+# tokenizer.save_pretrained("./models/fbcnn")
 device = 0 if torch.cuda.is_available() else -1
-summarizer = pipeline("summarization", model="./model", tokenizer="./model", device=device)
+summarizer = pipeline("summarization", model="./models/fbcnn", tokenizer="./models/fbcnn", device=device)
 
 
 def summarize(text):
@@ -18,8 +16,5 @@ def summarize(text):
 
 if __name__ == "__main__":
     input_text = input()
-    # data = json.loads(input_text)
-    # text = data.get("text", "")
-    # input_text
     summary = summarize(input_text)
-    print(json.dumps({"summary": summary}))
+    print(summary)

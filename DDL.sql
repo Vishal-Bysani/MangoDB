@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS movies_shows (
     FOREIGN KEY (iso_3166_1, certificate) REFERENCES certifications(iso_3166_1, certificate) ON DELETE SET NULL,  -- Certificate
     rotten_mangoes INT CHECK (rotten_mangoes >= 0 AND rotten_mangoes <= 100) DEFAULT 0,  -- Rotten Mangoes Score
     rotten_mangoes_votes INT DEFAULT 100,  -- Rotten Mangoes Count
+    review_summary TEXT
 );
 
 ------------------------------------------------------------------
@@ -179,7 +180,8 @@ CREATE TABLE IF NOT EXISTS episodes (
     episode_number INTEGER NOT NULL,                   -- Episode Number
     still_path TEXT,                        -- URL Path for Still Image
     vote_average NUMERIC,                      -- Average Rating
-    vote_count INTEGER                       -- Number of Votes
+    vote_count INTEGER,                       -- Number of Votes
+    review_summary TEXT
 );
 
 -------------------------------------------------------------------
@@ -228,6 +230,7 @@ CREATE TABLE IF NOT EXISTS movies_shows_reviews_ratings (
     id INTEGER REFERENCES movies_shows(id),
     review TEXT,
     rating INTEGER NOT NULL,
+    review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (username, id)
 );
 
@@ -251,6 +254,7 @@ CREATE TABLE IF NOT EXISTS episodes_shows_reviews_ratings (
     id INTEGER REFERENCES episodes(id),
     review TEXT,
     rating INTEGER NOT NULL,
+    review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (username, id)
 );
 
@@ -294,6 +298,7 @@ CREATE TABLE IF NOT EXISTS books (
     cover_url TEXT,
     maturity_rating TEXT,
     popularity NUMERIC,
+    review_summary TEXT
 );
 
 CREATE TABLE IF NOT EXISTS authors(
@@ -322,6 +327,7 @@ CREATE TABLE IF NOT EXISTS books_reviews_ratings(
     id INTEGER REFERENCES books(id),
     review TEXT,
     rating INTEGER NOT NULL,
+    review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (username, id)
 );
 

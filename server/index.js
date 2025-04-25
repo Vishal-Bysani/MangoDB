@@ -288,7 +288,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const movieOrShowQuery = await pool.query(
-      "SELECT id, title, rotten_mangoes, rotten_mangoes_votes, category as type, poster_path as image, backdrop_path as backdrop, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating, vote_count as \"numRating\", popularity, overview as description, origin_country FROM movies_shows WHERE id = $1",
+      "SELECT id, title, rotten_mangoes, rotten_mangoes_votes, category as type, poster_path as image, backdrop_path as backdrop, EXTRACT(YEAR FROM release_date) as \"startYear\", EXTRACT(YEAR FROM end_date) as \"endYear\", vote_average as rating, vote_count as \"numRating\", popularity, overview as description, origin_country, review_summary FROM movies_shows WHERE id = $1",
       [id]
     );
     if(movieOrShowQuery.rows.length === 0){
@@ -356,6 +356,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         numRating: movieOrShowQuery.rows[0].numRating,
         popularity: movieOrShowQuery.rows[0].popularity,
         description: movieOrShowQuery.rows[0].description,
+        review_summary : movieOrShowQuery.rows[0].review_summary,
         user_rating: null,
         duration: movieQuery.rows[0].duration,
         budget: movieQuery.rows[0].budget,
@@ -397,6 +398,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         numRating: movieOrShowQuery.rows[0].numRating,
         popularity: movieOrShowQuery.rows[0].popularity,
         description: movieOrShowQuery.rows[0].description,
+        review_summary : movieOrShowQuery.rows[0].review_summary,
         user_rating: null,
         country: countryQuery.rows[0].english_name,
         language: LanguageQuery.rows[0],
@@ -452,7 +454,8 @@ app.get("/getSeasonDetails", async (req, res) => {
         still_path: ep.still_path,
         vote_average: ep.vote_average,
         vote_count: ep.vote_count,
-        runtime : ep.runtime
+        runtime : ep.runtime,
+        review_summary : ep.review_summary,
       }));
     }
     res.status(200).json(response);
@@ -616,11 +619,11 @@ app.get("/filterItems", async (req, res) => {
     let bookItems = [];
 
     if (forBook){
-      let bookQuery = "SELECT id, title, publisher, published_date, page_count, cover_url AS image, average_rating, popularity, overview as description, maturity_rating as rating FROM books";
+      let bookQuery = "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview as description, books.maturity_rating as rating FROM books";
 
       if (genreId) {
         let genreName = await pool.query(
-          "SELECT name FROM genres WHERE id = $1",
+          "SELECT name FROM genres WHERE genres.id = $1",
           [parseInt(genreId)]
         );
         genreName = genreName.rows[0].name;
@@ -826,6 +829,38 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
             [username, id, rating, review]
           );
       }
+      const reviewsQuery = await pool.query(
+        "SELECT review FROM books_reviews_ratings WHERE id = $1 ORDER BY review_time DESC",
+        [id]
+      );
+      if(reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0){
+        const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review_text.replace(/\s+/g, ' ')) .join(' ');
+
+        const { rows: summaryRows } = await pool.query(
+          'SELECT review_summary FROM books WHERE id = $1',
+          [id]
+        );
+
+        const currentSummary = ((summaryRows[0] && summaryRows[0].review_summary) ? summaryRows[0].review_summary : '').replace(/\s+/g, ' ');
+        const fullText = `${currentSummary} ${latestReviews}`;
+        const py = spawn('python3', ['summarize.py']);
+        let summary = '', error = '';
+
+        py.stdin.write(fullText);
+        py.stdin.end();
+
+        py.stdout.on('data', (data) => summary += data.toString());
+        py.stderr.on('data', (data) => error += data.toString());
+
+        py.on('close', async (code) => {
+          if (code === 0) {
+            await pool.query(
+              'UPDATE books SET review_summary = $1 WHERE id = $2',
+              [summary.trim(), id]
+            );
+          }
+        });
+      }
     }
     else{
       const ratingOrReviewExists = await pool.query(
@@ -858,6 +893,38 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
             "INSERT INTO movies_shows_reviews_ratings (username, id, rating, review) VALUES ($1, $2, $3, $4)",
             [username, id, rating, review]
           );
+      }
+      const reviewsQuery = await pool.query(
+        "SELECT review FROM movies_shows_reviews_ratings WHERE id = $1 ORDER BY review_time DESC",
+        [id]
+      );
+      if(reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0){
+        const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review_text.replace(/\s+/g, ' ')) .join(' ');
+
+        const { rows: summaryRows } = await pool.query(
+          'SELECT review_summary FROM movies_shows WHERE id = $1',
+          [id]
+        );
+
+        const currentSummary = ((summaryRows[0] && summaryRows[0].review_summary) ? summaryRows[0].review_summary : '').replace(/\s+/g, ' ');
+        const fullText = `${currentSummary} ${latestReviews}`;
+        const py = spawn('python3', ['summarize.py']);
+        let summary = '', error = '';
+
+        py.stdin.write(fullText);
+        py.stdin.end();
+
+        py.stdout.on('data', (data) => summary += data.toString());
+        py.stderr.on('data', (data) => error += data.toString());
+
+        py.on('close', async (code) => {
+          if (code === 0) {
+            await pool.query(
+              'UPDATE movies_shows SET review_summary = $1 WHERE id = $2',
+              [summary.trim(), id]
+            );
+          }
+        });
       }
     }
     res.status(200).json({
@@ -902,6 +969,33 @@ app.post("/submitEpisodeRatingReview", isAuthenticated, async (req, res) => {
           "INSERT INTO episode_reviews_ratings (username, id, rating, review) VALUES ($1, $2, $3, $4)",
           [username, id, rating, review]
         );
+    }
+    const reviewsQuery = await pool.query(
+      "SELECT review FROM episodes_shows_reviews_ratings WHERE id = $1 ORDER BY review_time DESC",
+      [id]
+    );
+    if(reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0){
+      const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review_text.replace(/\s+/g, ' ')) .join(' ');
+      const { rows: summaryRows } = await pool.query(
+        'SELECT review_summary FROM episodes WHERE id = $1',
+        [id]
+      );
+      const currentSummary = ((summaryRows[0] && summaryRows[0].review_summary) ? summaryRows[0].review_summary : '').replace(/\s+/g, ' ');
+      const fullText = `${currentSummary} ${latestReviews}`;
+      const py = spawn('python3', ['summarize.py']);
+      let summary = '', error = '';
+      py.stdin.write(fullText);
+      py.stdin.end();
+      py.stdout.on('data', (data) => summary += data.toString());
+      py.stderr.on('data', (data) => error += data.toString());
+      py.on('close', async (code) => {
+        if (code === 0) {
+          await pool.query(
+            'UPDATE episodes SET review_summary = $1 WHERE id = $2',
+            [summary.trim(), id]
+          );
+        }
+      });
     }
     res.status(200).json({
       message: "Review submitted successfully"
