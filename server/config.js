@@ -10,4 +10,5 @@ module.exports = {
     JWT_EXPIRY : '1 minute',
     BASE_URL : 'http://localhost:4000',
     SESSION_EXPIRY : 60*60*1000, // 1 hour
+    REVIEW_STEP : 10
 }
