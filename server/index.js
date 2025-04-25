@@ -9,6 +9,8 @@ const cors = require("cors");
 const { Pool } = require("pg");
 const config = require('./config');
 const cron = require('node-cron');
+const fs = require('fs');
+const rateLimit = require('express-rate-limit');
 const { spawn } = require("child_process");
 const { title } = require("process");
 const app = express();
@@ -23,6 +25,12 @@ const pool = new Pool({
   port: config.port,
 });
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests, please try again later.",
+});
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -32,6 +40,7 @@ const transporter = nodemailer.createTransport({
 });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(limiter);
 
 // CORS: Give permission to localhost:3000 (ie our React app)
 // to use this backend API
@@ -64,6 +73,39 @@ function isAuthenticated(req, res, next) {
   else{
     res.status(400).json({message:"Unauthorized"})
   }
+}
+
+// Extract approx time difference (Eg seconds, minute, hours, days, months, year) from given timestamp till current time
+
+function getTimeDifference(timestamp) {
+  const currentTime = new Date();
+  const timeDifference = currentTime - timestamp;
+  const seconds = Math.floor(timeDifference / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(months / 12);
+  let timeString = "";
+  if (years > 0) {
+    timeString = years + " year" + (years > 1 ? "s" : "") + " ago";
+  }
+  else if (months > 0) {
+    timeString = months + " month" + (months > 1 ? "s" : "") + " ago";
+  }
+  else if (days > 0) {
+    timeString = days + " day" + (days > 1 ? "s" : "") + " ago";
+  }
+  else if (hours > 0) {
+    timeString = hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+  }
+  else if (minutes > 0) {
+    timeString = minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
+  }
+  else if (seconds > 0) {
+    timeString = seconds + " second" + (seconds > 1 ? "s" : "") + " ago";
+  }
+  return timeString;
 }
 
 // return JSON object with the following fields: {username, email, password}
@@ -240,7 +282,7 @@ app.get("/getMatchingItem", async (req, res) => {
         "") +
       "WHERE title ILIKE $1 " +
       "ORDER BY popularity DESC, vote_average DESC LIMIT 20",
-      [`%${text}%`, req.session.username]
+      (req.session.username) ? [`%${text}%`, req.session.username] : [`%${text}%`]
     );
     const castQuery = await pool.query(
       "SELECT id, name as title, popularity, known_for_department as role, profile_path as image FROM person WHERE name ILIKE $1 ORDER BY popularity DESC LIMIT 10",
@@ -259,7 +301,7 @@ app.get("/getMatchingItem", async (req, res) => {
         "") +
       "WHERE b.title ILIKE $1 " +
       "ORDER BY b.popularity DESC LIMIT 10",
-      [`%${text}%`, req.session.username]
+      (req.session.username) ? [`%${text}%`, req.session.username] : [`%${text}%`]
     );
 
     res.status(200).json(movieQuery.rows.concat(castQuery.rows).concat(bookQuery.rows));
@@ -288,7 +330,7 @@ app.get("/getMatchingItemPages", async (req, res) => {
         "") +
       "WHERE m.title ILIKE $1 " +
       "ORDER BY m.popularity DESC, m.vote_average DESC LIMIT $2 OFFSET $3",
-      [`%${text}%`, limit, offset, req.session.username]
+      (req.session.username) ? [`%${text}%`, limit, offset, req.session.username] : [`%${text}%`, limit, offset]
     );
 
     const castQuery = await pool.query(
@@ -307,7 +349,7 @@ app.get("/getMatchingItemPages", async (req, res) => {
         "") +
       "WHERE b.title ILIKE $1 " +
       "ORDER BY b.popularity DESC LIMIT $2 OFFSET $3",
-      [`%${text}%`, limit, offset, req.session.username]
+      (req.session.username) ? [`%${text}%`, limit, offset, req.session.username] : [`%${text}%`, limit, offset]
     );
 
     res.status(200).json({
@@ -339,7 +381,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         "LEFT JOIN watchlist w ON m.id = w.id AND w.username = $2 " :
         "") +
       "WHERE m.id = $1",
-      [id, req.session.username]
+      (req.session.username) ? [id, req.session.username] : [id]
     );
     if(movieOrShowQuery.rows.length === 0){
       return res.status(400).json({message: "Movie or Show not found"});
@@ -381,9 +423,16 @@ app.get("/getMovieShowDetails", async (req, res) => {
       [req.session.username, id]
     );
     const reviewQuery = await pool.query(
-      "SELECT username, rating, review as text FROM movies_shows_reviews_ratings WHERE id = $1",
+      "SELECT username, rating, review as text, review_time FROM movies_shows_reviews_ratings WHERE id = $1",
       [id]
     );
+    const reviews = reviewQuery.rows.map(r => ({
+      username: r.username,
+      rating: r.rating,
+      review: r.review,
+      time_ago: getTimeDifference(r.review_time)
+    }));
+    
     if(movieOrShowQuery.rows[0].type === "movie"){
       const movieQuery = await pool.query(
         "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
@@ -423,7 +472,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         backdrop: movieOrShowQuery.rows[0].backdrop,
         favourite: favouriteQuery.rows.length > 0,
         user_rating: ratingQuery.rows.length > 0 ? ratingQuery.rows[0].rating : null,
-        reviews: reviewQuery.rows
+        reviews: reviews,
       });
     }
     else {
@@ -464,7 +513,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         backdrop: movieOrShowQuery.rows[0].backdrop,
         favourite: favouriteQuery.rows.length > 0,
         user_rating: ratingQuery.rows.length > 0 ? ratingQuery.rows[0].rating : null,
-        reviews: reviewQuery.rows
+        reviews: reviews
       });
     }
   } catch (error) {
@@ -553,7 +602,7 @@ app.get("/getPersonDetails", async (req, res) => {
         "LEFT JOIN watchlist w ON m.id = w.id AND w.username = $2 " :
         "") +
       "WHERE crms.person_id = $1 ORDER BY m.popularity DESC)",
-      [id, req.session.username]
+      (req.session.username) ? [id, req.session.username] : [id]
     );
     const distinctRoles = await pool.query(
       "SELECT DISTINCT job_title as role FROM movies_shows JOIN crew_movies_shows ON movies_shows.id = crew_movies_shows.id WHERE crew_movies_shows.person_id = $1",
@@ -570,7 +619,7 @@ app.get("/getPersonDetails", async (req, res) => {
         "LEFT JOIN wanttoreadlist wtr ON b.id = wtr.id AND wtr.username = $2 " :
         "") +
       "WHERE ab.author_id = $1",
-      [id, req.session.username]
+      (req.session.username) ? [id, req.session.username] : [id]
     );
     res.status(200).json({
       id: personQuery.rows[0].id,
@@ -610,7 +659,7 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
         "") +
       "WHERE md.belongs_to_collection = $1 " +
       "ORDER BY m.release_date DESC LIMIT $2 OFFSET $3",
-      [collection_id, limit, offset, req.session.username]
+      (req.session.username) ? [collection_id, limit, offset, req.session.username] : [collection_id, limit, offset]
     );
     const collectionQuery = await pool.query(
       "SELECT name, overview AS description, poster_path AS image FROM collections WHERE id = $1",
@@ -645,7 +694,7 @@ app.get("/getMoviesByPopularity", async (req, res) => {
         : "") +
       "WHERE m.category = 'movie' " +
       "ORDER BY m.popularity DESC, m.vote_average DESC LIMIT $1 OFFSET $2",
-      [limit, offset, req.session.username]
+      (req.session.username) ? [limit, offset, req.session.username] : [limit, offset]
     );    
     
     res.status(200).json({
@@ -676,7 +725,7 @@ app.get("/getShowsByPopularity", async (req, res) => {
         : "") +
       "WHERE m.category = 'tv' " +
       "ORDER BY m.popularity DESC, m.vote_average DESC LIMIT $1 OFFSET $2",
-      [limit, offset, req.session.username]
+      (req.session.username) ? [limit, offset, req.session.username] : [limit, offset]
     ); 
     res.status(200).json({
       shows : showQuery.rows
@@ -704,7 +753,7 @@ app.get("/getBooksByPopularity", async (req, res) => {
         ? "LEFT JOIN wanttoreadlist wtr ON b.id = wtr.id AND wtr.username = $3 "
         : "") +
       "ORDER BY b.popularity DESC, b.average_rating DESC LIMIT $1 OFFSET $2",
-      [limit, offset, req.session.username]
+      (req.session.username) ? [limit, offset, req.session.username] : [limit, offset]
     );
     res.status(200).json({
       books : bookQuery.rows
@@ -930,6 +979,7 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
     const username = req.session.username;
 
     if (forBook) {
+      console.log("Book id: " , id);
       const ratingOrReviewExists = await pool.query(
         "SELECT * FROM books_reviews_ratings WHERE username = $1 AND id = $2",
         [username, id]
@@ -965,7 +1015,7 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
         [id]
       );
       if(reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0){
-        const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review_text.replace(/\s+/g, ' ')) .join(' ');
+        const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review.replace(/\s+/g, ' ')) .join(' ');
 
         const { rows: summaryRows } = await pool.query(
           'SELECT review_summary FROM books WHERE id = $1',
@@ -974,21 +1024,25 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
 
         const currentSummary = ((summaryRows[0] && summaryRows[0].review_summary) ? summaryRows[0].review_summary : '').replace(/\s+/g, ' ');
         const fullText = `${currentSummary} ${latestReviews}`;
-        const py = spawn('python3', ['summarize.py']);
+        const py = spawn('python3', ['../summarize.py'], {
+          stdio: ['pipe', 'pipe', 'pipe']
+        }
+        );
         let summary = '', error = '';
-
         py.stdin.write(fullText);
         py.stdin.end();
-
         py.stdout.on('data', (data) => summary += data.toString());
         py.stderr.on('data', (data) => error += data.toString());
-
         py.on('close', async (code) => {
           if (code === 0) {
             await pool.query(
               'UPDATE books SET review_summary = $1 WHERE id = $2',
               [summary.trim(), id]
             );
+          }
+          else {
+            console.error("Error", error);
+            console.error("Summarizer failed silently.");
           }
         });
       }
@@ -1030,7 +1084,7 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
         [id]
       );
       if(reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0){
-        const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review_text.replace(/\s+/g, ' ')) .join(' ');
+        const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review.replace(/\s+/g, ' ')) .join(' ');
 
         const { rows: summaryRows } = await pool.query(
           'SELECT review_summary FROM movies_shows WHERE id = $1',
@@ -1039,21 +1093,24 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
 
         const currentSummary = ((summaryRows[0] && summaryRows[0].review_summary) ? summaryRows[0].review_summary : '').replace(/\s+/g, ' ');
         const fullText = `${currentSummary} ${latestReviews}`;
-        const py = spawn('python3', ['summarize.py']);
+        const py = spawn('python3', ['../summarize.py'], {
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
         let summary = '', error = '';
-
         py.stdin.write(fullText);
         py.stdin.end();
-
         py.stdout.on('data', (data) => summary += data.toString());
         py.stderr.on('data', (data) => error += data.toString());
-
         py.on('close', async (code) => {
           if (code === 0) {
             await pool.query(
               'UPDATE movies_shows SET review_summary = $1 WHERE id = $2',
               [summary.trim(), id]
             );
+          }
+          else {
+            console.error("Error", error);
+            console.error("Summarizer failed silently.");
           }
         });
       }
@@ -1106,14 +1163,17 @@ app.post("/submitEpisodeRatingReview", isAuthenticated, async (req, res) => {
       [id]
     );
     if(reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0){
-      const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review_text.replace(/\s+/g, ' ')) .join(' ');
+      const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review.replace(/\s+/g, ' ')) .join(' ');
       const { rows: summaryRows } = await pool.query(
         'SELECT review_summary FROM episodes WHERE id = $1',
         [id]
       );
       const currentSummary = ((summaryRows[0] && summaryRows[0].review_summary) ? summaryRows[0].review_summary : '').replace(/\s+/g, ' ');
       const fullText = `${currentSummary} ${latestReviews}`;
-      const py = spawn('python3', ['summarize.py']);
+      const py = spawn('python3', ['../summarize.py'], {
+        stdio: ['pipe', 'pipe', 'pipe']
+      }
+      );
       let summary = '', error = '';
       py.stdin.write(fullText);
       py.stdin.end();
@@ -1125,6 +1185,10 @@ app.post("/submitEpisodeRatingReview", isAuthenticated, async (req, res) => {
             'UPDATE episodes SET review_summary = $1 WHERE id = $2',
             [summary.trim(), id]
           );
+        }
+        else {
+          console.error("Error", error);
+          console.error("Summarizer failed silently.");
         }
       });
     }
@@ -1511,8 +1575,8 @@ app.get("/getBooksDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const bookQuery = await pool.query(
-      "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview as description, books.maturity_rating as rating, " + ((req.session.username) ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead" : "false AS isWantToRead") + "FROM books " + ((req.session.username) ? "LEFT JOIN wanttoreadlist wtr ON wtr.id = books.id AND wtr.username = $2" : "") + "WHERE books.id = $1"      
-      ,[id, req.session.username]
+      "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview as description, books.maturity_rating as rating, books.review_summary, books.preview_link, " + ((req.session.username) ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead " : "false AS isWantToRead ") + "FROM books " + ((req.session.username) ? "LEFT JOIN wanttoreadlist wtr ON wtr.id = books.id AND wtr.username = $2 " : " ") + "WHERE books.id = $1"      
+      , (req.session.username) ? [id, req.session.username] : [id]
     );
     if(bookQuery.rows.length === 0){
       return res.status(400).json({message: "Book not found"});
@@ -1525,6 +1589,17 @@ app.get("/getBooksDetails", async (req, res) => {
       "SELECT genres.name FROM books_genres JOIN genres ON genres.id = books_genres.genre_id WHERE books_genres.id = $1",
       [id]
     );
+    const reviewQuery = await pool.query(
+      "SELECT username, rating, review as text, review_time FROM books_reviews_ratings WHERE id = $1",
+      [id]
+    );
+    const reviews = reviewQuery.rows.map(r => ({
+      username: r.username,
+      rating: r.rating,
+      review: r.review,
+      time_ago: getTimeDifference(r.review_time)
+    }));
+
     const similarBookQuery = await pool.query(
       "SELECT m.id, m.title, m.published_date, m.cover_url AS image, " +
       "m.average_rating, m.maturity_rating AS rating, " +
@@ -1539,11 +1614,12 @@ app.get("/getBooksDetails", async (req, res) => {
       "WHERE ab.author_id = ANY (SELECT author_id FROM authors_books WHERE id = $1) " +
       "AND m.id != $1 " +
       "ORDER BY m.popularity DESC, m.average_rating DESC LIMIT 10",
-      [id, req.session.username]
+      (req.session.username) ? [id, req.session.username] : [id]
     );
     res.status(200).json({
       title : bookQuery.rows[0].title,
       publisher : bookQuery.rows[0].publisher,
+      image : bookQuery.rows[0].image,
       published_date : bookQuery.rows[0].published_date,
       page_count : bookQuery.rows[0].page_count,
       vote_average : bookQuery.rows[0].average_rating,
@@ -1553,6 +1629,9 @@ app.get("/getBooksDetails", async (req, res) => {
       authors : authorsQuery.rows,
       genres : genreQuery.rows,
       similar_books : similarBookQuery.rows,
+      preview_link : bookQuery.rows[0].preview_link,
+      review_summary : bookQuery.rows[0].review_summary,
+      reviews : reviews,
     });
   } catch (error) {
     console.error("Error fetching book:", error);
