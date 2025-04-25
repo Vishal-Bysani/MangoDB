@@ -3,10 +3,10 @@ import torch
 import sys
 from transformers import pipeline,AutoTokenizer, AutoModelForSeq2SeqLM
 
-model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn", cache_dir = "./models/fbcnn")
-tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn", cache_dir = "./models/fbcnn")
-model.save_pretrained("./models/fbcnn")
-tokenizer.save_pretrained("./models/fbcnn")
+# model = AutoModelForSeq2SeqLM.from_pretrained("facebook/bart-large-cnn", cache_dir = "./models/fbcnn")
+# tokenizer = AutoTokenizer.from_pretrained("facebook/bart-large-cnn", cache_dir = "./models/fbcnn")
+# model.save_pretrained("./models/fbcnn")
+# tokenizer.save_pretrained("./models/fbcnn")
 device = 0 if torch.cuda.is_available() else -1
 summarizer = pipeline("summarization", model="../models/fbcnn", tokenizer="../models/fbcnn", device=device)
 
