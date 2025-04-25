@@ -96,12 +96,16 @@ app.post('/signup', async (req, res) => {
 
 cron.schedule('*/1 * * * *', async () => {
   try {
-    await pool.query("DELETE FROM users WHERE is_authenticated = false AND registration_time < NOW() - INTERVAL {$1}", [config.JWT_EXPIRY]);
-    console.log("Deleted unverified users older than {$1}", [config.JWT_EXPIRY]);
+    // Remove the parameter and directly incorporate the interval value
+    const result = await pool.query(
+      `DELETE FROM users WHERE is_authenticated = false AND registration_time < NOW() - INTERVAL '${config.JWT_EXPIRY}'`
+    );
+    console.log(`Deleted unverified users older than ${config.JWT_EXPIRY}`);
   } catch (error) {
-    console.error("Error sending reminder email:", error);
+    console.error("Error deleting users:", error);
   }
 });
+
 
 app.get("/verify-email", async (req, res) => {
   console.log("Received email verification request:", req.query);
@@ -1095,25 +1099,39 @@ app.get("/getReadList", isAuthenticated, async (req, res) => {
 });
 
 app.post("/addToWatchedList", isAuthenticated, async (req, res) => {
+  const { id } = req.query;
+  const username = req.session.username;
+
   try {
-    const { id } = req.query;
-    const username = req.session.username;
     await pool.query('BEGIN');
-    const addToWatchedListQuery = await pool.query(
-      "INSERT INTO watchedlist (username, id) VALUES ($1, $2)",
+
+    const exists = await pool.query(
+      "SELECT * FROM watchedlist WHERE username = $1 AND id = $2",
       [username, id]
     );
-    await pool.query(
-      "DELETE FROM watchlist WHERE username = $1 AND id = $2",
-      [username, id]
-    );
+
+    if (exists.rows.length < 1) {
+      await pool.query(
+        "INSERT INTO watchedlist (username, id) VALUES ($1, $2)",
+        [username, id]
+      );
+
+      await pool.query(
+        "DELETE FROM watchlist WHERE username = $1 AND id = $2",
+        [username, id]
+      );
+    }
+
     await pool.query('COMMIT');
-    res.status(200).json({message: "Added to watched list"});
+    res.status(200).json({ message: "Added to watched list" });
+
   } catch (error) {
+    await pool.query('ROLLBACK');
     console.error("Error adding to watched list:", error);
     res.status(500).json({ message: "Error adding to watched list" });
   }
 });
+
 
 app.post("/addToReadList", isAuthenticated, async (req, res) => {
   try {
