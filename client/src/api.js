@@ -60,10 +60,17 @@ const getMatchingItems = async (text) => {
 }
 
 const submitRating = async (itemId, rating, forBook = false) => {
-    fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&forBook=${forBook}`, {
-        method: "POST",
-        credentials: "include",
-    });
+    if (forBook) {
+        fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&forBook=${forBook}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    } else {
+        fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    }
     fetch(`${apiUrl}/addToWatchedList?id=${itemId}`, {
         method: "POST",
         credentials: "include",
@@ -71,10 +78,17 @@ const submitRating = async (itemId, rating, forBook = false) => {
 }
 
 const submitReview = async (itemId, rating, review, forBook = false) => {
-    fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}&forBook=${forBook}`, {
-        method: "POST",
-        credentials: "include",
-    });
+    if (forBook) {
+        fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}&forBook=${forBook}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    } else {
+        fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    }
     fetch(`${apiUrl}/addToWatchedList?id=${itemId}`, {
         method: "POST",
         credentials: "include",
@@ -162,6 +176,7 @@ const getUserDetails = async (username) => {
         method: "GET",
         credentials: "include",
     });
+    if (userDetails.status != 200) return null;
     const userDetailsData = await userDetails.json();
     console.log(userDetailsData);
     return userDetailsData;
@@ -215,7 +230,23 @@ const getCollectionDetails = async (collectionId, pageNo = 1, pageLimit = 1000) 
 }
 
 const getBookDetails = async (bookId) => {
-
+    const response = await fetch(`${apiUrl}/getBooksDetails?id=${bookId}`);
+    const data = await response.json();
+    return data;
 }
 
-export { toggleWatchListed, getCollectionDetails, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser, getSeasonDetails };
+const toggleWantToReadListed = async (itemId, readListed) => {
+    if (readListed) {
+        fetch(`${apiUrl}/addToWantToReadList?id=${itemId}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    } else {
+        fetch(`${apiUrl}/removeFromWantToReadList?id=${itemId}`, {
+            method: "POST",
+            credentials: "include",
+        });
+    }
+}
+
+export { toggleWatchListed, toggleWantToReadListed, getBookDetails, getCollectionDetails, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser, getSeasonDetails };

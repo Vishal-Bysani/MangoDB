@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ItemThumbnail from "./ItemThumbnail";
 import "../css/ListItemThumbnail.css";
 
-const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, loggedIn, ref }) => {
+const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, loggedIn, forBook = false, ref }) => {
     const [startingIndex, setStartingIndex] = useState(0);
     const [rowLimit, setRowLimit] = useState(5);
     const containerRef = useRef(null);
@@ -92,6 +92,7 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, loggedIn, ref
                                     crew={itemThumbnail.crew}
                                     isWatchListed={itemThumbnail.isWatchListed}
                                     loggedIn={loggedIn}
+                                    forBook={forBook}
                                 />
                             </div>
                         ))}

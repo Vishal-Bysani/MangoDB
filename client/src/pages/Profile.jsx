@@ -17,7 +17,8 @@ const Profile = () => {
     useEffect(() => {
         const fetchUser = async () => {
             const user = await getUserDetails(username);
-            setUser(user);
+            if (user) setUser(user);
+            console.log(user);
         };
         fetchUser();
     }, []);
@@ -110,7 +111,7 @@ const Profile = () => {
                                     });
                                 }
                             }}>
-                                <div className="stat-label">Watchlist</div>
+                                <div className="stat-label">Watchlist/Readlist</div>
                                 <div className="stat-value">{user.watchlist ? user.watchlist.length : 0}</div>
                             </div>
                             <div className="profile-stat-card" onClick={() => navigate(`/profile/${username}/followers`, {state: {profileList: user.followers}})}>
@@ -124,8 +125,10 @@ const Profile = () => {
                         </div>
                     </div>
                     <div className="profile-items-container">
-                        { user.favouriteMovies && user.favouriteMovies.length > 0 && <ListItemThumbnail title="Favourites" itemThumbnails={user.favouriteMovies} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={favouriteRef}/> }
+                        { user.favouriteMovies && user.favouriteMovies.length > 0 && <ListItemThumbnail title="Favourite Movies/Shows" itemThumbnails={user.favouriteMovies} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={favouriteRef}/> }
+                        { user.favouriteBooks && user.favouriteBooks.length > 0 && <ListItemThumbnail title="Favourite Books" itemThumbnails={user.favouriteBooks} titleFontSize="36px" loggedIn={loggedInData.loggedIn} forBook={true} ref={favouriteRef}/> }
                         { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={watchlistRef}/> }
+                        { user.wantToReadList && user.wantToReadList.length > 0 && <ListItemThumbnail title="Read List" itemThumbnails={user.wantToReadList} titleFontSize="36px" loggedIn={loggedInData.loggedIn} forBook={true} ref={favouriteRef}/> }
                         { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} titleFontSize="36px" loggedIn={loggedInData.loggedIn}/> }
                     </div>
                 </div>
