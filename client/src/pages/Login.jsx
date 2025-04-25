@@ -12,7 +12,7 @@ const Login = () => {
         getLoggedIn().then(response => {
             if (response.status === 200) {
                 response.json().then(data => {
-                    if (data.loggedIn) navigate("/dashboard");
+                    if (data.loggedIn) navigate("/");
                 });
             }
         });
@@ -36,7 +36,7 @@ const Login = () => {
         loginUser(formData.user, formData.password).then(response => {
             if (response.status === 200) {
                 if (location.state && location.state.parentLink) navigate(location.state.parentLink);
-                else navigate("/dashboard");
+                else navigate("/");
             } else {
                 setError(response.json().then(data => data.message));
             }

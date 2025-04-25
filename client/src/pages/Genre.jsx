@@ -41,7 +41,7 @@ const Genre = () => {
     if (loading) {
         return (
             <>
-                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
                 <Loading/>
             </>
         )
@@ -49,7 +49,7 @@ const Genre = () => {
     
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
             <div className="genre-container">
                 <h1 className="genre-title">{genreName}</h1>
                 { genreMovies && genreMovies.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Movies`} titleFontSize="44px" itemThumbnails={genreMovies} loggedIn={loggedInData.loggedIn}/> }

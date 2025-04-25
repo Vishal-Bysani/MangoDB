@@ -22,7 +22,7 @@ const ListPersonOverview = ({ title, ref }) => {
     return (
         <>
             { loggedInData && (
-                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
             )}
             <div className="item-overview-container" ref={ref}>
                 { title && <h1 className="list-item-overview-container-title">{title}</h1> }

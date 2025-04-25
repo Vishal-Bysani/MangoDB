@@ -40,7 +40,7 @@ const Home = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
                 <div className="home-explore-container" style={{backgroundImage: "url(./home-explore-background.jpeg)"}}>
                     <div className="home-explore-container-text">
                         <span className="home-explore-container-text-title">Welcome</span>

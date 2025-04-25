@@ -4,7 +4,7 @@ import { apiUrl } from "../config/config";
 import "../css/Navbar.css";
 import { getMatchingItems, logoutUser } from "../api"
 
-const Navbar = ({isLoggedIn = false, userName = ""}) => {
+const Navbar = ({isLoggedIn = false, username = ""}) => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(isLoggedIn);
   const [searchText, setSearchText] = useState("");
@@ -78,16 +78,16 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
                 <div 
                   key={item.id} 
                   className="search-result-item"
-                  onClick={item.popularity ? () => navigate(`/person/${item.id}`) : () => { navigate(`/item/${item.id}`); setSearchText(""); setHideSearch(true); }}
+                  onClick={item.popularity ? () => navigate(`/person/${item.id}`) : () => { if (item.category === "book") navigate(`/book/${item.id}`); else navigate(`/item/${item.id}`); setSearchText(""); setHideSearch(true); }}
                 >
                   <div className="search-result-content">
                     <img 
                       src={item.image ? item.image : (item.published_date ? "/item-backdrop.svg" : (item.popularity ? "/person-backdrop.svg" : "/item-backdrop.svg"))} 
-                      alt={item.title} 
+                      alt={item.title}
                       className="search-result-image"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "/item-backdrop.svg"; // Fallback image
+                        e.target.src = "/item-backdrop.svg";
                       }}
                     />
                     <div className="search-result-info">
@@ -111,7 +111,7 @@ const Navbar = ({isLoggedIn = false, userName = ""}) => {
         {loggedIn ? (
           <>
             <div className="nav-button-div">
-              <button className="nav-button" onClick={() => navigate(`/profile/${userName}`)}> {userName} </button>
+              <button className="nav-button" onClick={() => navigate(`/profile/${username}`)}> {username} </button>
             </div>
             <div className="nav-button-div">
               <button className="nav-button" onClick={() => { logoutUser(); setLoggedIn(false); navigate("/"); }}>Logout</button>

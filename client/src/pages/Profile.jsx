@@ -36,7 +36,7 @@ const Profile = () => {
     return (
         <>
             { loggedInData && (
-                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
             )}
             { user && (
                 <div className="profile-container">
@@ -97,7 +97,7 @@ const Profile = () => {
                                 }
                             }}>
                                 <div className="stat-label">Favourites</div>
-                                <div className="stat-value">{user.favourites ? user.favourites.length : 0}</div>
+                                <div className="stat-value">{user.favouriteMovies ? user.favouriteMovies.length : 0}</div>
                             </div>
                             <div className="profile-stat-card" onClick={() => {
                                 if (watchlistRef.current) {
@@ -124,7 +124,7 @@ const Profile = () => {
                         </div>
                     </div>
                     <div className="profile-items-container">
-                        { user.favourites && user.favourites.length > 0 && <ListItemThumbnail title="Favourites" itemThumbnails={user.favourites} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={favouriteRef}/> }
+                        { user.favouriteMovies && user.favouriteMovies.length > 0 && <ListItemThumbnail title="Favourites" itemThumbnails={user.favouriteMovies} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={favouriteRef}/> }
                         { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={watchlistRef}/> }
                         { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} titleFontSize="36px" loggedIn={loggedInData.loggedIn}/> }
                     </div>

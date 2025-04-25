@@ -32,7 +32,7 @@ const ItemReviews = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
             <div className="item-reviews-page" style={{marginTop: '200px'}}>
                 <h1 className="item-reviews-title" onClick={() => navigate(`/item/${itemId}`)} style={{cursor: 'pointer'}}>{title}</h1>
                 <div className="reviews-container">

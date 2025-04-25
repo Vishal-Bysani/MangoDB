@@ -30,7 +30,7 @@ const Collection = () => {
 
     return (
         <div>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
             <div className="collection-page-container">
                 <p style={{fontSize: "50px", fontWeight: "bold"}}>{collectionDetails.name}</p>
                 <div className="collection-page-content">

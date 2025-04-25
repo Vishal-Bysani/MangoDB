@@ -34,7 +34,7 @@ const ListPersons = () => {
     if (loading) {
         return (
             <>
-                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
                 <Loading/>
             </>
         )
@@ -51,7 +51,7 @@ const ListPersons = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
             <div className="list-persons-page">
                 <p className="list-persons-title" onClick={() => navigate(`/item/${itemId}`)} style={{cursor: 'pointer'}}>{role.charAt(0).toUpperCase() + role.slice(1)} | {title}</p>
                 <div className="list-persons-container">

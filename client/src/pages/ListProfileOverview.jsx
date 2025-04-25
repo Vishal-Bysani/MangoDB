@@ -22,7 +22,7 @@ const ListProfileOverview = ({ title }) => {
     return (
         <>
             { loggedInData && (
-                <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
             )}
             <div className="profile-overview-container">
                 { title && <h1 className="list-profile-overview-container-title">{title}</h1> }

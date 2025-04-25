@@ -1,7 +1,5 @@
 import { cache } from "react";
 import { apiUrl } from "./config/config.js";
-import { Navigate } from "react-router";
-import Collection from "./pages/Collection.jsx";
 
 const getLoggedIn = async () => {
     return fetch(`${apiUrl}/isLoggedIn`, {
@@ -61,8 +59,8 @@ const getMatchingItems = async (text) => {
     return data;
 }
 
-const submitRating = async (itemId, rating) => {
-    fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}`, {
+const submitRating = async (itemId, rating, forBook = false) => {
+    fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&forBook=${forBook}`, {
         method: "POST",
         credentials: "include",
     });
@@ -72,8 +70,8 @@ const submitRating = async (itemId, rating) => {
     });
 }
 
-const submitReview = async (itemId, rating, review) => {
-    fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}`, {
+const submitReview = async (itemId, rating, review, forBook = false) => {
+    fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}&forBook=${forBook}`, {
         method: "POST",
         credentials: "include",
     });
@@ -89,14 +87,14 @@ const getPersonDetails = async (personId) => {
     return data;
 }
 
-const setFavourite = async (itemId, favourite) => {
+const setFavourite = async (itemId, favourite, forBook = false) => {
     if (favourite) {
-        fetch(`${apiUrl}/addToFavourites?id=${itemId}`, {
+        fetch(`${apiUrl}/addToFavourites?id=${itemId}&forBook=${forBook}`, {
             method: "POST",
             credentials: "include",
         });
     } else {
-        fetch(`${apiUrl}/removeFromFavourites?id=${itemId}`, {
+        fetch(`${apiUrl}/removeFromFavourites?id=${itemId}&forBook=${forBook}`, {
             method: "POST",
             credentials: "include",
         });
@@ -122,6 +120,7 @@ const getFilteredItems = async ({searchText = null,
                                 minRating = null,
                                 orderByRating = false,
                                 orderByPopularity = false,
+                                forBook = true,
                                 forMovie = true,
                                 forShow = true,
                                 pageNo = 1,
@@ -134,6 +133,7 @@ const getFilteredItems = async ({searchText = null,
     if (minRating) baseUrl += `minRating=${minRating}&`;
     if (orderByRating) baseUrl += `orderByRating=${orderByRating}&`;
     if (orderByPopularity) baseUrl += `orderByPopularity=${orderByPopularity}&`;
+    if (forBook) baseUrl += `forBook=${forBook}&`;
     if (forMovie) baseUrl += `forMovie=${forMovie}&`;
     if (forShow) baseUrl += `forShow=${forShow}&`;
     if (pageNo) baseUrl += `pageNo=${pageNo}&`;
@@ -149,6 +149,7 @@ const getUserDetails = async (username) => {
         credentials: "include",
     });
     const userDetailsData = await userDetails.json();
+    console.log(userDetailsData);
     return userDetailsData;
 }
 
@@ -197,6 +198,10 @@ const getCollectionDetails = async (collectionId, pageNo = 1, pageLimit = 1000) 
     const response = await fetch(`${apiUrl}/getMovieShowByCollectionId?collection_id=${collectionId}&pageNo=${pageNo}&pageLimit=${pageLimit}`);
     const data = await response.json();
     return data;
+}
+
+const getBookDetails = async (bookId) => {
+
 }
 
 export { toggleWatchListed, getCollectionDetails, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser, getSeasonDetails };

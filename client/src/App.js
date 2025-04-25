@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Item from "./pages/Item";
 import ItemReviews from "./pages/ItemReviews";
@@ -14,6 +13,7 @@ import Search from "./pages/Search";
 import ListProfileOverview from "./pages/ListProfileOverview";
 import ItemSeasons from "./pages/ItemSeasons";
 import Collection from "./pages/Collection";
+import Book from "./pages/Book"
 
 function App() {
   return (
@@ -21,9 +21,9 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/dashboard" element={<Home />} />
       <Route path="/profile/:username" element={<Profile />} />
       <Route path="/item/:itemId" element={<Item />} />
+      <Route path="/book/:bookId" element={<Book />} />
       <Route path="/item/:itemId/reviews" element={<ItemReviews />} />
       <Route path="/item/:itemId/seasons" element={<ItemSeasons />} />
       <Route path="/person/:personId" element={<Person />} />

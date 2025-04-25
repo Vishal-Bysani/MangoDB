@@ -23,7 +23,7 @@ const Signup = () => {
     getLoggedIn().then(response => {
         if (response.status === 200) {
             response.json().then(data => {
-                if (data.loggedIn) navigate("/dashboard");
+                if (data.loggedIn) navigate("/");
             });
         }
     });

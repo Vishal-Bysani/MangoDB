@@ -82,7 +82,7 @@ const Search = () => {
 
     return (
         <div>
-            <Navbar isLoggedIn={loggedInData.loggedIn} userName={loggedInData.username} />
+            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
             <div className="search-page-header">
                 <SearchBar handleSearch={(searchText) => {
                         setSearchQuery(searchText);
