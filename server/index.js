@@ -842,7 +842,7 @@ app.get("/filterItems", async (req, res) => {
         );
         book.authors = authorQuery.rows.map(row => row.name);
         const isWantToRead = await pool.query(
-          "SELECT " + (req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead " :   " false AS isWantToRead " + " FROM books m " + (req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $1 " : " " + " WHERE m.id = $2", [req.session.username, book.id]
+          "SELECT " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead " :   " false AS isWantToRead " + " FROM books m ") + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 " : " ") + " WHERE m.id = $1", (req.session.username) ? [book.id, req.session.username] : [book.id]
         )
         book.isWantToRead = isWantToRead.rows[0].isWantToRead ;
         return book;
@@ -927,7 +927,7 @@ app.get("/filterItems", async (req, res) => {
         [movie.id]
       );
       const isWatchList = await pool.query(
-        "SELECT " + (req.session.username) ? "(CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) as isWatchList " :   "false as isWatchList" + "FROM movies_shows m" + (req.session.username) ? "LEFT JOIN watchlist wl ON m.id = wl.id AND wl.username = $1 " : "" + "WHERE m.id = $2", [req.session.username, movie.id]
+        "SELECT " + ((req.session.username) ? " (CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) as isWatchList " :   " false as isWatchList ") + " FROM movies_shows m " + ((req.session.username) ? " LEFT JOIN watchlist wl ON m.id = wl.id AND wl.username = $2 " : " ") + " WHERE m.id = $1 ", (req.session.username) ? [movie.id, req.session.username] : [movie.id]
       );
       movie.isWatchList = isWatchList.rows[0].isWatchList;
       return {
@@ -1574,7 +1574,7 @@ app.get("/getBooksDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const bookQuery = await pool.query(
-      "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview as description, books.maturity_rating as rating, books.review_summary, books.preview_link, " + ((req.session.username) ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead " : "false AS isWantToRead ") + "FROM books " + ((req.session.username) ? "LEFT JOIN wanttoreadlist wtr ON wtr.id = books.id AND wtr.username = $2 " : " ") + "WHERE books.id = $1"      
+      "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview as description, books.maturity_rating as rating, books.review_summary, books.preview_link, " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead " : " false AS isWantToRead ") + " FROM books " + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON wtr.id = books.id AND wtr.username = $2 " : " ") + "WHERE books.id = $1"      
       , (req.session.username) ? [id, req.session.username] : [id]
     );
     if(bookQuery.rows.length === 0){
