@@ -842,7 +842,7 @@ app.get("/filterItems", async (req, res) => {
         );
         book.authors = authorQuery.rows.map(row => row.name);
         const isWantToRead = await pool.query(
-          "SELECT " + (req.session.username) ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToRead " :   "false as isWantToRead" + "FROM books m" + (req.session.username) ? "LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $1 " : "" + "WHERE m.id = $2", [req.session.username, book.id]
+          "SELECT " + (req.session.username) ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToRead " :   "false as isWantToRead " + " FROM books m " + (req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $1 " : " " + " WHERE m.id = $2", [req.session.username, book.id]
         )
         book.isWantToRead = isWantToRead.rows[0].isWantToRead ;
         return book;
@@ -979,7 +979,6 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
     const username = req.session.username;
 
     if (forBook) {
-      console.log("Book id: " , id);
       const ratingOrReviewExists = await pool.query(
         "SELECT * FROM books_reviews_ratings WHERE username = $1 AND id = $2",
         [username, id]

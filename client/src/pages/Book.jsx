@@ -90,7 +90,7 @@ const Book = () => {
                         )}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(book.id, rating, true);}}>
+                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(bookId, rating, true);}}>
                             Rate
                         </button>
                     </div>
@@ -128,7 +128,7 @@ const Book = () => {
                         />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {if (userReviewText.length > 0) {setIsReviewPopupOpen(false); submitReview(book.id, rating, userReviewText, true);} else {alert("Review cannot be empty");}}}>
+                        <button className="submit-rate-button" onClick={() => {if (userReviewText.length > 0) {setIsReviewPopupOpen(false); submitReview(bookId, rating, userReviewText, true);} else {alert("Review cannot be empty");}}}>
                             Submit
                         </button>
                     </div>
@@ -300,7 +300,7 @@ const Book = () => {
                                                 <p className="crew-name" onClick={() => navigate(`/person/${author.id}`)}>&nbsp;·&nbsp;{author.name}</p>
                                             </>
                                         ))}
-                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${book.id}/list-persons/writers`, {state: {personHeaders: book.writers, title: book.title}})}></p>
+                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${bookId}/list-persons/writers`, {state: {personHeaders: book.writers, title: book.title}})}></p>
                                     </div>
                                 }
                                 
@@ -313,7 +313,7 @@ const Book = () => {
                                                 <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
                                             </>
                                         ))}
-                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${book.id}/list-persons/writers`, {state: {personHeaders: book.writers, title: book.title}})}></p>
+                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${bookId}/list-persons/writers`, {state: {personHeaders: book.writers, title: book.title}})}></p>
                                     </div>
                                 )}
 
@@ -326,7 +326,7 @@ const Book = () => {
                                                 <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
                                             </>
                                         ))}
-                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${book.id}/list-persons/actors`, {state: {personHeaders: book.cast, title: book.title}})}></p>
+                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${bookId}/list-persons/actors`, {state: {personHeaders: book.cast, title: book.title}})}></p>
                                     </div>
                                 )}
 
@@ -354,7 +354,7 @@ const Book = () => {
                     </div>
 
                     { book.type === "tv" && (
-                        <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${book.id}/seasons`, {state: {title: book.title, seasons: book.seasons}})}>
+                        <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${bookId}/seasons`, {state: {title: book.title, seasons: book.seasons}})}>
                             <p style={{textDecoration: 'none', fontSize: '32px', fontWeight: 'bold'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Seasons</p>
                             <p className="forward-arrow" style={{marginLeft: '40px', marginTop: '47px'}}></p>
                         </div>
@@ -366,7 +366,7 @@ const Book = () => {
 
                     <div style={{display: 'flex'}}>
                         <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
-                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${book.id}/reviews`, {state: {title: book.title, reviews: book.reviews}})}></p>
+                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${bookId}/reviews`, {state: {title: book.title, reviews: book.reviews}})}></p>
                         <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={(e) => {
                             if (loggedInData.loggedIn) {
                                 setIsReviewPopupOpen(true);
