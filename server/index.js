@@ -293,8 +293,8 @@ app.get("/getMatchingItem", async (req, res) => {
       "SELECT b.id, b.title, b.average_rating as rating, b.popularity, b.ratings_count, " +
       "'book' as category, b.published_date, b.cover_url as image, " +
       (req.session.username ? 
-        "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToRead " :
-        "false as isWantToRead ") +
+        "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToReadList " :
+        "false as isWantToReadList ") +
       "FROM books b " +
       (req.session.username ?
         "LEFT JOIN wanttoreadlist wtr ON b.id = wtr.id AND wtr.username = $2 " :
@@ -341,8 +341,8 @@ app.get("/getMatchingItemPages", async (req, res) => {
     const bookQuery = await pool.query(
       "SELECT b.id, b.title, b.average_rating as vote_average, b.ratings_count, 'book' as category, b.published_date, b.cover_url as image, " +
       (req.session.username ?
-        "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToRead " :
-        "false as isWantToRead ") +
+        "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToReadList " :
+        "false as isWantToReadList ") +
       "FROM books b " +
       (req.session.username ?
         "LEFT JOIN wanttoreadlist wtr ON b.id = wtr.id AND wtr.username = $4 " :
@@ -611,8 +611,8 @@ app.get("/getPersonDetails", async (req, res) => {
     const bookQuery = await pool.query(
       "SELECT b.id, b.title, 'book' as category, b.cover_url AS image, b.published_date, b.average_rating as rating" +
       (req.session.username ? 
-        ", (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToRead " :
-        ", false as isWantToRead ") +
+        ", (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToReadList " :
+        ", false as isWantToReadList ") +
       "FROM books b " +
       "JOIN authors_books ab ON b.id = ab.id " +
       (req.session.username ?
@@ -746,8 +746,8 @@ app.get("/getBooksByPopularity", async (req, res) => {
       "SELECT b.id, b.title, b.publisher, b.published_date, b.cover_url AS image, " +
       "b.average_rating, b.maturity_rating AS rating, " +
       (req.session.username
-        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead "
-        : "false AS isWantToRead ") +
+        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList "
+        : "false AS isWantToReadList ") +
       "FROM books b " +
       (req.session.username
         ? "LEFT JOIN wanttoreadlist wtr ON b.id = wtr.id AND wtr.username = $3 "
@@ -841,10 +841,10 @@ app.get("/filterItems", async (req, res) => {
           "SELECT person.name FROM person JOIN authors_books ON person.id = authors_books.author_id WHERE authors_books.id = $1", [book.id]
         );
         book.authors = authorQuery.rows.map(row => row.name);
-        const isWantToRead = await pool.query(
-          "SELECT " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead " :   " false AS isWantToRead " + " FROM books m ") + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 " : " ") + " WHERE m.id = $1", (req.session.username) ? [book.id, req.session.username] : [book.id]
+        const isWantToReadList = await pool.query(
+          "SELECT " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList " :   " false AS isWantToReadList " + " FROM books m ") + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 " : " ") + " WHERE m.id = $1", (req.session.username) ? [book.id, req.session.username] : [book.id]
         )
-        book.isWantToRead = isWantToRead.rows[0].isWantToRead ;
+        book.isWantToReadList = isWantToReadList.rows[0].isWantToReadList ;
         return book;
       }));
     }
@@ -1574,7 +1574,7 @@ app.get("/getBooksDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const bookQuery = await pool.query(
-      "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview as description, books.maturity_rating as rating, books.review_summary, books.preview_link, " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead " : " false AS isWantToRead ") + " FROM books " + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON wtr.id = books.id AND wtr.username = $2 " : " ") + "WHERE books.id = $1"      
+      "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview as description, books.maturity_rating as rating, books.review_summary, books.preview_link, " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList " : " false AS isWantToReadList ") + " FROM books " + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON wtr.id = books.id AND wtr.username = $2 " : " ") + "WHERE books.id = $1"      
       , (req.session.username) ? [id, req.session.username] : [id]
     );
     if(bookQuery.rows.length === 0){
@@ -1603,8 +1603,8 @@ app.get("/getBooksDetails", async (req, res) => {
       "SELECT m.id, m.title, m.published_date, m.cover_url AS image, " +
       "m.average_rating, m.maturity_rating AS rating, " +
       (req.session.username
-        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead "
-        : "false AS isWantToRead ") +
+        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList "
+        : "false AS isWantToReadList ") +
       "FROM books m " +
       (req.session.username
         ? "LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 "
@@ -1649,8 +1649,8 @@ app.get("/getBooksByAuthorId", async (req, res) => {
       "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, " +
       "books.cover_url AS image, books.average_rating AS vote_average, books.maturity_rating AS rating, " +
       (req.session.username
-        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToRead "
-        : "false AS isWantToRead ") +
+        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList "
+        : "false AS isWantToReadList ") +
       "FROM books " +
       "JOIN authors_books ON books.id = authors_books.id " +
       (req.session.username
