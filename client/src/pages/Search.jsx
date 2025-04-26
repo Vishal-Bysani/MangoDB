@@ -61,7 +61,7 @@ const Search = () => {
     useEffect(() => {
         if (pageNo > 1 && matchingItems.length === 0) {
             setTotalPages(Math.max(pageNo - 1, 1));
-            setPageNo(Math.max(pageNo - 1, 1));
+            if (pageNo > 1) setPageNo(Math.max(pageNo - 1, 1));
         }
     }, [matchingItems]);
 
@@ -145,13 +145,15 @@ const Search = () => {
                             setFilterValueText={setYearText}
                             allowEnter={true}
                             onFilterValueTextChange={async (searchText) => {
-                                if (searchText.length > 0) {
+                                if (searchText.length > 0 && parseInt(searchText) > 1900) {
                                     setYear(parseInt(searchText));
+                                    setYearText(String(parseInt(searchText)));
+                                } else if (searchText.length > 0) {
                                     setYearText(String(parseInt(searchText)));
                                 } else {
                                     setYearText("");
+                                    setYear(null);
                                 }
-                                setYear(null);
                             }}
                         />
                         <SearchDropdown

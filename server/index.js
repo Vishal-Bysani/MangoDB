@@ -430,6 +430,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
       username: r.username,
       rating: r.rating,
       review: r.review,
+      text: r.text,
       time_ago: getTimeDifference(r.review_time)
     }));
     
@@ -1596,6 +1597,7 @@ app.get("/getBooksDetails", async (req, res) => {
       username: r.username,
       rating: r.rating,
       review: r.review,
+      text: r.text,
       time_ago: getTimeDifference(r.review_time)
     }));
 

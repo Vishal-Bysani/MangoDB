@@ -396,8 +396,27 @@ const Item = () => {
                         <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.cast} />
                     )}
 
+                    { item.review_summary && <>
+                            <div style={{display: 'flex'}}>
+                                <h2 className="review-container-title" style={{marginRight: '25px'}}>AI Generated Sumamry</h2>
+                            </div>
+                            <div className="review">
+                                <div className="review-content">
+                                    <div className="review-rating">
+                                        <span className="star-outline" style={{marginRight: '8px'}}>★</span>
+                                        {parseFloat(item.rating).toFixed(1)}/10
+                                    </div>
+                                    <div className="review-text">
+                                        {item.review_summary || "Not Enoguh Reviews to Generate a Summary"}
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    }
+
+
                     <div style={{display: 'flex'}}>
-                        <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
+                        <h2 className="review-container-title" style={{marginRight: '25px'}}>Reviews</h2>
                         <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${item.id}/reviews`, {state: {title: item.title, reviews: item.reviews}})}></p>
                         <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={(e) => {
                             if (loggedInData.loggedIn) {
@@ -409,15 +428,26 @@ const Item = () => {
                     </div>
                     {item.reviews && item.reviews.length > 0 && <div>
                         <div className="review-container">
-                            {item.reviews.slice(0,3).map(review => (
+                            {item.reviews.slice(0,3).map((review, index) => (
                                 <>
-                                    { review.text && <div key={review.id} className="review">
-                                            <div className="review-rating">
-                                                <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                                {parseFloat(review.rating).toFixed(1)}/10
+                                    { review.text && <div key={index} className="review">
+                                            <div className="review-content">
+                                                <div className="review-rating">
+                                                    <span className="star-outline" style={{marginRight: '8px'}}>★</span>
+                                                    {parseFloat(review.rating).toFixed(1)}/10
+                                                </div>
+                                                <div className="review-text">
+                                                    {review.text}
+                                                </div>
                                             </div>
-                                            <div className="review-text">
-                                                {review.text}
+                                            <div className="review-footer">
+                                                <div className="review-name" onClick={() => navigate(`/profile/${review.username}`)}>
+                                                    {review.username}
+                                                </div>
+                                                    ·
+                                                <div className="review-time">
+                                                    {review.time_ago}
+                                                </div>
                                             </div>
                                         </div>
                                     }
