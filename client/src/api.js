@@ -249,4 +249,31 @@ const toggleWantToReadListed = async (itemId, readListed) => {
     }
 }
 
+export const uploadProfileImage = async (imageFile, username) => {
+    try {
+        const formData = new FormData();
+        formData.append('profileImage', imageFile);
+        formData.append('username', username);
+        
+        const response = await fetch(`${apiUrl}/uploadProfileImage`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            credentials: "include",
+            body: formData
+        });
+        
+        if (response.status !== 200) {
+            throw new Error(`Image upload failed: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        throw error;
+    }
+};
+
 export { toggleWatchListed, toggleWantToReadListed, getBookDetails, getCollectionDetails, getLoggedIn, getItemDetails, getMatchingItems, submitRating, submitReview, getPersonDetails, logoutUser, getTrendingMovies, getTrendingShows, getFilteredItems, loginUser, setFavourite, signupUser, getUserDetails, getGenreList, getMatchingPersons, followUser, getSeasonDetails };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
-import { getUserDetails, getLoggedIn, followUser } from "../api";
+import { getUserDetails, getLoggedIn, followUser, uploadProfileImage } from "../api";
 import Navbar from "../components/Navbar";
 import "../css/Profile.css";
 import moment from "moment";
@@ -13,6 +13,10 @@ const Profile = () => {
     const [loggedInData, setLoggedInData] = useState(null);
     const favouriteRef = useRef(null);
     const watchlistRef = useRef(null);
+    const fileInputRef = useRef(null);
+    const [uploading, setUploading] = useState(false);
+    
+    const isOwnProfile = loggedInData && username === loggedInData.username;
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -34,6 +38,47 @@ const Profile = () => {
         fetchLoggedInData();
     }, []);
 
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            try {
+                setUploading(true);
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    alert("File is too large. Maximum size is 5MB.");
+                    setUploading(false);
+                    return;
+                }
+
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    alert("Invalid file type. Please upload a JPEG, PNG, GIF, or WebP image.");
+                    setUploading(false);
+                    return;
+                }
+
+                const result = await uploadProfileImage(file, username);
+                
+                if (result && result.imageUrl) {
+                    setUser(prevUser => ({
+                        ...prevUser,
+                        image: result.imageUrl
+                    }));
+                }
+                
+                setUploading(false);
+            } catch (error) {
+                console.error("Error uploading image:", error);
+                alert("Failed to upload image. Please try again.");
+                setUploading(false);
+            }
+        }
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current.click();
+    };
+
     return (
         <>
             { loggedInData && (
@@ -52,24 +97,37 @@ const Profile = () => {
                                 }}
                                 className="profile-image"
                             />
+                            {isOwnProfile && (
+                                <>
+                                    <div 
+                                        className={`camera-button ${uploading ? 'uploading' : ''}`} 
+                                        onClick={uploading ? null : triggerFileInput}
+                                    >
+                                        {uploading ? (
+                                            <div className="spinner"></div>
+                                        ) : (
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="camera-icon">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                                <circle cx="12" cy="13" r="4"></circle>
+                                            </svg>
+                                        )}
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef}
+                                        accept="image/jpeg,image/png,image/gif,image/webp"
+                                        style={{ display: 'none' }}
+                                        onChange={handleImageUpload}
+                                    />
+                                </>
+                            )}
                         </div>
                         <div>
                             <div style={{ display: "flex", alignItems: "center", gap: "50px" }}>
                                 <p style={{ fontSize: "50px", fontWeight: "bold", marginBottom: "10px" }}>{username}</p>
                                 {loggedInData && loggedInData.username !== username && (
                                     <button 
-                                        style={{
-                                            padding: "10px 20px",
-                                            fontSize: "18px",
-                                            backgroundColor: "#10e3a5",
-                                            color: "black",
-                                            border: "none",
-                                            borderRadius: "8px",
-                                            cursor: "pointer",
-                                            fontWeight: "bold",
-                                            height: "fit-content",
-                                            marginTop: "40px"
-                                        }}
+                                        className="follow-button"
                                         onClick={() => {
                                             if (loggedInData.loggedIn) {
                                                 followUser(username);
