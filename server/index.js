@@ -872,11 +872,10 @@ app.get("/filterItems", async (req, res) => {
 
     if (personId) {
       baseQuery += ` JOIN crew_movies_shows msc ON ms.id = msc.id`;
-      conditions.push(`msc.person_id = $${idx++}`);
-      values.push(parseInt(personId));
-
       baseQuery += ` JOIN cast_movies_shows cmv ON ms.id = cmv.id`;
-      conditions.push(`cmv.person_id = $${idx++}`);
+
+      conditions.push(`msc.person_id = $${idx++} OR cmv.person_id = $${idx++}`);
+      values.push(parseInt(personId));
       values.push(parseInt(personId));
     }
 

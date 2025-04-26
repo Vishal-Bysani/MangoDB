@@ -31,6 +31,7 @@ function App() {
       <Route path="/items/:itemId/list-persons/:role/" element={<ListPersons />} />
       <Route path="/genre/:genreId" element={<Genre />} />
       <Route path="/collection/:collectionId" element={<Collection />} />
+      <Route path="/search/" element={<Search />} />
       <Route path="/search/:query" element={<Search />} />
       <Route path="/profile/:username/followers" element={<ListProfileOverview title="Followers" />} />
       <Route path="/profile/:username/following" element={<ListProfileOverview title="Following" />} />
