@@ -62,10 +62,10 @@ const Profile = () => {
 
                 const result = await uploadProfileImage(file, username);
                 
-                if (result && result.imageUrl) {
+                if (result && result.profilePicture) {
                     setUser(prevUser => ({
                         ...prevUser,
-                        image: result.imageUrl
+                        image: result.profilePicture
                     }));
                 }
                 

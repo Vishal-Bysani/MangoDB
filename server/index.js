@@ -13,6 +13,10 @@ const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 const { spawn } = require("child_process");
 const { title } = require("process");
+const multer = require('multer');
+const { profile } = require("console");
+const storage = multer.memoryStorage(); // store in memory, not disk
+const upload = multer({ storage: storage });
 const app = express();
 const port = 4000;
 // PostgreSQL connection
@@ -1108,6 +1112,7 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
               'UPDATE movies_shows SET review_summary = $1 WHERE id = $2',
               [summary.trim(), id]
             );
+            console.log("Summary updated successfully",summary);
           }
           else {
             console.error("Error", error);
@@ -1520,7 +1525,7 @@ app.get("/getUserDetails", async (req, res) => {
   try {
     const username = req.query.username;
     const joinDateQuery = await pool.query(
-      "SELECT DATE(registration_time) AS \"joinDate\" FROM users WHERE username = $1",
+      "SELECT DATE(registration_time) AS \"joinDate\", profile_picture, mime_type FROM users WHERE username = $1",
       [username]
     );
     const favouritesQuery = await pool.query(
@@ -1557,6 +1562,7 @@ app.get("/getUserDetails", async (req, res) => {
     );
     res.status(200).json({
       joinDate: joinDateQuery.rows[0].joinDate.toISOString().split('T')[0],
+      profilePicture: joinDateQuery.rows[0].profile_picture,
       favouriteMovies: favouritesQuery.rows,
       favouriteBooks: booksFavouritesQuery.rows,
       watchlist: watchlistQuery.rows,
@@ -1564,7 +1570,8 @@ app.get("/getUserDetails", async (req, res) => {
       watchedList: watchedListQuery.rows,
       readList: readListQuery.rows,
       followers: followersQuery.rows,
-      following: followingQuery.rows
+      following: followingQuery.rows,
+      mime_type: joinDateQuery.rows[0].mime_type
     });
   } catch (error) {
     console.error("Error fetching user details:", error);
@@ -1672,6 +1679,27 @@ app.get("/getBooksByAuthorId", async (req, res) => {
   }
 });
 
+app.post("/uploadProfilePicture", isAuthenticated, upload.single('profileImage'), async (req, res) => {
+  try {
+    const image = req.file.buffer; // multer gives you the binary buffer
+    const mime_type = req.file.mimetype;
+    console.log("Uploading profile picture");
+    console.log(image);
+    if (!image) {
+      return res.status(400).json({ message: "No image provided" });
+    }
+
+    await pool.query(
+      "UPDATE users SET profile_picture = $1 AND mime_type = $2 WHERE username = $2",
+      [image,mime_type, req.session.username]
+    );
+
+    res.status(200).json({ message: "Profile picture updated successfully" });
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    res.status(500).json({ message: "Error uploading profile picture" });
+  }
+});
 ////////////////////////////////////////////////////
 // Start the server
 app.listen(port, () => {

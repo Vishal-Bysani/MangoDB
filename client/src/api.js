@@ -254,8 +254,8 @@ export const uploadProfileImage = async (imageFile, username) => {
         const formData = new FormData();
         formData.append('profileImage', imageFile);
         formData.append('username', username);
-        
-        const response = await fetch(`${apiUrl}/uploadProfileImage`, {
+        console.log("Uploading image to server...");
+        const response = await fetch(`${apiUrl}/uploadProfilePicture`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
