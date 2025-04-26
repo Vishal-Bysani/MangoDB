@@ -1690,8 +1690,12 @@ app.post("/uploadProfilePicture", isAuthenticated, upload.single('profileImage')
     }
 
     await pool.query(
-      "UPDATE users SET profile_picture = $1 AND mime_type = $2 WHERE username = $2",
-      [image,mime_type, req.session.username]
+      "UPDATE users SET profile_picture = $1 WHERE username = $2",
+      [image, req.session.username]
+    );
+    await pool.query(
+      "UPDATE users SET mime_type = $1 WHERE username = $2",
+      [mime_type, req.session.username]
     );
 
     res.status(200).json({ message: "Profile picture updated successfully" });
