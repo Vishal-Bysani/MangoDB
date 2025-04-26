@@ -40,7 +40,6 @@ const Book = () => {
             if (data) {
                 setAuthors(data.authors);
             }
-            console.log(data)
             setLoading(false);
         }
         fetchBookDetails();
@@ -267,7 +266,7 @@ const Book = () => {
                                             </div>
                                         }
                                     </button>
-                                <div className="item-trailer">
+                                {/* <div className="item-trailer">
                                     <iframe 
                                         width="100%" 
                                         height="100%" 
@@ -277,7 +276,7 @@ const Book = () => {
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                         allowFullScreen
                                     ></iframe>
-                                </div>
+                                </div> */}
                             </div>
 
                             { book.genres && <div className="item-genres">
@@ -288,6 +287,10 @@ const Book = () => {
 
                             { book.overview && <div className="item-description">
                                 <p>{book.overview}</p>
+                            </div> }
+
+                            { book.description && <div className="item-description">
+                                <p>{book.description}</p>
                             </div> }
 
                             <div className="item-crew">
@@ -310,6 +313,12 @@ const Book = () => {
                                         <p className="crew-name" style={{ marginLeft: '16px' }}>
                                         {book.publisher}
                                         </p>
+                                    </div>
+                                )}
+
+                                {book.preview_link && (
+                                    <div className="crew-section">
+                                        <p className="crew-name" style={{ marginLeft: '16px' }} onClick={() => window.open(book.preview_link, '_blank')}> Click Here For Preview </p>
                                     </div>
                                 )}
                             </div>

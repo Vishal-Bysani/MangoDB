@@ -141,6 +141,12 @@ const getTrendingShows = async (pageNo = 1, pageLimit = 25) => {
     return data.shows;
 }
 
+export const getTrendingBooks = async (pageNo = 1, pageLimit = 25) => {
+    const response = await fetch(`${apiUrl}/getBooksByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`);
+    const data = await response.json();
+    return data.books;
+}
+
 const getFilteredItems = async ({searchText = null,
                                 personId = null,
                                 genreId = null,
@@ -168,7 +174,7 @@ const getFilteredItems = async ({searchText = null,
     if (pageLimit) baseUrl += `pageLimit=${pageLimit}&`;
     const response = await fetch(baseUrl);
     const data = await response.json();
-    return data.moviesOrShows;
+    return data.moviesOrShows.concat(data.books);
 }
 
 const getUserDetails = async (username) => {

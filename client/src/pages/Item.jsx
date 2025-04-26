@@ -51,6 +51,10 @@ const Item = () => {
         fetchItemDetails();
     }, [itemId]);
 
+    useEffect(() => {
+        if (item && item.reviews.filter(review => review.username === loggedInData.username).length > 0) setUserReviewText(item.reviews.filter(review => review.username === loggedInData.username)[0].text);
+    }, [item, loggedInData])
+    
     if (loading) {
         return (
             <>
@@ -406,10 +410,6 @@ const Item = () => {
                             </div>
                             <div className="review">
                                 <div className="review-content">
-                                    <div className="review-rating">
-                                        <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                        {parseFloat(item.rating).toFixed(1)}/10
-                                    </div>
                                     <div className="review-text">
                                         {item.review_summary || "Not Enoguh Reviews to Generate a Summary"}
                                     </div>

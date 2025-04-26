@@ -36,6 +36,7 @@ const Search = () => {
     const [orderByPopularity, setOrderByPopularity] = useState(true);
     const [forMovie, setForMovie] = useState(true);
     const [forShow, setForShow] = useState(true);
+    const [forBook, setForBook] = useState(true);
 
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
@@ -53,7 +54,7 @@ const Search = () => {
     }, [genreList]);
 
     const handleFilterSubmit = () => {
-        getFilteredItems({searchText: searchQuery, genreId: genreId, personId: personId, year: year, minRating: minRating, orderByRating: orderByRating, orderByPopularity: orderByPopularity, forMovie: forMovie, forShow: forShow, pageNo: pageNo, pageLimit: pageLimit}).then(setMatchingItems);
+        getFilteredItems({searchText: searchQuery, genreId: genreId, personId: personId, year: year, minRating: minRating, orderByRating: orderByRating, orderByPopularity: orderByPopularity, forMovie: forMovie, forShow: forShow, forBook: forBook, pageNo: pageNo, pageLimit: pageLimit}).then(setMatchingItems);
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
@@ -206,7 +207,7 @@ const Search = () => {
                                 <input
                                     type="checkbox"
                                     checked={forMovie}
-                                    onChange={() => { if (forMovie) setForShow(true); setForMovie(!forMovie)}}
+                                    onChange={() => { if (forMovie && !forShow && !forBook) { setForShow(true); } setForMovie(!forMovie)}}
                                 />
                                 Movie
                             </label>
@@ -216,7 +217,17 @@ const Search = () => {
                                 <input
                                     type="checkbox"
                                     checked={forShow}
-                                    onChange={() => { if (forShow) setForMovie(true); setForShow(!forShow)}}
+                                    onChange={() => { if (forShow && !forMovie && !forBook) { setForMovie(true); } setForShow(!forShow)}}
+                                />
+                                Show
+                            </label>
+                        </div>
+                        <div className="search-page-filters-checkbox">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={forBook}
+                                    onChange={() => { if (forBook && !forMovie && !forShow) { setForShow(true); setForMovie(true); } setForBook(!forBook)}}
                                 />
                                 Show
                             </label>

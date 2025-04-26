@@ -4,7 +4,7 @@ import { toggleWatchListed } from "../api";
 import "../css/ItemOverview.css";
 import { loggedInDataContext, currentLinkContext } from "../Context";
 
-const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast , description }, ref) => {
+const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, author, description, forBook = false }, ref) => {
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const navigate = useNavigate();
@@ -21,7 +21,7 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                             e.target.src = "/item-backdrop.svg";
                         }}
                         className="item-overview-image"
-                        onClick={() => navigate(`/item/${itemId}`)}
+                        onClick={() => { if (forBook) navigate(`/book/${itemId}`); else navigate(`/item/${itemId}`); }}
                     />
                     <button className="ItemThumbnail-plus-button" style={{width: '50px', height: '50px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
                         { !watchListed ? 
@@ -48,7 +48,7 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                     </button>
                 </div>
                 <div className="item-overview-info-container">
-                    <p onClick={() => navigate(`/item/${itemId}`)} style={{ cursor: "pointer", fontSize: "36px", fontWeight: "bolder", color: "#10e3a5", marginBottom: "10px" }}>{title}</p>
+                    <p onClick={() => { if (forBook) navigate(`/book/${itemId}`); else navigate(`/item/${itemId}`); }} style={{ cursor: "pointer", fontSize: "36px", fontWeight: "bolder", color: "#10e3a5", marginBottom: "10px" }}>{title}</p>
                     <div className="item-overview-rating-container">
                         <p style={{fontWeight: 'bold'}}><span className="item-overview-yellow-star">★</span> {parseFloat(rating).toFixed(1)}/10</p>
                         { userRating > 0 && <p style={{fontWeight: 'bold'}}><span className="item-overview-blue-star">★</span> {parseFloat(userRating).toFixed(1)}/10</p> }
@@ -56,7 +56,11 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                     { year && <p>{year}</p> }
                     { startYear && endYear && <p>{startYear} - {endYear}</p> }
                     { cast && cast.length > 0 && <p>{cast.slice(0, 4).map(c => c.name).join(', ')}</p> }
-                    <p style={{marginTop: "10px", fontSize: "18px", fontWeight: "normal"}}>{description}</p>
+                    { author && <p>{author}</p> }
+                    { description && description.length < 500 && <p style={{marginTop: "10px", fontSize: "18px", fontWeight: "normal"}}>{description}</p>}
+                    { description && description.length >= 500 && 
+                        <p style={{marginTop: "10px", fontSize: "18px", fontWeight: "normal"}}>{description.slice(0, 500)} <span style={{color: "#00e6c3", fontWeight: "bold", cursor: "pointer"}} onClick={() => { if (forBook) navigate(`/book/${itemId}`); else navigate(`/item/${itemId}`); }}>. . .</span></p>
+                    }
                 </div>
             </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Navbar from "../components/Navbar";
 import "../css/Home.css";
-import { getTrendingMovies, getTrendingShows, getLoggedIn } from "../api";
+import { getTrendingMovies, getTrendingShows, getLoggedIn, getTrendingBooks } from "../api";
 import ListItemThumbnail from "../components/ListItemThumbnail";
 import SearchBar from "../components/SearchBar";
 import { loggedInDataContext, currentLinkContext } from "../Context";
@@ -11,20 +11,24 @@ const Home = () => {
     const navigate = useNavigate();
     const [trendingMovies, setTrendingMovies] = useState([]);
     const [trendingShows, setTrendingShows] = useState([]);
+    const [trendingBooks, setTrendingBooks] = useState([]);
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
 
     useEffect(() => {
-        const fetchTrendingMovies = async () => {
-            const trendingMovies = await getTrendingMovies();
-            setTrendingMovies(trendingMovies);
-        };
-        const fetchTrendingShows = async () => {
-            const trendingShows = await getTrendingShows();
-            setTrendingShows(trendingShows);
-        };
-        fetchTrendingMovies();
-        fetchTrendingShows();
+        // const fetchTrendingMovies = async () => {
+        //     const trendingMovies = await getTrendingMovies();
+        //     setTrendingMovies(trendingMovies);
+        // };
+        // const fetchTrendingShows = async () => {
+        //     const trendingShows = await getTrendingShows();
+        //     setTrendingShows(trendingShows);
+        // };
+        // fetchTrendingMovies();
+        // fetchTrendingShows();
+        getTrendingMovies().then(setTrendingMovies);
+        getTrendingShows().then(setTrendingShows);
+        getTrendingBooks().then(setTrendingBooks);
     }, []);
 
     useEffect(() => {
@@ -53,6 +57,7 @@ const Home = () => {
             <div className="home-container">
                 { trendingMovies && trendingMovies.length > 0 && <ListItemThumbnail title="Trending Movies" titleFontSize="44px" itemThumbnails={trendingMovies}/> }
                 { trendingShows && trendingShows.length > 0 && <ListItemThumbnail title="Trending Shows" titleFontSize="44px" itemThumbnails={trendingShows}/> }
+                { trendingBooks && trendingBooks.length > 0 && <ListItemThumbnail title="Trending Books" titleFontSize="44px" itemThumbnails={trendingBooks} forBook={true}/> }
             </div>
         </>
     );

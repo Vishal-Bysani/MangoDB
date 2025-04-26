@@ -15,7 +15,7 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
             <div 
                 key={itemId} 
                 className="ItemThumbnail-item-thumbnail"
-                onClick={() => navigate(`/item/${itemId}`)}
+                onClick={() => { if (forBook) navigate(`/book/${itemId}`); else navigate(`/item/${itemId}`); }}
                 ref={ref}
             >
                 <div className="ItemThumbnail-image-container">
@@ -56,7 +56,7 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
                     { userRating > 0 && <p style={{fontWeight: 'bold'}}><span className="ItemThumbnail-blue-star">★</span> {parseFloat(userRating).toFixed(1)}/10</p> }
                 </div>
                 <h4>{title}</h4>
-                { year && <p style={{fontWeight: 'bold'}}>{year}</p> }
+                { year && <p style={{fontWeight: 'bold'}}>{String(year).slice(0, 4)}</p> }
                 { startYear && !endYear && <p style={{fontWeight: 'bold'}}>{startYear}</p> }
                 { startYear && endYear && <p style={{fontWeight: 'bold'}}>{startYear} - {endYear}</p> }
                 { cast && <p style={{fontWeight: 'bold'}}>{cast.slice(0, 2).map(c => c.name).join(', ')}</p> }
