@@ -63,15 +63,12 @@ const Profile = () => {
                     setUploading(false);
                     return;
                 }
-
                 const result = await uploadProfileImage(file, username);
                 
-                if (result && result.profilePicture) {
-                    setUser(prevUser => ({
-                        ...prevUser,
-                        image: result.profilePicture
-                    }));
-                }
+                setUser(prevUser => ({
+                    ...prevUser,
+                    image: URL.createObjectURL(file)
+                }));
                 
                 setUploading(false);
             } catch (error) {

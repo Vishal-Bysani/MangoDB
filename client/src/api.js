@@ -184,7 +184,6 @@ const getUserDetails = async (username) => {
     });
     if (userDetails.status != 200) return null;
     const userDetailsData = await userDetails.json();
-    console.log(userDetailsData);
     return userDetailsData;
 }
 

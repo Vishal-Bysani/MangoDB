@@ -127,7 +127,23 @@ const Book = () => {
                         />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {if (userReviewText.length > 0) {setIsReviewPopupOpen(false); submitReview(bookId, rating, userReviewText, true);} else {alert("Review cannot be empty");}}}>
+                    <button className="submit-rate-button" onClick={() => {
+                            if (userReviewText.length > 0) {
+                                setIsReviewPopupOpen(false);
+                                submitReview(bookId, rating, userReviewText, true);
+                                setBook(prevBook => ({
+                                    ...prevBook,
+                                    reviews: [...prevBook.reviews.filter(review => review.username !== loggedInData.username), {
+                                        username: loggedInData.username,
+                                        rating: rating,
+                                        text: userReviewText,
+                                        time_ago: "Just now"
+                                    }]
+                                }));
+                            } else {
+                                alert("Review cannot be empty");
+                            }
+                        }}>
                             Submit
                         </button>
                     </div>
@@ -342,12 +358,14 @@ const Book = () => {
                             {book.reviews.slice(0,3).map(review => (
                                 <>
                                     { review.text && <div key={review.id} className="review">
-                                            <div className="review-rating">
-                                                <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                                {parseFloat(review.rating).toFixed(1)}/10
-                                            </div>
-                                            <div className="review-text">
-                                                {review.text}
+                                            <div className="review-content">
+                                                <div className="review-rating">
+                                                    <span className="star-outline" style={{marginRight: '8px'}}>★</span>
+                                                    {parseFloat(review.rating).toFixed(1)}/10
+                                                </div>
+                                                <div className="review-text">
+                                                    {review.text}
+                                                </div>
                                             </div>
                                         </div>
                                     }

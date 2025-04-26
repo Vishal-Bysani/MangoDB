@@ -138,7 +138,23 @@ const Item = () => {
                         />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {if (userReviewText.length > 0) {setIsReviewPopupOpen(false); submitReview(item.id, rating, userReviewText);} else {alert("Review cannot be empty");}}}>
+                        <button className="submit-rate-button" onClick={() => {
+                            if (userReviewText.length > 0) {
+                                setIsReviewPopupOpen(false);
+                                submitReview(item.id, rating, userReviewText);
+                                setItem(prevItem => ({
+                                    ...prevItem,
+                                    reviews: [...prevItem.reviews.filter(review => review.username !== loggedInData.username), {
+                                        username: loggedInData.username,
+                                        rating: rating,
+                                        text: userReviewText,
+                                        time_ago: "Just now"
+                                    }]
+                                }));
+                            } else {
+                                alert("Review cannot be empty");
+                            }
+                        }}>
                             Submit
                         </button>
                     </div>
