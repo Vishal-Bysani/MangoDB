@@ -188,7 +188,7 @@ const getGenreList = async () => {
     return data;
 }
 
-const getMatchingPersons = async (searchText, searchLimit = 5) => {
+const getMatchingPersons = async (searchText, searchLimit = 100) => {
     const response = await fetch(`${apiUrl}/matchingPersons?searchText=${searchText}&searchLimit=${searchLimit}`);
     const data = await response.json();
     return data;

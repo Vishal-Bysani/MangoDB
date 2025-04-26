@@ -109,8 +109,8 @@ const Search = () => {
                             setFilterValueText={setGenreText}
                             onFilterValueTextChange={async (searchText) => {
                                 if (searchText.length > 0) {
-                                    setGenreListFiltered(genreList.filter(genre => genre.name.toLowerCase().includes(searchText.toLowerCase())));
-                                    setGenreText(searchText);
+                                    setGenreListFiltered(genreList.filter(genre => genre.name.toLowerCase().includes(searchText.trim().toLowerCase())));
+                                    setGenreText(searchText.trim());
                                 } else {
                                     setGenreListFiltered(genreList);
                                     setGenreText("");
@@ -127,7 +127,10 @@ const Search = () => {
                             setFilterValueText={setPersonText}
                             onFilterValueTextChange={async (searchText) => {
                                 if (searchText.length > 0) {
-                                    getMatchingPersons(searchText).then(setPersonList);
+                                    const filteredPersonList = personList.filter(person => person.name.toLowerCase().includes(searchText.trim().toLowerCase()))
+                                    if (filteredPersonList.length < 20) {
+                                        getMatchingPersons(searchText.trim(), 100).then(setPersonList);
+                                    } else setPersonList(filteredPersonList);
                                     setPersonText(searchText);
                                 } else {
                                     setPersonList([]);

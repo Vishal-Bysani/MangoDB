@@ -964,7 +964,7 @@ app.get("/matchingPersons", async (req, res) => {
     const { searchText, searchLimit } = req.query;
     const personQuery = await pool.query(
       "SELECT id, name, popularity, profile_path, known_for_department as image FROM person WHERE name ILIKE $1 ORDER BY popularity DESC LIMIT $2",
-      [`${searchText}%`, searchLimit]
+      [`%${searchText}%`, searchLimit]
     );
     res.status(200).json(personQuery.rows);
   } catch (error) {
