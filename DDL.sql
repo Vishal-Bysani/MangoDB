@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS users (
     is_authenticated BOOLEAN DEFAULT FALSE,
     registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     profile_picture BYTEA,
+    mime_type TEXT,
     last_login TIMESTAMP DEFAULT NULL
 );
 
