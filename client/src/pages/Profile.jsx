@@ -1,16 +1,18 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getUserDetails, getLoggedIn, followUser, uploadProfileImage } from "../api";
 import Navbar from "../components/Navbar";
 import "../css/Profile.css";
 import moment from "moment";
 import ListItemThumbnail from "../components/ListItemThumbnail";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const Profile = () => {
     const { username } = useParams();
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
-    const [loggedInData, setLoggedInData] = useState(null);
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const favouriteRef = useRef(null);
     const watchlistRef = useRef(null);
     const fileInputRef = useRef(null);
@@ -36,6 +38,7 @@ const Profile = () => {
             });
         };
         fetchLoggedInData();
+        setCurrentLink(`/profile/${username}`);
     }, []);
 
     const handleImageUpload = async (e) => {
@@ -82,7 +85,7 @@ const Profile = () => {
     return (
         <>
             { loggedInData && (
-                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+                <Navbar />
             )}
             { user && (
                 <div className="profile-container">
@@ -183,11 +186,11 @@ const Profile = () => {
                         </div>
                     </div>
                     <div className="profile-items-container">
-                        { user.favouriteMovies && user.favouriteMovies.length > 0 && <ListItemThumbnail title="Favourite Movies/Shows" itemThumbnails={user.favouriteMovies} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={favouriteRef}/> }
-                        { user.favouriteBooks && user.favouriteBooks.length > 0 && <ListItemThumbnail title="Favourite Books" itemThumbnails={user.favouriteBooks} titleFontSize="36px" loggedIn={loggedInData.loggedIn} forBook={true} ref={favouriteRef}/> }
-                        { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} titleFontSize="36px" loggedIn={loggedInData.loggedIn} ref={watchlistRef}/> }
-                        { user.wantToReadList && user.wantToReadList.length > 0 && <ListItemThumbnail title="Read List" itemThumbnails={user.wantToReadList} titleFontSize="36px" loggedIn={loggedInData.loggedIn} forBook={true} ref={favouriteRef}/> }
-                        { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} titleFontSize="36px" loggedIn={loggedInData.loggedIn}/> }
+                        { user.favouriteMovies && user.favouriteMovies.length > 0 && <ListItemThumbnail title="Favourite Movies/Shows" itemThumbnails={user.favouriteMovies} titleFontSize="36px" ref={favouriteRef}/> }
+                        { user.favouriteBooks && user.favouriteBooks.length > 0 && <ListItemThumbnail title="Favourite Books" itemThumbnails={user.favouriteBooks} titleFontSize="36px" forBook={true} ref={favouriteRef}/> }
+                        { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} titleFontSize="36px" ref={watchlistRef}/> }
+                        { user.wantToReadList && user.wantToReadList.length > 0 && <ListItemThumbnail title="Read List" itemThumbnails={user.wantToReadList} titleFontSize="36px" forBook={true} ref={favouriteRef}/> }
+                        { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} titleFontSize="36px"/> }
                     </div>
                 </div>
             )}

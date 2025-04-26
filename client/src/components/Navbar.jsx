@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { useNavigate } from "react-router";
 import { apiUrl } from "../config/config";
 import "../css/Navbar.css";
 import { getMatchingItems, logoutUser } from "../api"
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
-const Navbar = ({isLoggedIn = false, username = ""}) => {
+const Navbar = () => {
   const navigate = useNavigate();
-  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
   const [searchText, setSearchText] = useState("");
   const [matchingList, setMatchingList] = useState([]);
   const [hideSearch, setHideSearch] = useState(false);
   const searchContainerRef = useRef(null);
-
-  useEffect(() => {
-    setLoggedIn(isLoggedIn);
-  }, [isLoggedIn]);
+  const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+  const {currentLink, setCurrentLink} = useContext(currentLinkContext);
 
   const handleSearchChange = (e) => {
     setSearchText(e.target.value);
@@ -108,13 +106,13 @@ const Navbar = ({isLoggedIn = false, username = ""}) => {
             </div>
           )}
         </div>
-        {loggedIn ? (
+        {loggedInData.loggedIn ? (
           <>
             <div className="nav-button-div">
-              <button className="nav-button" onClick={() => navigate(`/profile/${username}`)}> {username} </button>
+              <button className="nav-button" onClick={() => navigate(`/profile/${loggedInData.username}`)}> {loggedInData.username} </button>
             </div>
             <div className="nav-button-div">
-              <button className="nav-button" onClick={() => { logoutUser(); setLoggedIn(false); navigate("/"); }}>Logout</button>
+              <button className="nav-button" onClick={() => { logoutUser(); setLoggedInData({loggedIn: false, username: ""}); if(currentLink) navigate(currentLink); else navigate("/"); }}>Logout</button>
             </div>
           </>
         ) : (

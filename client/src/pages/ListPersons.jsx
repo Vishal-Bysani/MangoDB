@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn } from "../api";
 import Navbar from "../components/Navbar";
 import Loading from "../components/Loading";
 import "../css/ListPersons.css";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const ListPersons = () => {
     const { itemId, role } = useParams();
@@ -12,7 +13,8 @@ const ListPersons = () => {
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState("");
     const location = useLocation();
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -22,19 +24,19 @@ const ListPersons = () => {
                 });
             }
         });
+        setCurrentLink(`/items/${itemId}/list-persons/${role}/`);
     }, []);
 
     useEffect(() => {
         setPersons(location.state.personHeaders);
         setLoading(false);
         setTitle(location.state.title);
-        // fetchPersons();
     }, [location.state]);
 
     if (loading) {
         return (
             <>
-                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+                <Navbar />
                 <Loading/>
             </>
         )
@@ -51,7 +53,7 @@ const ListPersons = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+            <Navbar />
             <div className="list-persons-page">
                 <p className="list-persons-title" onClick={() => navigate(`/item/${itemId}`)} style={{cursor: 'pointer'}}>{role.charAt(0).toUpperCase() + role.slice(1)} | {title}</p>
                 <div className="list-persons-container">

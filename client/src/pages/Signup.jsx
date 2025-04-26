@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, Link } from "react-router";
 import { signupUser } from "../api";
 import "../css/Signup.css";
 import { getLoggedIn } from "../api";
+import { currentLinkContext } from "../Context";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const {currentLink, setCurrentLink} = useContext(currentLinkContext);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -23,7 +25,8 @@ const Signup = () => {
     getLoggedIn().then(response => {
         if (response.status === 200) {
             response.json().then(data => {
-                if (data.loggedIn) navigate("/");
+                if (data.loggedIn && currentLink) navigate(currentLink);
+                else if (data.loggedIn) navigate(`/`)
             });
         }
     });

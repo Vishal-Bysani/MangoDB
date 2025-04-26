@@ -7,7 +7,8 @@ import "../css/ItemOverview.css";
 
 const ListPersonOverview = ({ title, ref }) => {
     const location = useLocation();
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const [profileList, setProfileList] = useState([]);
 
     useEffect(() => {
@@ -22,7 +23,7 @@ const ListPersonOverview = ({ title, ref }) => {
     return (
         <>
             { loggedInData && (
-                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+                <Navbar />
             )}
             <div className="item-overview-container" ref={ref}>
                 { title && <h1 className="list-item-overview-container-title">{title}</h1> }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getLoggedIn, getPersonDetails } from "../api";
 import Navbar from "../components/Navbar";
@@ -6,13 +6,15 @@ import Loading from "../components/Loading";
 import "../css/Person.css";
 import ListItemThumbnail from "../components/ListItemThumbnail";
 import moment from "moment";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const Person = () => {
     const { personId } = useParams();
     const navigate = useNavigate();
     const [person, setPerson] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
 
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -22,6 +24,7 @@ const Person = () => {
                 });
             }
         });
+        setCurrentLink(`/person/${personId}`);
     }, []);
 
     useEffect(() => {
@@ -38,7 +41,7 @@ const Person = () => {
     if (loading) {
         return (
             <>
-                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+                <Navbar />
                 <Loading/>
             </>
         )
@@ -50,7 +53,7 @@ const Person = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+            <Navbar />
             <div className="people-page">
                 <div className="person-header-container">
                     <div className="person-header">
@@ -110,7 +113,7 @@ const Person = () => {
                             </div>
                         </div>
                         { person.knownFor && person.knownFor.length > 0 && (
-                            <ListItemThumbnail title="Known For" itemThumbnails={person.knownFor} loggedIn={loggedInData.loggedIn}/>
+                            <ListItemThumbnail title="Known For" itemThumbnails={person.knownFor}/>
                         )}
 
                         {person.awards && person.awards.length > 0 && (

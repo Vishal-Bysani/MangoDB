@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn } from "../api";
 import Navbar from "../components/Navbar";
 import ProfileOverview from "../components/ProfileOverview";
 import "../css/ItemOverview.css";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const ListProfileOverview = ({ title }) => {
+    const { username } = useParams();
     const location = useLocation();
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const [profileList, setProfileList] = useState([]);
 
     useEffect(() => {
@@ -17,12 +20,13 @@ const ListProfileOverview = ({ title }) => {
             });
         });
         setProfileList(location.state.profileList);
+        setCurrentLink(`/profile/${username}/${title}`);
     }, []);
 
     return (
         <>
             { loggedInData && (
-                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+                <Navbar />
             )}
             <div className="profile-overview-container">
                 { title && <h1 className="list-profile-overview-container-title">{title}</h1> }

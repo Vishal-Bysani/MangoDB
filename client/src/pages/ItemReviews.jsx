@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn } from "../api";
 import Navbar from "../components/Navbar";
 import "../css/ItemReviews.css";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const ItemReviews = () => {
     const { itemId } = useParams();
@@ -10,7 +11,8 @@ const ItemReviews = () => {
     const [title, setTitle] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -32,7 +34,7 @@ const ItemReviews = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+            <Navbar />
             <div className="item-reviews-page" style={{marginTop: '200px'}}>
                 <h1 className="item-reviews-title" onClick={() => navigate(`/item/${itemId}`)} style={{cursor: 'pointer'}}>{title}</h1>
                 <div className="reviews-container">
@@ -44,8 +46,8 @@ const ItemReviews = () => {
                             </div>
                             <p className="review-card-text">{review.text}</p>
                             <div className="review-card-footer">
-                                <h3 className="review-card-username" onClick={() => navigate(`/user/${review.userId}`)}>{review.username}, </h3>
-                                <p className="review-card-date">{review.date}</p>
+                                <h3 className="review-card-username" onClick={() => navigate(`/profile/${review.username}`)}>{review.username}, </h3>
+                                <p className="review-card-date">{review.time_ago}</p>
                             </div>
                         </div>
                     ))}

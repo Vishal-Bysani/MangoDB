@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getLoggedIn, getItemDetails, submitRating, submitReview, setFavourite, toggleWatchListed } from "../api";
 import Navbar from "../components/Navbar";
@@ -6,6 +6,7 @@ import "../css/Item.css"
 import ListPersonThumbnail from "../components/ListPersonThumbnail";
 import Loading from "../components/Loading";
 import Popup from "../components/Popup";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const Item = () => {
     const navigate = useNavigate();
@@ -17,10 +18,12 @@ const Item = () => {
     const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
     const [userReviewText, setUserReviewText] = useState("");
     const [hoverRating, setHoverRating] = useState(0);
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const [directors, setDirectors] = useState([]);
     const [writers, setWriters] = useState([]);
     const [watchListed, setWatchListed] = useState(false);
+
     useEffect(() => {
         getLoggedIn().then(response => {
             if (response.status === 200) {
@@ -29,6 +32,7 @@ const Item = () => {
                 });
             }
         });
+        setCurrentLink(`/item/${itemId}`);
     }, []);
 
     useEffect(() => {
@@ -50,7 +54,7 @@ const Item = () => {
     if (loading) {
         return (
             <>
-                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+                <Navbar />
                 <Loading/>
             </>
         )
@@ -67,7 +71,7 @@ const Item = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+            <Navbar />
 
             <Popup isOpen={isRatingPopupOpen} onClose={() => setIsRatingPopupOpen(false)}>
                 <div className="popup-header">

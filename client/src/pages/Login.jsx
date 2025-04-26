@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { apiUrl } from "../config/config";
 import "../css/Login.css";
 import { getLoggedIn, loginUser } from "../api";
+import { currentLinkContext } from "../Context";
 
 const Login = () => {
     const navigate = useNavigate();
-    const location = useLocation();
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
 
     useEffect(() => {
         getLoggedIn().then(response => {
             if (response.status === 200) {
                 response.json().then(data => {
-                    if (data.loggedIn) navigate("/");
+                    if (data.loggedIn && currentLink) navigate(currentLink);
+                    else if (data.loggedIn) navigate(`/`)
                 });
             }
         });
@@ -35,7 +37,7 @@ const Login = () => {
 
         loginUser(formData.user, formData.password).then(response => {
             if (response.status === 200) {
-                if (location.state && location.state.parentLink) navigate(location.state.parentLink);
+                if (currentLink) navigate(currentLink);
                 else navigate("/");
             } else {
                 setError(response.json().then(data => data.message));

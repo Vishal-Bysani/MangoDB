@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import Navbar from "../components/Navbar";
 import "../css/Collection.css";
 import { getLoggedIn, getCollectionDetails } from "../api";
 import ListItemOverview from "../components/ListItemOverview";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const Collection = () => {
     const { collectionId } = useParams();
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const [collectionItems, setCollectionItems] = useState([]);
     const [collectionDetails, setCollectionDetails] = useState({});
 
@@ -19,6 +21,7 @@ const Collection = () => {
                 });
             }
         });
+        setCurrentLink(`/collection/${collectionId}`);
     }, []);
 
     useEffect(() => {
@@ -30,7 +33,7 @@ const Collection = () => {
 
     return (
         <div>
-            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+            <Navbar />
             <div className="collection-page-container">
                 <p style={{fontSize: "50px", fontWeight: "bold"}}>{collectionDetails.name}</p>
                 <div className="collection-page-content">
@@ -44,7 +47,7 @@ const Collection = () => {
                     />
                     <p>{collectionDetails.description}</p>
                 </div>
-                <ListItemOverview itemOverviewList={collectionItems} loggedIn={loggedInData.loggedIn}/>
+                <ListItemOverview itemOverviewList={collectionItems}/>
             </div>
         </div>
     )

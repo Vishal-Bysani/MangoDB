@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import Navbar from "../components/Navbar";
 import "../css/Search.css";
@@ -6,6 +6,7 @@ import { getGenreList, getFilteredItems, getMatchingPersons, getLoggedIn } from 
 import ListItemOverview from "../components/ListItemOverview";
 import SearchDropdown from "../components/SearchDropdown";
 import SearchBar from "../components/SearchBar";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const Search = () => {
     const { query } = useParams();
@@ -36,7 +37,8 @@ const Search = () => {
     const [forMovie, setForMovie] = useState(true);
     const [forShow, setForShow] = useState(true);
 
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const [pageNo, setPageNo] = useState(1);
 
     
@@ -78,11 +80,12 @@ const Search = () => {
                 });
             }
         });
+        setCurrentLink(`/search/${query}`);
     }, []);
 
     return (
         <div>
-            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+            <Navbar />
             <div className="search-page-header">
                 <SearchBar handleSearch={(searchText) => {
                         setSearchQuery(searchText);
@@ -225,7 +228,7 @@ const Search = () => {
                 </div>
                 <div className="search-page-results-container">
                     <div className="search-page-results-container-title">
-                        { matchingItems && matchingItems.length > 0 ? <ListItemOverview  itemOverviewList={matchingItems} loggedIn={loggedInData.loggedIn}/> : <div className="search-page-results-container-no-results">No results found</div>}
+                        { matchingItems && matchingItems.length > 0 ? <ListItemOverview  itemOverviewList={matchingItems}/> : <div className="search-page-results-container-no-results">No results found</div>}
                     </div>
                 </div>
             </div>

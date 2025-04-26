@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import EpisodeOverview from "./EpisodeOverview";
 import "../css/ListEpisodeOverview.css";
 
-const ListEpisodeOverview = ({ title, titleFontSize, episodes, seriesId, seasonId, loggedIn, ref }) => {
+const ListEpisodeOverview = ({ title, titleFontSize, episodes, seriesId, seasonId, ref }) => {
   
   return (
     <div className="list-episode-overview-container" ref={ref}>
@@ -22,7 +22,6 @@ const ListEpisodeOverview = ({ title, titleFontSize, episodes, seriesId, seasonI
           vote_average={episode.vote_average}
           userRating={episode.userRating || 0}
           overview={episode.overview}
-          loggedIn={loggedIn}
         />
       ))}
     </div>

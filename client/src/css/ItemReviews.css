@@ -53,6 +53,7 @@ body {
 .review-card-username {
     font-size: 16px;
     cursor: pointer;
+    color: #007bff;
 }
 
 .review-card-date {

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import { getLoggedIn, getSeasonDetails } from "../api";
 import moment, { max } from "moment";
 import Navbar from "../components/Navbar";
 import "../css/ItemSeasons.css";
 import ListEpisodeOverview from "../components/ListEpisodeOverview";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const SeasonNavigator = ( { seasonIndex, setSeasonIndex, totalSeasons }) => {
     const [visibleIndex, setVisibleIndex] = useState(0);
@@ -45,7 +46,8 @@ const SeasonNavigator = ( { seasonIndex, setSeasonIndex, totalSeasons }) => {
 
 const ItemSeasons = () => {
     const { itemId } = useParams();
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const location = useLocation();
     const navigate = useNavigate();
     const [title, setTitle] = useState("");
@@ -61,6 +63,7 @@ const ItemSeasons = () => {
                 });
             }
         });
+        setCurrentLink(`/item/${itemId}/seasons`);
         if (location.state) {
             setTitle(location.state.title);
             setSeasons(location.state.seasons);
@@ -78,7 +81,7 @@ const ItemSeasons = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+            <Navbar />
             <div className="item-seasons-page">
                 <div className="item-seasons-page-container">
                     <h1 style={{fontSize: "50px", fontWeight: "bold", marginBottom: "40px", marginLeft: "10%"}}>
@@ -113,7 +116,7 @@ const ItemSeasons = () => {
                             episodes={episodes}
                             seriesId={itemId}
                             seasonId={seasons[seasonIndex].id}
-                            loggedIn={loggedInData.loggedIn}
+                           
                         />
                     }
                 </div>

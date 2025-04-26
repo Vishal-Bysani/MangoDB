@@ -4,9 +4,6 @@ import moment from "moment";
 import "../css/EpisodeOverview.css";
 
 const EpisodeOverview = forwardRef(({ 
-  seriesId, 
-  seasonId,
-  episodeId, 
   name, 
   image, 
   air_date, 
@@ -15,9 +12,7 @@ const EpisodeOverview = forwardRef(({
   vote_average,
   userRating, 
   overview,
-  loggedIn 
 }, ref) => {
-  const navigate = useNavigate();
   
   return (
     <div className="episode-overview-container" ref={ref}>

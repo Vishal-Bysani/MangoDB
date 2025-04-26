@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import Navbar from "../components/Navbar";
 import { getBookDetails, getLoggedIn, submitRating, submitReview, setFavourite, toggleWantToReadListed } from "../api";
 import "../css/Book.css";
 import Popup from "../components/Popup"
 import Loading from "../components/Loading"
-import ListPersonThumbnail from "../components/ListPersonThumbnail"
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const Book = () => {
     const navigate = useNavigate();
@@ -17,7 +17,8 @@ const Book = () => {
     const [isReviewPopupOpen, setIsReviewPopupOpen] = useState(false);
     const [userReviewText, setUserReviewText] = useState("");
     const [hoverRating, setHoverRating] = useState(0);
-    const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const [authors, setAuthors] = useState([]);
     const [watchListed, setWatchListed] = useState(false);
 
@@ -29,6 +30,7 @@ const Book = () => {
                 });
             }
         });
+        setCurrentLink(`/book/${bookId}`);
     }, []);
     
     useEffect(() => {
@@ -47,7 +49,7 @@ const Book = () => {
     if (loading) {
         return (
             <>
-                <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+                <Navbar />
                 <Loading/>
             </>
         )
@@ -64,13 +66,12 @@ const Book = () => {
 
     return (
         <>
-            <Navbar isLoggedIn={loggedInData.loggedIn} username={loggedInData.username} />
+            <Navbar />
 
             <Popup isOpen={isRatingPopupOpen} onClose={() => setIsRatingPopupOpen(false)}>
                 <div className="popup-header">
                     <p style={{textAlign: 'center'}}>RATE THIS</p>
                     <h2 >{book.title}</h2>
-                    
                 </div>
                 <div className="popup-body">
                     <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>

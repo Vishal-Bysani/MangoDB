@@ -1,9 +1,12 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import { toggleWatchListed } from "../api";
 import "../css/ItemOverview.css";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
-const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, crew , description, loggedIn }, ref) => {
+const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast , description }, ref) => {
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const navigate = useNavigate();
     const [watchListed, setWatchListed] = useState(false);
     return (
@@ -20,7 +23,7 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                         className="item-overview-image"
                         onClick={() => navigate(`/item/${itemId}`)}
                     />
-                    <button className="ItemThumbnail-plus-button" style={{width: '50px', height: '50px'}} onClick={(e) => { e.stopPropagation(); if (loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
+                    <button className="ItemThumbnail-plus-button" style={{width: '50px', height: '50px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
                         { !watchListed ? 
                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                         :

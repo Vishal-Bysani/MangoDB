@@ -1,11 +1,14 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import { toggleWatchListed, toggleWantToReadListed } from "../api";
 import "../css/ItemThumbnail.css";
+import { loggedInDataContext, currentLinkContext } from "../Context";
 
-const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, crew, isWatchListed, loggedIn, forBook }, ref) => {
+const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, isWatchListed, forBook }, ref) => {
     const navigate = useNavigate();
     const [watchListed, setWatchListed] = useState(isWatchListed);
+    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
+    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     
     return (
         <>
@@ -24,7 +27,7 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
                             e.target.src = "/item-backdrop.svg";
                         }}
                     />
-                    <button className="ItemThumbnail-plus-button" onClick={(e) => { e.stopPropagation(); if (loggedIn && forBook) { setWatchListed(!watchListed); toggleWantToReadListed(itemId, !watchListed); } else if (loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
+                    <button className="ItemThumbnail-plus-button" onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn && forBook) { setWatchListed(!watchListed); toggleWantToReadListed(itemId, !watchListed); } else if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
                         { !watchListed ? 
                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                         :
