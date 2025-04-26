@@ -19,7 +19,6 @@ const Book = () => {
     const [hoverRating, setHoverRating] = useState(0);
     const [loggedInData, setLoggedInData] = useState({loggedIn: false, username: ""});
     const [authors, setAuthors] = useState([]);
-    const [writers, setWriters] = useState([]);
     const [watchListed, setWatchListed] = useState(false);
 
     useEffect(() => {
@@ -58,7 +57,7 @@ const Book = () => {
         return (
             <>
                 <Navbar />
-                <div className="error" style={{marginTop: '120px'}}>Item {bookId} details not found</div>
+                <div className="error" style={{marginTop: '120px'}}>Book {bookId} details not found</div>
             </>
         );
     }
@@ -149,7 +148,7 @@ const Book = () => {
                                             setFavourite(bookId, !book.favourite, true);
                                             setBook(prevBook => ({...prevBook, favourite: !prevBook.favourite}));
                                         } else {
-                                            navigate("/login", { state: { parentLink : `/item/${bookId}` }});
+                                            navigate("/login", { state: { parentLink : `/book/${bookId}` }});
                                         }
                                     }}
                                     aria-label="Toggle favourite"
@@ -202,7 +201,7 @@ const Book = () => {
                                                     if (loggedInData.loggedIn) {
                                                         setIsRatingPopupOpen(true);
                                                     } else {
-                                                        navigate("/login", { state: { parentLink : `/item/${bookId}` }});
+                                                        navigate("/login", { state: { parentLink : `/book/${bookId}` }});
                                                     }
                                                 }}>
                                                 { rating > 0 ? (
@@ -244,7 +243,7 @@ const Book = () => {
                                         }}
                                         className="item-image"
                                     />
-                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWantToReadListed(bookId, !watchListed, true); } else { navigate("/login", { state: { parentLink : `/item/${bookId}` }}); } }} aria-label="Add to list">
+                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWantToReadListed(bookId, !watchListed, true); } else { navigate("/login", { state: { parentLink : `/book/${bookId}` }}); } }} aria-label="Add to list">
                                         { !watchListed ? 
                                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                                         :
@@ -303,32 +302,6 @@ const Book = () => {
                                         <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${bookId}/list-persons/writers`, {state: {personHeaders: book.writers, title: book.title}})}></p>
                                     </div>
                                 }
-                                
-                                { writers.length > 0 && (
-                                    <div className="crew-section">
-                                        <h3>Writers</h3>
-                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${writers[0].id}`)}>{writers[0].name}</p>
-                                        { writers.slice(1, 5).map(writer => (
-                                            <>
-                                                <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
-                                            </>
-                                        ))}
-                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${bookId}/list-persons/writers`, {state: {personHeaders: book.writers, title: book.title}})}></p>
-                                    </div>
-                                )}
-
-                                { book.cast && book.cast.length > 0 && (
-                                    <div className="crew-section">
-                                        <h3>Stars</h3>
-                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${book.cast[0].id}`)}>{book.cast[0].name}</p>
-                                        { book.cast.slice(1, 5).map(actor => (
-                                            <>
-                                                <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
-                                            </>
-                                        ))}
-                                        <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${bookId}/list-persons/actors`, {state: {personHeaders: book.cast, title: book.title}})}></p>
-                                    </div>
-                                )}
 
                                 {book.publisher && (
                                     <div className="crew-section">
@@ -338,40 +311,19 @@ const Book = () => {
                                         </p>
                                     </div>
                                 )}
-
-                                {book.collection && (
-                                    <div className="crew-section">
-                                        <h3>Part Of</h3>
-                                        <p className="crew-name" style={{ marginLeft: '16px' }} onClick={() => navigate(`/collection/${book.collection.id}`)}>
-                                            {book.collection.name}
-                                        </p>
-                                    </div>
-                                )}
-
                             </div>
                         </div>
                         
                     </div>
 
-                    { book.type === "tv" && (
-                        <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${bookId}/seasons`, {state: {title: book.title, seasons: book.seasons}})}>
-                            <p style={{textDecoration: 'none', fontSize: '32px', fontWeight: 'bold'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>Seasons</p>
-                            <p className="forward-arrow" style={{marginLeft: '40px', marginTop: '47px'}}></p>
-                        </div>
-                    )}
-                    
-                    {book.cast && book.cast.length > 0 && (
-                        <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={book.cast} />
-                    )}
-
                     <div style={{display: 'flex'}}>
                         <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
-                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/item/${bookId}/reviews`, {state: {title: book.title, reviews: book.reviews}})}></p>
+                        <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/book/${bookId}/reviews`, {state: {title: book.title, reviews: book.reviews}})}></p>
                         <p style={{marginLeft: 'auto', marginRight: '16px', marginTop: '50px', fontSize: '20px', color: '#5799ef', cursor: 'pointer'}} onClick={(e) => {
                             if (loggedInData.loggedIn) {
                                 setIsReviewPopupOpen(true);
                             } else {
-                                navigate("/login", { state: { parentLink : `/item/${bookId}` }});
+                                navigate("/login", { state: { parentLink : `/book/${bookId}` }});
                             }
                         }}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
                     </div>

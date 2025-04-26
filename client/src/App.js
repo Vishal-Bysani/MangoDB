@@ -24,6 +24,7 @@ function App() {
       <Route path="/profile/:username" element={<Profile />} />
       <Route path="/item/:itemId" element={<Item />} />
       <Route path="/book/:bookId" element={<Book />} />
+      <Route path="/book/:bookId/reviews" element={<ItemReviews />} />
       <Route path="/item/:itemId/reviews" element={<ItemReviews />} />
       <Route path="/item/:itemId/seasons" element={<ItemSeasons />} />
       <Route path="/person/:personId" element={<Person />} />
