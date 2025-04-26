@@ -813,8 +813,8 @@ app.get("/filterItems", async (req, res) => {
         values.push(parseInt(personId));
       }
       if (year) {
-        conditions.push(`EXTRACT(YEAR FROM books.published_date) = $${idx++}`);
-        values.push(parseInt(year));
+        conditions.push(`COALESCE(NULLIF(LEFT(books.published_date, 4), '')::INTEGER, 9999) = $${idx++}`);
+        values.push(parseInt(year));        
       }
       if (minRating) {
         conditions.push(`books.average_rating >= $${idx++}`);
