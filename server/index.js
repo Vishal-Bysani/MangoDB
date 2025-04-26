@@ -1590,7 +1590,7 @@ app.get("/getBooksDetails", async (req, res) => {
       return res.status(400).json({message: "Book not found"});
     }
     const authorsQuery = await pool.query(
-      "SELECT person.name FROM authors_books JOIN person ON person.id = authors_books.author_id WHERE authors_books.id = $1",
+      "SELECT person.name, person.id FROM authors_books JOIN person ON person.id = authors_books.author_id WHERE authors_books.id = $1",
       [id]
     );
     const genreQuery = await pool.query(

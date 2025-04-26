@@ -6,6 +6,7 @@ import "../css/Profile.css";
 import moment from "moment";
 import ListItemThumbnail from "../components/ListItemThumbnail";
 import { loggedInDataContext, currentLinkContext } from "../Context";
+import { Buffer } from 'buffer';
 
 const Profile = () => {
     const { username } = useParams();
@@ -24,7 +25,10 @@ const Profile = () => {
         const fetchUser = async () => {
             const user = await getUserDetails(username);
             if (user) setUser(user);
-            console.log(user);
+            if (user.profilePicture && user.mime_type) {
+                const base64String = Buffer.from(user.profilePicture).toString('base64');
+                user.image = `data:${user.mime_type};base64,${base64String}`;
+              }
         };
         fetchUser();
     }, []);

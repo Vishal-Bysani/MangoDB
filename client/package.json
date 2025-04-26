@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "ajv": "^8.17.1",
     "axios": "^1.8.4",
+    "buffer": "^6.0.3",
     "ldrs": "^1.1.7",
     "moment": "^2.30.1",
     "react": "^19.1.0",
