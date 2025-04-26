@@ -60,7 +60,7 @@ npm run start
 
 ## Contributors
 
-- [@Atharva Bendale](https://github.com/AtharvaBendale)
-- [@Vishal Bysani](https://github.com/Vishal-Bysani)
-- [@Dhvanil Gheewala](https://github.com/Dhvanil-CSE)
-- [@Nivesh Aggarwal](https://github.com/NiveshAggarwal)
+- [@Atharva Bendale](https://github.com/AtharvaBendale) - Frontend/Client
+- [@Vishal Bysani](https://github.com/Vishal-Bysani) - Backend/Server
+- [@Dhvanil Gheewala](https://github.com/Dhvanil-CSE) - Backend/Server
+- [@Nivesh Aggarwal](https://github.com/NiveshAggarwal) - Backend/Server
