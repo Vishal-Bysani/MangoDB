@@ -486,7 +486,7 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
         "SELECT id, name FROM collections WHERE id = $1",
         [movieQuery.rows[0].belongs_to_collection]
       );
-      console.log("Received show details: " + JSON.stringify(movieOrShowQuery.rows[0].isWatchList));
+      console.log("Received movie details: " + JSON.stringify(movieOrShowQuery.rows[0].isWatchList));
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
         rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
@@ -740,9 +740,9 @@ app.get("/getMoviesByPopularity",heartBeats, async (req, res) => {
         : "") +
       "WHERE m.category = 'movie' " +
       "ORDER BY m.popularity DESC, m.vote_average DESC LIMIT $1 OFFSET $2",
-      (req.session.username) ? [limit, offset, req.session.username] : [limit, offset]
-    );    
-    
+      (req.session.username ? [limit, offset, req.session.username] : [limit, offset])
+    );
+    console.log("Received movie details: " + JSON.stringify(movieQuery.rows));
     res.status(200).json({
       movies : movieQuery.rows
     });
@@ -1599,8 +1599,9 @@ app.get("/getUserDetails", heartBeats,async (req, res) => {
       "SELECT followed_username as username FROM following WHERE following.username = $1",
       [username]
     );
+    if(joinDateQuery.rows.length > 0){
     joinDateQuery.rows[0].last_login = lastSeen(joinDateQuery.rows[0].last_login);
-    console.log("joinDateQuery", joinDateQuery.rows[0].last_login);
+    console.log("joinDateQuery", joinDateQuery.rows[0].last_login);}
     res.status(200).json({
       joinDate: joinDateQuery.rows[0].joinDate.toISOString().split('T')[0],
       lastSeen: joinDateQuery.rows[0].last_login,
