@@ -213,9 +213,7 @@ const Search = () => {
                             setFilterValueText={setMinRatingText}
                             allowEnter={true}
                             onFilterValueTextChange={async (searchText) => {
-                                console.log(searchText);
                                 if (searchText.length > 0 && searchText.match(/^\d*\.?\d*$/)) {
-                                    console.log(searchText, Math.min(Math.max(parseFloat(searchText), 0.0), 10.0));
                                     setMinRating(Math.min(Math.max(parseFloat(searchText), 0.0), 10.0));
                                     if (searchText.endsWith(".")) setMinRatingText(String(Math.min(Math.max(parseFloat(searchText), 0.0), 10.0)) + '.');
                                     else setMinRatingText(String(Math.min(Math.max(parseFloat(searchText), 0.0), 10.0)));

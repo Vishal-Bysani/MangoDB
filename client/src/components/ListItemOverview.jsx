@@ -21,6 +21,7 @@ const ListItemOverview = ( { title, itemOverviewList, ref, forBook = false }) =>
                     description={itemOverview.description}
                     forBook={itemOverview.forBook}
                     author={itemOverview.author}
+                    isWatchOrReadList={itemOverview.isWatchList || itemOverview.isWantToReadList}
                 />
             ))}
         </div>

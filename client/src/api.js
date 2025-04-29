@@ -181,7 +181,9 @@ const getFilteredItems = async ({searchText = null,
     if (pageNo) baseUrl += `pageNo=${pageNo}&`;
     if (pageLimit) baseUrl += `pageLimit=${pageLimit}&`;
     console.log(baseUrl)
-    const response = await fetch(baseUrl);
+    const response = await fetch(baseUrl, {
+        credentials: "include",
+    });
     const data = await response.json();
     if (data.moviesOrShows) return data.moviesOrShows.concat(data.books);
     else return data.books;
