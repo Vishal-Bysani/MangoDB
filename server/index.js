@@ -31,8 +31,12 @@ const pool = new Pool({
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: "Too many requests, please try again later.",
+  max: 10000, // Limit each IP to 10000 requests per windowMs
+  handler: (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.status(429).json({ error: "Too many requests. Please try again later." });
+    console.warn(`[429] Rate limit exceeded for ${req.ip}`);
+  }
 });
 
 const transporter = nodemailer.createTransport({
@@ -42,9 +46,6 @@ const transporter = nodemailer.createTransport({
     pass: config.pass,
   },
 });
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(limiter);
 
 // CORS: Give permission to localhost:3000 (ie our React app)
 // to use this backend API
@@ -64,6 +65,10 @@ app.use(
     cookie: { httpOnly: true, maxAge: config.SESSION_EXPIRY }, // 1 hour
   })
 );
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(limiter);
 
 /////////////////////////////////////////////////////////////
 // Authentication APIs
@@ -486,7 +491,7 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
         "SELECT id, name FROM collections WHERE id = $1",
         [movieQuery.rows[0].belongs_to_collection]
       );
-      console.log("Received movie details: " + JSON.stringify(movieOrShowQuery.rows[0].isWatchList));
+      // console.log("Received movie details: " + JSON.stringify(movieOrShowQuery.rows[0].isWatchList));
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
         rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
@@ -742,7 +747,7 @@ app.get("/getMoviesByPopularity",heartBeats, async (req, res) => {
       "ORDER BY m.popularity DESC, m.vote_average DESC LIMIT $1 OFFSET $2",
       (req.session.username ? [limit, offset, req.session.username] : [limit, offset])
     );
-    console.log("Received movie details: " + JSON.stringify(movieQuery.rows));
+    // console.log("Received movie details: " + JSON.stringify(movieQuery.rows));
     res.status(200).json({
       movies : movieQuery.rows
     });
@@ -888,7 +893,7 @@ app.get("/filterItems",heartBeats, async (req, res) => {
         );
         book.authors = authorQuery.rows.map(row => row.name);
         const isWantToReadList = await pool.query(
-          "SELECT " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" " :   " false AS \"isWantToReadList\" " + " FROM books m ") + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 " : " ") + " WHERE m.id = $1", (req.session.username) ? [book.id, req.session.username] : [book.id]
+          "SELECT " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" " :   " false AS \"isWantToReadList\" ") + " FROM books m " + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 " : " ") + " WHERE m.id = $1", (req.session.username) ? [book.id, req.session.username] : [book.id]
         )
         book.isWantToReadList = isWantToReadList.rows[0].isWantToReadList ;
         return book;
