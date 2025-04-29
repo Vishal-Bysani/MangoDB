@@ -278,8 +278,8 @@ app.get("/getMatchingItem", async (req, res) => {
       "EXTRACT(YEAR FROM end_date) as \"endYear\", " +
       "vote_average as rating, " +
       (req.session.username ? 
-        "(CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as isWatchList " :
-        "false as isWatchList ") +
+        "(CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :
+        "false as \"isWatchList\" ") +
       "FROM movies_shows m " +
       (req.session.username ?
         "LEFT JOIN watchlist w ON m.id = w.id AND w.username = $2 ":
@@ -297,8 +297,8 @@ app.get("/getMatchingItem", async (req, res) => {
       "SELECT b.id, b.title, b.average_rating as rating, b.popularity, b.ratings_count, " +
       "'book' as category, b.published_date, b.cover_url as image, " +
       (req.session.username ? 
-        "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToReadList " :
-        "false as isWantToReadList ") +
+        "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as \"isWantToReadList\" " :
+        "false as \"isWantToReadList\" ") +
       "FROM books b " +
       (req.session.username ?
         "LEFT JOIN wanttoreadlist wtr ON b.id = wtr.id AND wtr.username = $2 " :
@@ -326,8 +326,8 @@ app.get("/getMatchingItemPages", async (req, res) => {
     const movieQuery = await pool.query(
       "SELECT m.id, m.title, m.rotten_mangoes, m.rotten_mangoes_votes, m.category, m.poster_path, m.release_date, m.vote_average, " +
       (req.session.username ?
-        "(CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as isWatchList " :
-        "false as isWatchList ") +
+        "(CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :
+        "false as \"isWatchList\" ") +
       "FROM movies_shows m " +
       (req.session.username ?
         "LEFT JOIN watchlist w ON m.id = w.id AND w.username = $4 " :
@@ -345,8 +345,8 @@ app.get("/getMatchingItemPages", async (req, res) => {
     const bookQuery = await pool.query(
       "SELECT b.id, b.title, b.average_rating as vote_average, b.ratings_count, 'book' as category, b.published_date, b.cover_url as image, " +
       (req.session.username ?
-        "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToReadList " :
-        "false as isWantToReadList ") +
+        "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as \"isWantToReadList\" " :
+        "false as \"isWantToReadList\" ") +
       "FROM books b " +
       (req.session.username ?
         "LEFT JOIN wanttoreadlist wtr ON b.id = wtr.id AND wtr.username = $4 " :
@@ -378,14 +378,14 @@ app.get("/getMovieShowDetails", async (req, res) => {
       "EXTRACT(YEAR FROM m.end_date) as \"endYear\", m.vote_average as rating, m.vote_count as \"numRating\", " +
       "m.popularity, m.overview as description, m.origin_country, m.review_summary, " +
       (req.session.username ?
-        "(CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as isWatchList " :
-        "false as isWatchList ") +
+        "(CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :
+        "false as \"isWatchList\" ") +
       "FROM movies_shows m " +
       (req.session.username ?
         "LEFT JOIN watchlist w ON m.id = w.id AND w.username = $2 " :
         "") +
       "WHERE m.id = $1",
-      (req.session.username) ? [id, req.session.username] : [id]
+      (req.session.username ? [id, req.session.username] : [id])
     );
     if(movieOrShowQuery.rows.length === 0){
       return res.status(400).json({message: "Movie or Show not found"});
@@ -447,6 +447,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
         "SELECT id, name FROM collections WHERE id = $1",
         [movieQuery.rows[0].belongs_to_collection]
       );
+      console.log("Received show details: " + JSON.stringify(movieOrShowQuery.rows[0].isWatchList));
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
         rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
@@ -490,7 +491,6 @@ app.get("/getMovieShowDetails", async (req, res) => {
         "SELECT * FROM seasons WHERE show_id = $1",
         [id]
       );
-      console.log("Received show details: " + JSON.stringify(movieOrShowQuery.rows[0]));
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
         rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
@@ -588,8 +588,8 @@ app.get("/getPersonDetails", async (req, res) => {
       "EXTRACT(YEAR FROM m.release_date) as \"startYear\", " +
       "EXTRACT(YEAR FROM m.end_date) as \"endYear\", m.vote_average as rating, " +
       (req.session.username ? 
-        " (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as isWatchList " :
-        " false as isWatchList ") +
+        " (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :
+        " false as \"isWatchList\" ") +
       "FROM movies_shows m " +
       "JOIN cast_movies_shows cms ON m.id = cms.id " +
       (req.session.username ?
@@ -601,8 +601,8 @@ app.get("/getPersonDetails", async (req, res) => {
       "EXTRACT(YEAR FROM m.release_date) as \"startYear\", " +
       "EXTRACT(YEAR FROM m.end_date) as \"endYear\", m.vote_average as rating, " +
       (req.session.username ? 
-        " (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as isWatchList " :
-        " false as isWatchList ") +
+        " (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :
+        " false as \"isWatchList\" ") +
       "FROM movies_shows m " +
       "JOIN crew_movies_shows crms ON m.id = crms.id " +
       (req.session.username ?
@@ -618,8 +618,8 @@ app.get("/getPersonDetails", async (req, res) => {
     const bookQuery = await pool.query(
       "SELECT b.id, b.title, 'book' as category, b.cover_url AS image, b.published_date, b.average_rating as rating" +
       (req.session.username ? 
-        ", (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as isWantToReadList " :
-        ", false as isWantToReadList ") +
+        ", (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) as \"isWantToReadList\" " :
+        ", false as \"isWantToReadList\" ") +
       "FROM books b " +
       "JOIN authors_books ab ON b.id = ab.id " +
       (req.session.username ?
@@ -657,8 +657,8 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
     const movieOrShowQuery = await pool.query(
       "SELECT m.id, m.title, m.category, m.rotten_mangoes, m.rotten_mangoes_votes, m.poster_path, m.release_date, m.vote_average" +
       (req.session.username ? 
-        ", (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as isWatchList " :
-        ", false as isWatchList ") +
+        ", (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :
+        ", false as \"isWatchList\" ") +
       "FROM movies_shows m " +
       "JOIN movies_details md ON m.id = md.id " +
       (req.session.username ?
@@ -693,8 +693,8 @@ app.get("/getMoviesByPopularity", async (req, res) => {
       "SELECT m.id, m.title, m.category, m.poster_path AS image, " +
       "EXTRACT(YEAR FROM m.release_date) AS year, m.vote_average AS rating" +
       (req.session.username
-        ? ", (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) AS isWatchList "
-        : ", false AS isWatchList ") +
+        ? ", (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) AS \"isWatchList\" "
+        : ", false AS \"isWatchList\" ") +
       "FROM movies_shows m " +
       (req.session.username
         ? "LEFT JOIN watchlist w ON m.id = w.id AND w.username = $3 "
@@ -724,8 +724,8 @@ app.get("/getShowsByPopularity", async (req, res) => {
       "SELECT m.id, m.title, m.category, m.poster_path AS image, " +
       "EXTRACT(YEAR FROM m.release_date) AS year, m.vote_average AS rating" +
       (req.session.username
-        ? ", (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) AS isWatchList "
-        : ", false AS isWatchList ") +
+        ? ", (CASE WHEN w.id IS NOT NULL THEN true ELSE false END) AS \"isWatchList\" "
+        : ", false AS \"isWatchList\" ") +
       "FROM movies_shows m " +
       (req.session.username
         ? "LEFT JOIN watchlist w ON m.id = w.id AND w.username = $3 "
@@ -753,8 +753,8 @@ app.get("/getBooksByPopularity", async (req, res) => {
       "SELECT b.id, b.title, b.publisher, b.published_date as year, b.cover_url AS image, " +
     "b.average_rating as rating, " +
       (req.session.username
-        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList "
-        : "false AS isWantToReadList ") +
+        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" "
+        : "false AS \"isWantToReadList\" ") +
       "FROM books b " +
       (req.session.username
         ? "LEFT JOIN wanttoreadlist wtr ON b.id = wtr.id AND wtr.username = $3 "
@@ -849,7 +849,7 @@ app.get("/filterItems", async (req, res) => {
         );
         book.authors = authorQuery.rows.map(row => row.name);
         const isWantToReadList = await pool.query(
-          "SELECT " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList " :   " false AS isWantToReadList " + " FROM books m ") + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 " : " ") + " WHERE m.id = $1", (req.session.username) ? [book.id, req.session.username] : [book.id]
+          "SELECT " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" " :   " false AS \"isWantToReadList\" " + " FROM books m ") + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 " : " ") + " WHERE m.id = $1", (req.session.username) ? [book.id, req.session.username] : [book.id]
         )
         book.isWantToReadList = isWantToReadList.rows[0].isWantToReadList ;
         return book;
@@ -933,7 +933,7 @@ app.get("/filterItems", async (req, res) => {
         [movie.id]
       );
       const isWatchList = await pool.query(
-        "SELECT " + ((req.session.username) ? " (CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) as isWatchList " :   " false as isWatchList ") + " FROM movies_shows m " + ((req.session.username) ? " LEFT JOIN watchlist wl ON m.id = wl.id AND wl.username = $2 " : " ") + " WHERE m.id = $1 ", (req.session.username) ? [movie.id, req.session.username] : [movie.id]
+        "SELECT " + ((req.session.username) ? " (CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :   " false as \"isWatchList\" ") + " FROM movies_shows m " + ((req.session.username) ? " LEFT JOIN watchlist wl ON m.id = wl.id AND wl.username = $2 " : " ") + " WHERE m.id = $1 ", (req.session.username) ? [movie.id, req.session.username] : [movie.id]
       );
       movie.isWatchList = isWatchList.rows[0].isWatchList;
       return {
@@ -1211,11 +1211,11 @@ app.get("/getFavourites", isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const favouritesMoviesQuery = await pool.query(
-      "SELECT m.id, m.title, m.category, m.poster_path AS image, (CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) AS isWatchList FROM movies_shows m JOIN favourites f ON m.id = f.id LEFT JOIN watchlist wl ON (m.id = wl.id AND wl.username = $1) WHERE f.username = $1",
+      "SELECT m.id, m.title, m.category, m.poster_path AS image, (CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) AS \"isWatchList\" FROM movies_shows m JOIN favourites f ON m.id = f.id LEFT JOIN watchlist wl ON (m.id = wl.id AND wl.username = $1) WHERE f.username = $1",
       [username]
     );
     const favouritesBooksQuery = await pool.query(
-      "SELECT m.id, m.title, 'book' AS category, m.cover_url AS image, (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList FROM books m JOIN books_favourites f ON m.id = f.id LEFT JOIN wanttoreadlist wtr ON (m.id = wtr.id AND wtr.username = $1) WHERE f.username = $1",
+      "SELECT m.id, m.title, 'book' AS category, m.cover_url AS image, (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" FROM books m JOIN books_favourites f ON m.id = f.id LEFT JOIN wanttoreadlist wtr ON (m.id = wtr.id AND wtr.username = $1) WHERE f.username = $1",
       [username]
     );
     res.status(200).json(
@@ -1583,7 +1583,7 @@ app.get("/getBooksDetails", async (req, res) => {
   try {
     const { id } = req.query;
     const bookQuery = await pool.query(
-      "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview, books.maturity_rating as rating, books.review_summary, books.preview_link, " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList " : " false AS isWantToReadList ") + " FROM books " + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON wtr.id = books.id AND wtr.username = $2 " : " ") + "WHERE books.id = $1"      
+      "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, books.cover_url AS image, books.average_rating, books.popularity, books.overview, books.maturity_rating as rating, books.review_summary, books.preview_link, " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" " : " false AS \"isWantToReadList\" ") + " FROM books " + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON wtr.id = books.id AND wtr.username = $2 " : " ") + "WHERE books.id = $1"      
       , (req.session.username) ? [id, req.session.username] : [id]
     );
     if(bookQuery.rows.length === 0){
@@ -1613,8 +1613,8 @@ app.get("/getBooksDetails", async (req, res) => {
       "SELECT m.id, m.title, m.published_date, m.cover_url AS image, " +
       "m.average_rating, m.maturity_rating AS rating, " +
       (req.session.username
-        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList "
-        : "false AS isWantToReadList ") +
+        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" "
+        : "false AS \"isWantToReadList\" ") +
       "FROM books m " +
       (req.session.username
         ? "LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 "
@@ -1659,8 +1659,8 @@ app.get("/getBooksByAuthorId", async (req, res) => {
       "SELECT books.id, books.title, books.publisher, books.published_date, books.page_count, " +
       "books.cover_url AS image, books.average_rating AS vote_average, books.maturity_rating AS rating, " +
       (req.session.username
-        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS isWantToReadList "
-        : "false AS isWantToReadList ") +
+        ? "(CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" "
+        : "false AS \"isWantToReadList\" ") +
       "FROM books " +
       "JOIN authors_books ON books.id = authors_books.id " +
       (req.session.username
