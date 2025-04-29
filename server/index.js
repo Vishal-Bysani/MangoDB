@@ -78,6 +78,15 @@ function isAuthenticated(req, res, next) {
     res.status(400).json({message:"Unauthorized"})
   }
 }
+async function heartBeats(req, res, next) {
+  if(req.session.username){
+    const currentTime = new Date();
+    await pool.query("UPDATE user_data SET last_login = $1 WHERE username = $2", [currentTime, req.session.username]);
+    const ch = await pool.query("SELECT last_login FROM user_data WHERE username = $1", [req.session.username]);
+    console.log("Last login time:", ch.rows[0].last_login);
+  }
+  next(); // Also adding this as you likely need to continue to the next middleware
+}
 
 // Extract approx time difference (Eg seconds, minute, hours, days, months, year) from given timestamp till current time
 
@@ -108,6 +117,36 @@ function getTimeDifference(timestamp) {
   }
   else if (seconds > 0) {
     timeString = seconds + " second" + (seconds > 1 ? "s" : "") + " ago";
+  }
+  return timeString;
+}
+function lastSeen(timestamp) {
+  const currentTime = new Date();
+  const timeDifference = currentTime - timestamp;
+  const seconds = Math.floor(timeDifference / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(months / 12);
+  let timeString = "";
+  if (years > 0) {
+    timeString = years + " year" + (years > 1 ? "s" : "") + " ago";
+  }
+  else if (months > 0) {
+    timeString = months + " month" + (months > 1 ? "s" : "") + " ago";
+  }
+  else if (days > 0) {
+    timeString = days + " day" + (days > 1 ? "s" : "") + " ago";
+  }
+  else if (hours > 0) {
+    timeString = hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+  }
+  else if (minutes > 5) {
+    timeString = minutes + " minute" + (minutes > 1 ? "s" : "") + " ago";
+  }
+  else {
+    timeString = "Online";
   }
   return timeString;
 }
@@ -208,7 +247,7 @@ app.get("/verify-email", async (req, res) => {
 });
 
 // return JSON object with the following fields: {email, password}
-app.post("/login",  async (req, res) => {
+app.post("/login",heartBeats,  async (req, res) => {
   try{
     const {user, password} = req.body;
     let user_row;
@@ -268,7 +307,7 @@ app.post("/logout", (req, res) => {
 ////////////////////////////////////////////////////
 // APIs for the movie database
 
-app.get("/getMatchingItem", async (req, res) => {
+app.get("/getMatchingItem",heartBeats, async (req, res) => {
   try {
     const { text } = req.query;
 
@@ -315,7 +354,7 @@ app.get("/getMatchingItem", async (req, res) => {
   }
 });
 
-app.get("/getMatchingItemPages", async (req, res) => {
+app.get("/getMatchingItemPages", heartBeats,async (req, res) => {
   try {
     const { text, pageNo, pageLimit } = req.query;
 
@@ -369,7 +408,7 @@ app.get("/getMatchingItemPages", async (req, res) => {
 });
 
 
-app.get("/getMovieShowDetails", async (req, res) => {
+app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
   try {
     const { id } = req.query;
     const movieOrShowQuery = await pool.query(
@@ -530,7 +569,7 @@ app.get("/getMovieShowDetails", async (req, res) => {
 }
 );
 
-app.get("/getSeasonDetails", async (req, res) => {
+app.get("/getSeasonDetails",heartBeats, async (req, res) => {
   try {
     const {show_id, season_id} = req.query;
     const seasonQuery = await pool.query("SELECT * FROM seasons WHERE show_id = $1 AND id = $2", [show_id, season_id]);
@@ -573,7 +612,7 @@ app.get("/getSeasonDetails", async (req, res) => {
   }
 });
 
-app.get("/getPersonDetails", async (req, res) => {
+app.get("/getPersonDetails",heartBeats, async (req, res) => {
   try {
     const { id } = req.query;
     const personQuery = await pool.query(
@@ -647,7 +686,7 @@ app.get("/getPersonDetails", async (req, res) => {
   }
 });
 
-app.get("/getMovieShowByCollectionId", async (req, res) => {
+app.get("/getMovieShowByCollectionId",heartBeats, async (req, res) => {
   try {
     const { collection_id, pageNo, pageLimit } = req.query;
     const page = parseInt(pageNo);
@@ -682,7 +721,7 @@ app.get("/getMovieShowByCollectionId", async (req, res) => {
   }
 });
 
-app.get("/getMoviesByPopularity", async (req, res) => {
+app.get("/getMoviesByPopularity",heartBeats, async (req, res) => {
   try {
     const {pageNo, pageLimit} = req.query;
     const page = parseInt(pageNo);
@@ -713,7 +752,7 @@ app.get("/getMoviesByPopularity", async (req, res) => {
   }
 });
 
-app.get("/getShowsByPopularity", async (req, res) => {
+app.get("/getShowsByPopularity",heartBeats, async (req, res) => {
   try {
     const {pageNo, pageLimit} = req.query;
     const page = parseInt(pageNo);
@@ -743,7 +782,7 @@ app.get("/getShowsByPopularity", async (req, res) => {
   }
 });
 
-app.get("/getBooksByPopularity", async (req, res) => {
+app.get("/getBooksByPopularity",heartBeats, async (req, res) => {
   try {
     const {pageNo, pageLimit} = req.query;
     const page = parseInt(pageNo);
@@ -771,7 +810,7 @@ app.get("/getBooksByPopularity", async (req, res) => {
   }
 });
 
-app.get("/filterItems", async (req, res) => {
+app.get("/filterItems",heartBeats, async (req, res) => {
   try {
     const {
       searchText,
@@ -953,7 +992,7 @@ app.get("/filterItems", async (req, res) => {
   }
 });
 
-app.get("/listGenres", async (req, res) => {
+app.get("/listGenres",heartBeats, async (req, res) => {
   try {
     const genreQuery = await pool.query(
       "SELECT id, name FROM genres ORDER BY name"
@@ -965,7 +1004,7 @@ app.get("/listGenres", async (req, res) => {
   }
 });
 
-app.get("/matchingPersons", async (req, res) => {
+app.get("/matchingPersons",heartBeats, async (req, res) => {
   try {
     const { searchText, searchLimit } = req.query;
     const personQuery = await pool.query(
@@ -979,7 +1018,7 @@ app.get("/matchingPersons", async (req, res) => {
   }
 });
 
-app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
+app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => {
   try {
     const { id, rating, review , forBook} = req.query;
     const username = req.session.username;
@@ -1130,7 +1169,7 @@ app.post("/submitRatingReview", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/submitEpisodeRatingReview", isAuthenticated, async (req, res) => {
+app.post("/submitEpisodeRatingReview",heartBeats, isAuthenticated, async (req, res) => {
   try {
     const { id, rating, review } = req.query;
     const username = req.session.username;
@@ -1207,7 +1246,7 @@ app.post("/submitEpisodeRatingReview", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/getFavourites", isAuthenticated, async (req, res) => {
+app.get("/getFavourites", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const favouritesMoviesQuery = await pool.query(
@@ -1230,7 +1269,7 @@ app.get("/getFavourites", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/addToFavourites", isAuthenticated, async (req, res) => {
+app.post("/addToFavourites", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const { id, forBook } = req.query;
     const username = req.session.username;
@@ -1253,7 +1292,7 @@ app.post("/addToFavourites", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/removeFromFavourites", isAuthenticated, async (req, res) => {
+app.post("/removeFromFavourites", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const { id, forBook } = req.query;
     const username = req.session.username;
@@ -1276,7 +1315,7 @@ app.post("/removeFromFavourites", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/getWatchList", isAuthenticated, async (req, res) => {
+app.get("/getWatchList",heartBeats, isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const watchlistQuery = await pool.query(
@@ -1290,7 +1329,7 @@ app.get("/getWatchList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("getWantToReadList", isAuthenticated, async (req, res) => {
+app.get("getWantToReadList", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const wantToReadListQuery = await pool.query(
@@ -1304,7 +1343,7 @@ app.get("getWantToReadList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/addToWatchlist", isAuthenticated, async (req, res) => {
+app.post("/addToWatchlist", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const { id } = req.query;
     const username = req.session.username;
@@ -1319,7 +1358,7 @@ app.post("/addToWatchlist", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/addToWantToReadList", isAuthenticated, async (req, res) => {
+app.post("/addToWantToReadList", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const { id } = req.query;
     const username = req.session.username;
@@ -1334,7 +1373,7 @@ app.post("/addToWantToReadList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/removeFromWatchlist", isAuthenticated, async (req, res) => {
+app.post("/removeFromWatchlist",heartBeats, isAuthenticated, async (req, res) => {
   try {
     const { id } = req.query;
     const username = req.session.username;
@@ -1349,7 +1388,7 @@ app.post("/removeFromWatchlist", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/removeFromWantToReadList", isAuthenticated, async (req, res) => {
+app.post("/removeFromWantToReadList",heartBeats, isAuthenticated, async (req, res) => {
   try {
     const { id } = req.query;
     const username = req.session.username;
@@ -1364,7 +1403,7 @@ app.post("/removeFromWantToReadList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/getWatchedList", isAuthenticated, async (req, res) => {
+app.get("/getWatchedList", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const watchedListQuery = await pool.query(
@@ -1378,7 +1417,7 @@ app.get("/getWatchedList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/getReadList", isAuthenticated, async (req, res) => {
+app.get("/getReadList",heartBeats, isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const readListQuery = await pool.query(
@@ -1392,7 +1431,7 @@ app.get("/getReadList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/addToWatchedList", isAuthenticated, async (req, res) => {
+app.post("/addToWatchedList", heartBeats,isAuthenticated, async (req, res) => {
   const { id } = req.query;
   const username = req.session.username;
 
@@ -1427,7 +1466,7 @@ app.post("/addToWatchedList", isAuthenticated, async (req, res) => {
 });
 
 
-app.post("/addToReadList", isAuthenticated, async (req, res) => {
+app.post("/addToReadList", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const { id } = req.query;
     const username = req.session.username;
@@ -1448,7 +1487,7 @@ app.post("/addToReadList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/removeFromWatchedList", isAuthenticated, async (req, res) => {
+app.post("/removeFromWatchedList", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const { id } = req.query;
     const username = req.session.username;
@@ -1463,7 +1502,7 @@ app.post("/removeFromWatchedList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/removeFromReadList", isAuthenticated, async (req, res) => {
+app.post("/removeFromReadList", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const { id } = req.query;
     const username = req.session.username;
@@ -1478,7 +1517,7 @@ app.post("/removeFromReadList", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/getFollowers", isAuthenticated, async (req, res) => {
+app.get("/getFollowers", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const followersQuery = await pool.query(
@@ -1492,7 +1531,7 @@ app.get("/getFollowers", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/getFollowing", isAuthenticated, async (req, res) => {
+app.get("/getFollowing", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const followingQuery = await pool.query(
@@ -1506,7 +1545,7 @@ app.get("/getFollowing", isAuthenticated, async (req, res) => {
   }
 });
 
-app.post("/followUser", isAuthenticated, async (req, res) => {
+app.post("/followUser", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const { followed_username } = req.query;
     const username = req.session.username;
@@ -1521,11 +1560,11 @@ app.post("/followUser", isAuthenticated, async (req, res) => {
   }
 });
 
-app.get("/getUserDetails", async (req, res) => {
+app.get("/getUserDetails", heartBeats,async (req, res) => {
   try {
     const username = req.query.username;
     const joinDateQuery = await pool.query(
-      "SELECT DATE(registration_time) AS \"joinDate\", profile_picture, mime_type FROM users WHERE username = $1",
+      "SELECT DATE(registration_time) AS \"joinDate\", profile_picture, mime_type,last_login FROM users natural join user_data WHERE username = $1",
       [username]
     );
     const favouritesQuery = await pool.query(
@@ -1560,8 +1599,11 @@ app.get("/getUserDetails", async (req, res) => {
       "SELECT followed_username as username FROM following WHERE following.username = $1",
       [username]
     );
+    joinDateQuery.rows[0].last_login = lastSeen(joinDateQuery.rows[0].last_login);
+    console.log("joinDateQuery", joinDateQuery.rows[0].last_login);
     res.status(200).json({
       joinDate: joinDateQuery.rows[0].joinDate.toISOString().split('T')[0],
+      lastSeen: joinDateQuery.rows[0].last_login,
       profilePicture: joinDateQuery.rows[0].profile_picture,
       favouriteMovies: favouritesQuery.rows,
       favouriteBooks: booksFavouritesQuery.rows,
@@ -1579,7 +1621,7 @@ app.get("/getUserDetails", async (req, res) => {
   }
 });
 
-app.get("/getBooksDetails", async (req, res) => {
+app.get("/getBooksDetails",heartBeats, async (req, res) => {
   try {
     const { id } = req.query;
     const bookQuery = await pool.query(
@@ -1648,7 +1690,7 @@ app.get("/getBooksDetails", async (req, res) => {
   }
 });
 
-app.get("/getBooksByAuthorId", async (req, res) => {
+app.get("/getBooksByAuthorId",heartBeats, async (req, res) => {
   try {
     const { author_id, pageNo, pageLimit } = req.query;
     const page = parseInt(pageNo);
@@ -1679,7 +1721,7 @@ app.get("/getBooksByAuthorId", async (req, res) => {
   }
 });
 
-app.post("/uploadProfilePicture", isAuthenticated, upload.single('profileImage'), async (req, res) => {
+app.post("/uploadProfilePicture", heartBeats,isAuthenticated, upload.single('profileImage'), async (req, res) => {
   try {
     const image = req.file.buffer; // multer gives you the binary buffer
     const mime_type = req.file.mimetype;
@@ -1690,7 +1732,7 @@ app.post("/uploadProfilePicture", isAuthenticated, upload.single('profileImage')
     }
 
     await pool.query(
-      "UPDATE users SET profile_picture = $1 WHERE username = $2",
+      "UPDATE user_data SET profile_picture = $1 WHERE username = $2",
       [image, req.session.username]
     );
     await pool.query(
