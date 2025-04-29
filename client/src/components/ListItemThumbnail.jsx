@@ -3,7 +3,7 @@ import ItemThumbnail from "./ItemThumbnail";
 import "../css/ListItemThumbnail.css";
 import { loggedInDataContext, currentLinkContext } from "../Context";
 
-const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, forBook = false, ref }) => {
+const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, forBook = false, isWatchOrReadList = false, ref }) => {
     const [startingIndex, setStartingIndex] = useState(0);
     const [rowLimit, setRowLimit] = useState(5);
     const containerRef = useRef(null);
@@ -92,7 +92,7 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, forBook = fal
                                     endYear={itemThumbnail.endYear}
                                     cast={itemThumbnail.cast}
                                     crew={itemThumbnail.crew}
-                                    isWatchListed={itemThumbnail.isWatchList}
+                                    isWatchListed={isWatchOrReadList || itemThumbnail.isWatchList || itemThumbnail.isWantToReadList}
                                     forBook={forBook}
                                 />
                             </div>

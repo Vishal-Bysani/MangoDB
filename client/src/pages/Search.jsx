@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useSearchParams } from "react-router";
 import Navbar from "../components/Navbar";
 import "../css/Search.css";
 import { getGenreList, getFilteredItems, getMatchingPersons, getLoggedIn } from "../api";
@@ -9,58 +9,104 @@ import SearchBar from "../components/SearchBar";
 import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const Search = () => {
-    const { query } = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const [totalPages, setTotalPages] = useState(null);
+    // Global context
+    const { loggedInData, setLoggedInData } = useContext(loggedInDataContext);
+    const { setCurrentLink } = useContext(currentLinkContext);
 
-    const [searchQuery, setSearchQuery] = useState(query);
+    // Read from URL
+    const getFromParams = (key, fallback = null) =>
+        searchParams.get(key) ?? fallback;
 
-    const [matchingItems, setMatchingItems] = useState([]);
+    const [searchQuery, setSearchQuery] = useState(getFromParams("q", ""));
+    const [genreId, setGenreId] = useState(getFromParams("genre") || null);
+    const [personId, setPersonId] = useState(getFromParams("person") || null);
+    const [year, setYear] = useState(getFromParams("year") || null);
+    const [minRating, setMinRating] = useState(
+        parseFloat(getFromParams("minRating")) || null
+    );
+    const [orderByRating, setOrderByRating] = useState(
+        getFromParams("order") === "rating"
+    );
+    const [orderByPopularity, setOrderByPopularity] = useState(
+        getFromParams("order") !== "rating"
+    );
+    const [forMovie, setForMovie] = useState(searchParams.get("movie") !== "0");
+    const [forShow, setForShow] = useState(searchParams.get("show") !== "0");
+    const [forBook, setForBook] = useState(searchParams.get("book") !== "0");
 
-    const [personId, setPersonId] = useState(null);
+    // Additional states
+    const [genreList, setGenreList] = useState([]);
+    const [genreText, setGenreText] = useState("");
+    const [genreListFiltered, setGenreListFiltered] = useState([]);
     const [personText, setPersonText] = useState("");
     const [personList, setPersonList] = useState([]);
+    const [yearText, setYearText] = useState(year || "");
+    const [minRatingText, setMinRatingText] = useState(minRating?.toString() || "");
+    const [matchingItems, setMatchingItems] = useState([]);
+    const [pageNo, setPageNo] = useState(parseInt(getFromParams("page") || 1));
+    const [totalPages, setTotalPages] = useState(null);
 
-    const [genreId, setGenreId] = useState(null);
-    const [genreText, setGenreText] = useState("");
-    const [genreList, setGenreList] = useState([]);
-    const [genreListFiltered, setGenreListFiltered] = useState([]);
-
-    const [year, setYear] = useState(null);
-    const [yearText, setYearText] = useState("");
-
-    const [minRating, setMinRating] = useState(null);
-    const [minRatingText, setMinRatingText] = useState("");
-
-    const [orderByRating, setOrderByRating] = useState(false);
-    const [orderByPopularity, setOrderByPopularity] = useState(true);
-    const [forMovie, setForMovie] = useState(true);
-    const [forShow, setForShow] = useState(true);
-    const [forBook, setForBook] = useState(true);
-
-    const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
-    const {currentLink, setCurrentLink} = useContext(currentLinkContext);
-    const [pageNo, setPageNo] = useState(1);
-
-    
     const pageLimit = 10;
 
+    const updateSearchParams = (overrides = {}) => {
+        const newParams = {
+            q: searchQuery || undefined,
+            genre: genreId || undefined,
+            person: personId || undefined,
+            personName: personText,
+            year: year || undefined,
+            minRating: minRating || undefined,
+            order: orderByRating ? "rating" : "popularity",
+            movie: forMovie ? "1" : "0",
+            show: forShow ? "1" : "0",
+            book: forBook ? "1" : "0",
+            page: pageNo || 1,
+            ...overrides,
+        };
+        // Clean undefined/nulls
+        Object.keys(newParams).forEach(
+        (key) => (newParams[key] == null || newParams[key] === "") && delete newParams[key]
+        );
+        setSearchParams(newParams);
+    };
+
     useEffect(() => {
-        getGenreList().then(setGenreList);
+        getGenreList().then((data) => {
+            setGenreList(data);
+            if (genreId) setGenreText(data.find(genre => genre.id == genreId).name);
+        });
+        setPersonText(getFromParams("personName"));
     }, []);
 
     useEffect(() => {
-        setGenreListFiltered(genreList);
+        if (genreId) setGenreListFiltered(genreList.filter(genre => genre.name.toLowerCase().includes(genreText.trim().toLowerCase())));
+        else setGenreListFiltered(genreList);
     }, [genreList]);
 
     const handleFilterSubmit = () => {
-        console.log(forMovie, forShow, forBook);
-        getFilteredItems({searchText: searchQuery, genreId: genreId, personId: personId, year: year, minRating: minRating, orderByRating: orderByRating, orderByPopularity: orderByPopularity, forMovie: forMovie, forShow: forShow, forBook: forBook, pageNo: pageNo, pageLimit: pageLimit}).then(setMatchingItems);
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }
+        updateSearchParams(); // Sync filters to URL
+        getFilteredItems({
+            searchText: searchQuery,
+            genreId,
+            personId,
+            year,
+            minRating,
+            orderByRating,
+            orderByPopularity,
+            forMovie,
+            forShow,
+            forBook,
+            pageNo,
+            pageLimit,
+        }).then(setMatchingItems);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        handleFilterSubmit();
+    }, [pageNo]);
 
     useEffect(() => {
         if (pageNo > 1 && matchingItems.length === 0) {
@@ -70,21 +116,14 @@ const Search = () => {
     }, [matchingItems]);
 
     useEffect(() => {
-        handleFilterSubmit();
-    }, [pageNo]);
-
-
-    useEffect(() => {
         getLoggedIn().then(response => {
             if (response.status === 200) {
-                response.json().then(data => {
-                    setLoggedInData(data);
-                });
+                response.json().then(setLoggedInData);
             }
         });
-        setCurrentLink(`/search/${query}`);
-        document.title = `Search: ${query}`;
-    }, []);
+        setCurrentLink(`/search?q=${searchQuery}`);
+        document.title = `Search: ${searchQuery}`;
+    }, [])
 
     return (
         <div>
@@ -174,14 +213,16 @@ const Search = () => {
                             setFilterValueText={setMinRatingText}
                             allowEnter={true}
                             onFilterValueTextChange={async (searchText) => {
+                                console.log(searchText);
                                 if (searchText.length > 0 && searchText.match(/^\d*\.?\d*$/)) {
+                                    console.log(searchText, Math.min(Math.max(parseFloat(searchText), 0.0), 10.0));
                                     setMinRating(Math.min(Math.max(parseFloat(searchText), 0.0), 10.0));
                                     if (searchText.endsWith(".")) setMinRatingText(String(Math.min(Math.max(parseFloat(searchText), 0.0), 10.0)) + '.');
                                     else setMinRatingText(String(Math.min(Math.max(parseFloat(searchText), 0.0), 10.0)));
                                 } else {
                                     setMinRatingText("");
+                                    setMinRating(null);
                                 }
-                                setMinRating(null);
                             }}
                         />
                         <div className="search-page-filters-checkbox" style={{ marginTop: "15px" }}>

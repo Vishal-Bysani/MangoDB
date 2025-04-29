@@ -152,7 +152,7 @@ const Profile = () => {
                         
                         <div className="profile-stats-grid">
                             <div className="profile-stat-card" onClick={() => {
-                                if (favouriteRef.current) {
+                                if (favouriteRef.current && (user.favouriteMovies.length + user.favouriteBooks.length) > 0) {
                                     const elementPosition = favouriteRef.current.getBoundingClientRect().top;
                                     const offsetPosition = elementPosition + window.scrollY - 120;
                                     
@@ -163,10 +163,10 @@ const Profile = () => {
                                 }
                             }}>
                                 <div className="stat-label">Favourites</div>
-                                <div className="stat-value">{user.favouriteMovies ? user.favouriteMovies.length : 0}</div>
+                                <div className="stat-value">{user.favouriteMovies ? user.favouriteMovies.length + user.favouriteBooks.length : 0}</div>
                             </div>
                             <div className="profile-stat-card" onClick={() => {
-                                if (watchlistRef.current) {
+                                if (watchlistRef.current && (user.watchlist.length + user.wantToReadList.length) > 0) {
                                     const elementPosition = watchlistRef.current.getBoundingClientRect().top;
                                     const offsetPosition = elementPosition + window.scrollY - 120;
                                     
@@ -177,7 +177,7 @@ const Profile = () => {
                                 }
                             }}>
                                 <div className="stat-label">Watchlist/Readlist</div>
-                                <div className="stat-value">{user.watchlist ? user.watchlist.length : 0}</div>
+                                <div className="stat-value">{user.watchlist ? user.watchlist.length + user.wantToReadList.length : 0}</div>
                             </div>
                             <div className="profile-stat-card" onClick={() => navigate(`/profile/${username}/followers`, {state: {profileList: user.followers}})}>
                                 <div className="stat-label">Followers</div>
@@ -192,8 +192,8 @@ const Profile = () => {
                     <div className="profile-items-container">
                         { user.favouriteMovies && user.favouriteMovies.length > 0 && <ListItemThumbnail title="Favourite Movies/Shows" itemThumbnails={user.favouriteMovies} titleFontSize="36px" ref={favouriteRef}/> }
                         { user.favouriteBooks && user.favouriteBooks.length > 0 && <ListItemThumbnail title="Favourite Books" itemThumbnails={user.favouriteBooks} titleFontSize="36px" forBook={true} ref={favouriteRef}/> }
-                        { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} titleFontSize="36px" ref={watchlistRef}/> }
-                        { user.wantToReadList && user.wantToReadList.length > 0 && <ListItemThumbnail title="Read List" itemThumbnails={user.wantToReadList} titleFontSize="36px" forBook={true} ref={favouriteRef}/> }
+                        { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} titleFontSize="36px" ref={watchlistRef} isWatchOrReadList={true}/> }
+                        { user.wantToReadList && user.wantToReadList.length > 0 && <ListItemThumbnail title="Read List" itemThumbnails={user.wantToReadList} titleFontSize="36px" forBook={true} ref={favouriteRef} isWatchOrReadList={true}/> }
                         { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} titleFontSize="36px"/> }
                     </div>
                 </div>
