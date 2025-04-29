@@ -1,6 +1,6 @@
 -- Drop in dependency order (reverse of creation order)
 DROP TABLE IF EXISTS episodes_shows_reviews_ratings CASCADE;
-DROP TABLE IF EXISTS favourites_books CASCADE;
+DROP TABLE IF EXISTS books_favourites CASCADE;
 DROP TABLE IF EXISTS readlist CASCADE;
 DROP TABLE IF EXISTS wanttoreadlist CASCADE;
 DROP TABLE IF EXISTS books_reviews_ratings CASCADE;
