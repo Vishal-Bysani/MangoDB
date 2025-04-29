@@ -36,6 +36,7 @@ const Genre = () => {
             setGenreShows(shows);
             setLoading(false);
             setGenreName(location.state.name);
+            document.title = `${location.state.name} | Genre`;
         };
         fetchGenre();
     }, [genreId]);

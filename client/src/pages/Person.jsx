@@ -32,7 +32,7 @@ const Person = () => {
             setLoading(true);
             const data = await getPersonDetails(personId);
             setPerson(data);
-            if (data && data.name) document.title = data.name;
+            if (data && data.name) document.title = `${data.name}`;
             setLoading(false);
         };
         fetchPersonDetails();

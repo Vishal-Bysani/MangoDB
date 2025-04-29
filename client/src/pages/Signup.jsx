@@ -30,6 +30,7 @@ const Signup = () => {
             });
         }
     });
+    document.title = "Sign Up";
 }, []);
 
   const handleSubmit = async (e) => {

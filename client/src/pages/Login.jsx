@@ -18,6 +18,7 @@ const Login = () => {
                 });
             }
         });
+        document.title = "Login";
     }, []);
 
     const [formData, setFormData] = useState({

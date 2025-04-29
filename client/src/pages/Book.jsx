@@ -20,7 +20,7 @@ const Book = () => {
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const [authors, setAuthors] = useState([]);
-    const [watchListed, setWatchListed] = useState(false);
+    const [readListed, setReadListed] = useState(false);
 
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -37,8 +37,11 @@ const Book = () => {
         const fetchBookDetails = async () => {
             const data = await getBookDetails(bookId);
             setBook(data);
+            console.log(data);
             if (data) {
                 setAuthors(data.authors);
+                setReadListed(data.isReadList);
+                document.title = `${data.title}`;
             }
             setLoading(false);
         }
@@ -259,8 +262,8 @@ const Book = () => {
                                         }}
                                         className="item-image"
                                     />
-                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWantToReadListed(bookId, !watchListed, true); } else { navigate("/login", { state: { parentLink : `/book/${bookId}` }}); } }} aria-label="Add to list">
-                                        { !watchListed ? 
+                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setReadListed(!readListed); toggleWantToReadListed(bookId, !readListed, true); } else { navigate("/login", { state: { parentLink : `/book/${bookId}` }}); } }} aria-label="Add to list">
+                                        { !readListed ? 
                                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                                         :
                                             <div className="ItemThumbnail-tick-icon">

@@ -54,6 +54,7 @@ const Search = () => {
     }, [genreList]);
 
     const handleFilterSubmit = () => {
+        console.log(forMovie, forShow, forBook);
         getFilteredItems({searchText: searchQuery, genreId: genreId, personId: personId, year: year, minRating: minRating, orderByRating: orderByRating, orderByPopularity: orderByPopularity, forMovie: forMovie, forShow: forShow, forBook: forBook, pageNo: pageNo, pageLimit: pageLimit}).then(setMatchingItems);
         window.scrollTo({
             top: 0,
@@ -82,6 +83,7 @@ const Search = () => {
             }
         });
         setCurrentLink(`/search/${query}`);
+        document.title = `Search: ${query}`;
     }, []);
 
     return (
@@ -229,7 +231,7 @@ const Search = () => {
                                     checked={forBook}
                                     onChange={() => { if (forBook && !forMovie && !forShow) { setForShow(true); setForMovie(true); } setForBook(!forBook)}}
                                 />
-                                Show
+                                Book
                             </label>
                         </div>
                         <div className="search-page-submit-button">

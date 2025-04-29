@@ -92,7 +92,7 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, forBook = fal
                                     endYear={itemThumbnail.endYear}
                                     cast={itemThumbnail.cast}
                                     crew={itemThumbnail.crew}
-                                    isWatchListed={itemThumbnail.isWatchListed}
+                                    isWatchListed={itemThumbnail.isWatchList}
                                     forBook={forBook}
                                 />
                             </div>

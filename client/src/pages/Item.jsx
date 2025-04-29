@@ -45,7 +45,8 @@ const Item = () => {
                 setDirectors(data.crew.filter(crew => crew.job_title === "Director"));
                 setWriters(data.crew.filter(crew => crew.department_name === "Writing"));
             }
-            if (data && data.title) document.title = data.title;
+            if (data && data.title) document.title = `${data.title}`;
+            if (data) setWatchListed(data.isWatchList);
             setLoading(false);
         };
         fetchItemDetails();

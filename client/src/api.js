@@ -172,6 +172,7 @@ const getFilteredItems = async ({searchText = null,
     if (forShow) baseUrl += `forShow=${forShow}&`;
     if (pageNo) baseUrl += `pageNo=${pageNo}&`;
     if (pageLimit) baseUrl += `pageLimit=${pageLimit}&`;
+    console.log(baseUrl)
     const response = await fetch(baseUrl);
     const data = await response.json();
     return data.moviesOrShows.concat(data.books);

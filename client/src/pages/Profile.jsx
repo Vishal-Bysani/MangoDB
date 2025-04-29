@@ -24,11 +24,14 @@ const Profile = () => {
     useEffect(() => {
         const fetchUser = async () => {
             const user = await getUserDetails(username);
-            if (user) setUser(user);
+            if (user) {
+                setUser(user);
+                document.title = `${username} | Profile`;
+            }
             if (user.profilePicture && user.mime_type) {
                 const base64String = Buffer.from(user.profilePicture).toString('base64');
                 user.image = `data:${user.mime_type};base64,${base64String}`;
-              }
+            }
         };
         fetchUser();
     }, []);
