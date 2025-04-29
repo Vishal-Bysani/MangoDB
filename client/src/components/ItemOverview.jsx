@@ -1,14 +1,14 @@
 import React, { forwardRef, useContext, useState } from "react";
 import { useNavigate } from "react-router";
-import { toggleWatchListed } from "../api";
+import { toggleWatchListed, toggleWantToReadListed } from "../api";
 import "../css/ItemOverview.css";
 import { loggedInDataContext, currentLinkContext } from "../Context";
 
-const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, author, description, forBook = false }, ref) => {
+const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, author, description, forBook = false, isWatchOrReadList = false }, ref) => {
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const navigate = useNavigate();
-    const [watchListed, setWatchListed] = useState(false);
+    const [watchListed, setWatchListed] = useState(isWatchOrReadList);
     return (
         <div className="item-overview-container" ref={ref}>
             <div className="item-overview-content">
@@ -23,7 +23,7 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                         className="item-overview-image"
                         onClick={() => { if (forBook) navigate(`/book/${itemId}`); else navigate(`/item/${itemId}`); }}
                     />
-                    <button className="ItemThumbnail-plus-button" style={{width: '50px', height: '50px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
+                    <button className="ItemThumbnail-plus-button" style={{width: '50px', height: '50px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn && forBook) { setWatchListed(!watchListed); toggleWantToReadListed(itemId, !watchListed); } else if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
                         { !watchListed ? 
                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                         :

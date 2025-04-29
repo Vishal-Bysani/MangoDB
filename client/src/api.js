@@ -48,7 +48,9 @@ const signupUser = async (username, password, email) => {
 
 const getItemDetails = async (itemId) => {
     // await new Promise(resolve => setTimeout(resolve, 2000));
-    const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`, { credentials: "include" });
+    const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`, {
+        credentials: "include",
+    });
     const data = await response.json();
     return data;
 }
@@ -130,19 +132,25 @@ const setFavourite = async (itemId, favourite, forBook = false) => {
 }
 
 const getTrendingMovies = async (pageNo = 1, pageLimit = 25) => {
-    const response = await fetch(`${apiUrl}/getMoviesByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`);
+    const response = await fetch(`${apiUrl}/getMoviesByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+        credentials: "include",
+    });
     const data = await response.json();
     return data.movies;
 }
 
 const getTrendingShows = async (pageNo = 1, pageLimit = 25) => {
-    const response = await fetch(`${apiUrl}/getShowsByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`);
+    const response = await fetch(`${apiUrl}/getShowsByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+        credentials: "include",
+    });
     const data = await response.json();
     return data.shows;
 }
 
 export const getTrendingBooks = async (pageNo = 1, pageLimit = 25) => {
-    const response = await fetch(`${apiUrl}/getBooksByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`);
+    const response = await fetch(`${apiUrl}/getBooksByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+        credentials: "include",
+    });
     const data = await response.json();
     return data.books;
 }
@@ -173,9 +181,12 @@ const getFilteredItems = async ({searchText = null,
     if (pageNo) baseUrl += `pageNo=${pageNo}&`;
     if (pageLimit) baseUrl += `pageLimit=${pageLimit}&`;
     console.log(baseUrl)
-    const response = await fetch(baseUrl);
+    const response = await fetch(baseUrl, {
+        credentials: "include",
+    });
     const data = await response.json();
-    return data.moviesOrShows.concat(data.books);
+    if (data.moviesOrShows) return data.moviesOrShows.concat(data.books);
+    else return data.books;
 }
 
 const getUserDetails = async (username) => {
@@ -224,19 +235,25 @@ const toggleWatchListed = async (itemId, watchListed) => {
 }
 
 const getSeasonDetails = async (showId, seasonId) => {
-    const response = await fetch(`${apiUrl}/getSeasonDetails?show_id=${showId}&season_id=${seasonId}`);
+    const response = await fetch(`${apiUrl}/getSeasonDetails?show_id=${showId}&season_id=${seasonId}`, {
+        credentials: "include",
+    });
     const data = await response.json();
     return data;
 }
 
 const getCollectionDetails = async (collectionId, pageNo = 1, pageLimit = 1000) => {
-    const response = await fetch(`${apiUrl}/getMovieShowByCollectionId?collection_id=${collectionId}&pageNo=${pageNo}&pageLimit=${pageLimit}`);
+    const response = await fetch(`${apiUrl}/getMovieShowByCollectionId?collection_id=${collectionId}&pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+        credentials: "include",
+    });
     const data = await response.json();
     return data;
 }
 
 const getBookDetails = async (bookId) => {
-    const response = await fetch(`${apiUrl}/getBooksDetails?id=${bookId}`);
+    const response = await fetch(`${apiUrl}/getBooksDetails?id=${bookId}`, {
+        credentials: "include",
+    });
     const data = await response.json();
     return data;
 }

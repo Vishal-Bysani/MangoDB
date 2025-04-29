@@ -38,7 +38,7 @@ const SearchDropdown = ({ filterName, filterList, setFilterValue, filterValue, f
                         }
                     }}
                 />
-                { filterValue && (
+                {/* { filterValue && (
                     <div className="search-tick-icon">
                         <svg 
                             width="16" 
@@ -56,6 +56,60 @@ const SearchDropdown = ({ filterName, filterList, setFilterValue, filterValue, f
                             />
                         </svg>
                     </div>
+                )} */}
+                { filterValue && (
+                    <div className="search-tick-icon" style={{cursor: "pointer"}} onClick={() => {
+                            setHideDropdown(false);
+                            onFilterValueTextChange("");
+                        }}>
+                        <svg 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                        <path 
+                            d="M6 6L18 18" 
+                            stroke="#ff4444" 
+                            strokeWidth="3" 
+                            strokeLinecap="round" 
+                        />
+                        <path 
+                            d="M6 18L18 6" 
+                            stroke="#ff4444" 
+                            strokeWidth="3" 
+                            strokeLinecap="round" 
+                        />
+                        </svg>
+                    </div>
+                  
+                )}
+                { !filterValue && !hideDropdown && filterValueText !== "" && (
+                    <div className="search-tick-icon">
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                        <path
+                            d="M12 3v12"
+                            stroke="#ff4444"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                        <circle
+                            cx="12"
+                            cy="19"
+                            r="1.5"
+                            fill="#ff4444"
+                        />
+                        </svg>
+                    </div>
+                  
                 )}
             </div>
             {!hideDropdown && filterList.length > 0 &&
