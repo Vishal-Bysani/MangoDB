@@ -486,6 +486,109 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
         "SELECT id, name FROM collections WHERE id = $1",
         [movieQuery.rows[0].belongs_to_collection]
       );
+      const recommendationQuery = await pool.query(
+        `
+        WITH movie_cast AS (
+            SELECT person_id
+            FROM cast_movies_shows
+            WHERE id = $1
+        ),
+        movie_crew AS (
+            SELECT 
+                person_id,
+                CASE
+                    WHEN job_title = 'Director' THEN 10
+                    WHEN job_title = 'Writer' THEN 5
+                    WHEN job_title = 'Co-Director' THEN 4
+                    ELSE 0
+                END AS preference
+            FROM crew_movies_shows
+            WHERE id = $1
+              AND job_title IN ('Director', 'Co-Director', 'Writer')
+        ),
+        cur_movie AS (
+            SELECT *
+            FROM movies_shows
+            WHERE id = $1
+        ),
+        genre AS (
+            SELECT genre_id
+            FROM movies_shows_genres
+            WHERE id = $1
+        ),
+        top_match AS (
+            SELECT * FROM (SELECT 
+                ms.id,
+                ms.popularity * ms.vote_average AS preference,
+                FLOOR(ABS(EXTRACT(YEAR FROM ms.release_date) - EXTRACT(YEAR FROM cm.release_date)) / 10) AS year_diff,
+                3^COUNT(msg.genre_id)/(3^(select count(*) from genre)) AS genre_match
+            FROM movies_shows ms
+            JOIN movies_shows_genres msg ON ms.id = msg.id
+            JOIN cur_movie cm ON TRUE
+            WHERE ms.id != $1
+              AND msg.genre_id IN (SELECT genre_id FROM genre)
+            GROUP BY ms.id, ms.popularity, ms.vote_average, ms.release_date, cm.release_date) AS t
+            ORDER by t.preference* t.genre_match DESC
+            LIMIT 100
+        ),
+        top_match_cast AS (
+            SELECT 
+                tm.id,
+                COUNT(*) AS cast_match
+            FROM top_match tm
+            JOIN cast_movies_shows cms ON tm.id = cms.id
+            WHERE cms.person_id IN (SELECT person_id FROM movie_cast)
+            GROUP BY tm.id
+        ),
+        top_match_crew AS (
+            select top_match.id, count(crew_movies_shows.person_id) as crew_match from top_match, crew_movies_shows where top_match.id = crew_movies_shows.id and crew_movies_shows.person_id in (SELECT person_id from movie_crew) group by top_match.id
+        ),
+        top_match_final AS (
+            SELECT 
+                tm.id as id
+            FROM top_match tm
+            LEFT JOIN top_match_cast tmc ON tm.id = tmc.id
+            LEFT JOIN top_match_crew tmr ON tm.id = tmr.id
+            ORDER BY 
+                (COALESCE(tmc.cast_match, 0) / 5.0 + COALESCE(tmr.crew_match, 0)/10 + tm.genre_match + 2 /(1+ tm.year_diff)) * tm.preference DESC
+            LIMIT 20
+        )
+        SELECT * FROM top_match_final natural join movies_shows;
+        `,[id]
+      );
+      console.log("Recommendation Query: ", recommendationQuery.rows);
+
+        // WITH movie_cast AS (
+        //     SELECT person_id
+        //     FROM cast_movies_shows
+        //     WHERE id = $1
+        // ),
+        // movie_crew AS (
+        //     SELECT 
+        //         person_id,
+        //         CASE
+        //             WHEN job_title = 'Director' THEN 10
+        //             WHEN job_title = 'Writer' THEN 5
+        //             WHEN job_title = 'Co-Director' THEN 4
+        //             ELSE 0  -- in case you want a fallback
+        //         END AS preference
+        //     FROM crew_movies_shows
+        //     WHERE id = $1
+        //       AND job_title IN ('Director', 'Co-Director', 'Writer')
+        // ),
+        // cur_movie as (
+        //   SELECT * from movies_shows WHERE id = $1),
+        // genre AS (
+        //   SELECT genre_id from movies_shows_genres WHERE id = $1),
+        // top_match as (
+        //   Select movies_shows.id id, popularity*vote_average as preference, (EXTRACT(YEAR FROM release_date) - EXTRACT(YEAR FROM (select release_date form cur_movie)))//10 as year_diff, count(movie_show_genre.id) as genre_match from movies_shows, movies_shows_genres where movies_shows.id = movies_shows_genres.id and movies_shows.id != $1 and movies_shows_genres.genre_id in (select genre_id from genre) group by movies_shows.id, year, popularity, release_date, vote_average order by preference*genre_match desc limit 100
+        // ),
+        // top_match_cast as ( select movies_shows.id, count(movie_cast.person_id) as cast_match from top_match, movie_cast where top_match.id = movie_cast.id, movie_cast.person_id in (SELECT person_id from movie_cast) group by movies_shows.id),
+        // top_match_crew as (
+        
+        //   select movies_shows.id, count(movie_crew.person_id) as crew_match from top_match, movie_crew where top_match.id = movie_crew.id, movie_crew.person_id in (SELECT person_id from movie_crew) group by movies_shows.id),
+        // top_match_final as (
+        //   select id from top_match, top_match_cast, top_match_crew where top_match.id = top_match_cast.id and top_match.id = top_match_crew.id order by (cast_match/5 + crew_match + genre_match+ 1/(year_diff))*preference desc limit 20
       console.log("Received movie details: " + JSON.stringify(movieOrShowQuery.rows[0].isWatchList));
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
