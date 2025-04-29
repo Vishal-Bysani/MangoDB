@@ -57,7 +57,8 @@ CREATE TABLE public.books (
     preview_link text,
     cover_url text,
     maturity_rating text,
-    popularity numeric
+    popularity numeric,
+    review_summary text
 );
 
 
@@ -117,7 +118,8 @@ CREATE TABLE public.books_reviews_ratings (
     username text NOT NULL,
     id integer NOT NULL,
     review text,
-    rating integer NOT NULL
+    rating integer NOT NULL,
+    review_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -240,7 +242,8 @@ CREATE TABLE public.episodes (
     episode_number integer NOT NULL,
     still_path text,
     vote_average numeric,
-    vote_count integer
+    vote_count integer,
+    review_summary text
 );
 
 
@@ -276,7 +279,8 @@ CREATE TABLE public.episodes_shows_reviews_ratings (
     username text NOT NULL,
     id integer NOT NULL,
     review text,
-    rating integer NOT NULL
+    rating integer NOT NULL,
+    review_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -385,6 +389,7 @@ CREATE TABLE public.movies_shows (
     certificate text,
     rotten_mangoes integer,
     rotten_mangoes_votes integer DEFAULT 100,
+    review_summary text,
     CONSTRAINT movies_shows_adult_check CHECK ((adult = ANY (ARRAY[0, 1]))),
     CONSTRAINT movies_shows_category_check CHECK ((category = ANY (ARRAY['movie'::text, 'tv'::text])))
 );
@@ -446,7 +451,8 @@ CREATE TABLE public.movies_shows_reviews_ratings (
     username text NOT NULL,
     id integer NOT NULL,
     review text,
-    rating integer NOT NULL
+    rating integer NOT NULL,
+    review_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -638,6 +644,33 @@ CREATE TABLE public.shows_details (
 ALTER TABLE public.shows_details OWNER TO imdbuser;
 
 --
+-- Name: tv_details; Type: TABLE; Schema: public; Owner: imdbuser
+--
+
+CREATE TABLE public.tv_details (
+    id integer NOT NULL,
+    last_air_date date,
+    number_of_episodes integer DEFAULT 0,
+    number_of_seasons integer DEFAULT 0
+);
+
+
+ALTER TABLE public.tv_details OWNER TO imdbuser;
+
+--
+-- Name: user_data; Type: TABLE; Schema: public; Owner: imdbuser
+--
+
+CREATE TABLE public.user_data (
+    username text,
+    profile_picture bytea,
+    last_login timestamp without time zone
+);
+
+
+ALTER TABLE public.user_data OWNER TO imdbuser;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: imdbuser
 --
 
@@ -647,7 +680,8 @@ CREATE TABLE public.users (
     password_hash text NOT NULL,
     is_critic boolean DEFAULT false NOT NULL,
     is_authenticated boolean DEFAULT false,
-    registration_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    registration_time timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    mime_type text
 );
 
 
@@ -992,6 +1026,14 @@ ALTER TABLE ONLY public.seasons_videos
 
 ALTER TABLE ONLY public.shows_details
     ADD CONSTRAINT shows_details_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tv_details tv_details_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.tv_details
+    ADD CONSTRAINT tv_details_pkey PRIMARY KEY (id);
 
 
 --
