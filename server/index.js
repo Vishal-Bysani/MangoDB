@@ -123,6 +123,7 @@ function getTimeDifference(timestamp) {
   else if (seconds > 0) {
     timeString = seconds + " second" + (seconds > 1 ? "s" : "") + " ago";
   }
+  // console.log("Time difference:", timeString);
   return timeString;
 }
 function lastSeen(timestamp) {
@@ -840,6 +841,7 @@ app.get("/filterItems",heartBeats, async (req, res) => {
     let values = [];
     let idx = 1;
     let bookItems = [];
+    let movieItems = [];
 
     if (forBook){
       let bookQuery = "SELECT books.id, books.title, SUBSTRING(books.published_date, 1, 4) as year, books.cover_url AS image, books.average_rating AS rating, books.popularity, books.overview as description, 'true' as \"forBook\" FROM books";
@@ -900,92 +902,94 @@ app.get("/filterItems",heartBeats, async (req, res) => {
       }));
     }
 
-    let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, ms.rotten_mangoes, ms.rotten_mangoes_votes, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
+    if (forMovie || forShow) {
+      let baseQuery = "SELECT DISTINCT ms.id, ms.title, ms.category, ms.poster_path as image, ms.rotten_mangoes, ms.rotten_mangoes_votes, EXTRACT(YEAR FROM ms.release_date) as \"startYear\", EXTRACT(YEAR FROM ms.end_date) as \"endYear\", ms.vote_average as rating, ms.popularity, ms.overview as description FROM movies_shows ms";
 
-    conditions = [];
-    values = [];
-    idx = 1;
+      conditions = [];
+      values = [];
+      idx = 1;
 
-    if (genreId) {
-      let genreName = await pool.query(
-        "SELECT name FROM genres WHERE id = $1",
-        [parseInt(genreId)]
-      );
-      genreName = genreName.rows[0].name;
-      baseQuery += ` JOIN movies_shows_genres msg ON ms.id = msg.id`;
-      baseQuery += ` JOIN genres g ON msg.genre_id = g.id`;
-      conditions.push(`(msg.genre_id = $${idx++} OR g.name ILIKE $${idx++} OR $${idx++} ILIKE '%' || g.name || '%')`);
-      values.push(parseInt(genreId));
-      values.push(`%${genreName}%`);
-      values.push(`${genreName}`);
-    }
-
-    if (personId) {
-      baseQuery += ` JOIN crew_movies_shows msc ON ms.id = msc.id`;
-      baseQuery += ` JOIN cast_movies_shows cmv ON ms.id = cmv.id`;
-
-      conditions.push(`msc.person_id = $${idx++} OR cmv.person_id = $${idx++}`);
-      values.push(parseInt(personId));
-      values.push(parseInt(personId));
-    }
-
-    if (year) {
-      conditions.push(`EXTRACT(YEAR FROM ms.release_date) = $${idx++}`);
-      values.push(parseInt(year));
-    }
-
-    if (minRating) {
-      conditions.push(`ms.vote_average >= $${idx++}`);
-      values.push(parseFloat(minRating));
-    }
-
-    if (forMovie && forShow) {
-      conditions.push(`(ms.category = 'movie' OR ms.category = 'tv')`);
-    } else if (forMovie) {
-      conditions.push(`ms.category = 'movie'`);
-    } else if (forShow) {
-      conditions.push(`ms.category = 'tv'`);
-    }
-
-    if (searchText) {
-      conditions.push(`ms.title ILIKE $${idx++}`);
-      values.push(`%${searchText}%`);
-    }
-
-    if (conditions.length) {
-      baseQuery += ` WHERE ` + conditions.join(" AND ");
-    }
-
-    const orderConditions = [];
-    if (orderByPopularity) orderConditions.push(`ms.popularity DESC`);
-    if (orderByRating) orderConditions.push(`ms.vote_average DESC`);
-    if (!orderConditions.length) orderConditions.push(`ms.popularity DESC`);
-
-    baseQuery += ` ORDER BY ${orderConditions.join(", ")}`;
-
-    baseQuery += ` LIMIT $${idx++} OFFSET $${idx++}`;
-    values.push(limit, offset);
-    
-    const movies = await pool.query(baseQuery, values);
-    const movieItems = await Promise.all(movies.rows.map(async (movie) => {
-      const castResult = await pool.query(
-        "SELECT character, person.name FROM cast_movies_shows JOIN person ON cast_movies_shows.person_id = person.id WHERE cast_movies_shows.id = $1",
-        [movie.id]
-      );
-      const crewResult = await pool.query(
-        "SELECT job_title, person.name FROM crew_movies_shows JOIN person ON crew_movies_shows.person_id = person.id WHERE crew_movies_shows.id = $1",
-        [movie.id]
-      );
-      const isWatchList = await pool.query(
-        "SELECT " + ((req.session.username) ? " (CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :   " false as \"isWatchList\" ") + " FROM movies_shows m " + ((req.session.username) ? " LEFT JOIN watchlist wl ON m.id = wl.id AND wl.username = $2 " : " ") + " WHERE m.id = $1 ", (req.session.username) ? [movie.id, req.session.username] : [movie.id]
-      );
-      movie.isWatchList = isWatchList.rows[0].isWatchList;
-      return {
-        ...movie,
-        cast : castResult.rows,
-        crew : crewResult.rows
+      if (genreId) {
+        let genreName = await pool.query(
+          "SELECT name FROM genres WHERE id = $1",
+          [parseInt(genreId)]
+        );
+        genreName = genreName.rows[0].name;
+        baseQuery += ` JOIN movies_shows_genres msg ON ms.id = msg.id`;
+        baseQuery += ` JOIN genres g ON msg.genre_id = g.id`;
+        conditions.push(`(msg.genre_id = $${idx++} OR g.name ILIKE $${idx++} OR $${idx++} ILIKE '%' || g.name || '%')`);
+        values.push(parseInt(genreId));
+        values.push(`%${genreName}%`);
+        values.push(`${genreName}`);
       }
-    }));
+
+      if (personId) {
+        baseQuery += ` JOIN crew_movies_shows msc ON ms.id = msc.id`;
+        baseQuery += ` JOIN cast_movies_shows cmv ON ms.id = cmv.id`;
+
+        conditions.push(`msc.person_id = $${idx++} OR cmv.person_id = $${idx++}`);
+        values.push(parseInt(personId));
+        values.push(parseInt(personId));
+      }
+
+      if (year) {
+        conditions.push(`EXTRACT(YEAR FROM ms.release_date) = $${idx++}`);
+        values.push(parseInt(year));
+      }
+
+      if (minRating) {
+        conditions.push(`ms.vote_average >= $${idx++}`);
+        values.push(parseFloat(minRating));
+      }
+
+      if (forMovie && forShow) {
+        conditions.push(`(ms.category = 'movie' OR ms.category = 'tv')`);
+      } else if (forMovie) {
+        conditions.push(`ms.category = 'movie'`);
+      } else if (forShow) {
+        conditions.push(`ms.category = 'tv'`);
+      }
+
+      if (searchText) {
+        conditions.push(`ms.title ILIKE $${idx++}`);
+        values.push(`%${searchText}%`);
+      }
+
+      if (conditions.length) {
+        baseQuery += ` WHERE ` + conditions.join(" AND ");
+      }
+
+      const orderConditions = [];
+      if (orderByPopularity) orderConditions.push(`ms.popularity DESC`);
+      if (orderByRating) orderConditions.push(`ms.vote_average DESC`);
+      if (!orderConditions.length) orderConditions.push(`ms.popularity DESC`);
+
+      baseQuery += ` ORDER BY ${orderConditions.join(", ")}`;
+
+      baseQuery += ` LIMIT $${idx++} OFFSET $${idx++}`;
+      values.push(limit, offset);
+      
+      const movies = await pool.query(baseQuery, values);
+      movieItems = await Promise.all(movies.rows.map(async (movie) => {
+        const castResult = await pool.query(
+          "SELECT character, person.name FROM cast_movies_shows JOIN person ON cast_movies_shows.person_id = person.id WHERE cast_movies_shows.id = $1",
+          [movie.id]
+        );
+        const crewResult = await pool.query(
+          "SELECT job_title, person.name FROM crew_movies_shows JOIN person ON crew_movies_shows.person_id = person.id WHERE crew_movies_shows.id = $1",
+          [movie.id]
+        );
+        const isWatchList = await pool.query(
+          "SELECT " + ((req.session.username) ? " (CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :   " false as \"isWatchList\" ") + " FROM movies_shows m " + ((req.session.username) ? " LEFT JOIN watchlist wl ON m.id = wl.id AND wl.username = $2 " : " ") + " WHERE m.id = $1 ", (req.session.username) ? [movie.id, req.session.username] : [movie.id]
+        );
+        movie.isWatchList = isWatchList.rows[0].isWatchList;
+        return {
+          ...movie,
+          cast : castResult.rows,
+          crew : crewResult.rows
+        }
+      }));
+    }
 
     res.status(200).json({
         moviesOrShows: movieItems,
