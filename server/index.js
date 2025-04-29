@@ -482,18 +482,8 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
       text: r.text,
       time_ago: getTimeDifference(r.review_time)
     }));
-    
-    if(movieOrShowQuery.rows[0].type === "movie"){
-      const movieQuery = await pool.query(
-        "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
-        [id]
-      ); 
-      const collectionQuery = await pool.query(
-        "SELECT id, name FROM collections WHERE id = $1",
-        [movieQuery.rows[0].belongs_to_collection]
-      );
-      const recommendationQuery = await pool.query(
-        `
+
+    const baseRecommendationQuery = `
         WITH movie_cast AS (
             SELECT person_id
             FROM cast_movies_shows
@@ -533,6 +523,7 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
             JOIN cur_movie cm ON TRUE
             WHERE ms.id != $1
               AND msg.genre_id IN (SELECT genre_id FROM genre)
+              AND ms.category = $2
             GROUP BY ms.id, ms.popularity, ms.vote_average, ms.release_date, cm.release_date) AS t
             ORDER by t.preference* t.genre_match DESC
             LIMIT 100
@@ -560,42 +551,21 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
             LIMIT 20
         )
         SELECT * FROM top_match_final natural join movies_shows;
-        `,[id]
+        `
+    
+    if(movieOrShowQuery.rows[0].type === "movie"){
+      const movieQuery = await pool.query(
+        "SELECT runtime as duration,budget,revenue,belongs_to_collection FROM movies_details WHERE id = $1",
+        [id]
+      ); 
+      const collectionQuery = await pool.query(
+        "SELECT id, name FROM collections WHERE id = $1",
+        [movieQuery.rows[0].belongs_to_collection]
       );
-      console.log("Recommendation Query: ", recommendationQuery.rows);
-
-        // WITH movie_cast AS (
-        //     SELECT person_id
-        //     FROM cast_movies_shows
-        //     WHERE id = $1
-        // ),
-        // movie_crew AS (
-        //     SELECT 
-        //         person_id,
-        //         CASE
-        //             WHEN job_title = 'Director' THEN 10
-        //             WHEN job_title = 'Writer' THEN 5
-        //             WHEN job_title = 'Co-Director' THEN 4
-        //             ELSE 0  -- in case you want a fallback
-        //         END AS preference
-        //     FROM crew_movies_shows
-        //     WHERE id = $1
-        //       AND job_title IN ('Director', 'Co-Director', 'Writer')
-        // ),
-        // cur_movie as (
-        //   SELECT * from movies_shows WHERE id = $1),
-        // genre AS (
-        //   SELECT genre_id from movies_shows_genres WHERE id = $1),
-        // top_match as (
-        //   Select movies_shows.id id, popularity*vote_average as preference, (EXTRACT(YEAR FROM release_date) - EXTRACT(YEAR FROM (select release_date form cur_movie)))//10 as year_diff, count(movie_show_genre.id) as genre_match from movies_shows, movies_shows_genres where movies_shows.id = movies_shows_genres.id and movies_shows.id != $1 and movies_shows_genres.genre_id in (select genre_id from genre) group by movies_shows.id, year, popularity, release_date, vote_average order by preference*genre_match desc limit 100
-        // ),
-        // top_match_cast as ( select movies_shows.id, count(movie_cast.person_id) as cast_match from top_match, movie_cast where top_match.id = movie_cast.id, movie_cast.person_id in (SELECT person_id from movie_cast) group by movies_shows.id),
-        // top_match_crew as (
-        
-        //   select movies_shows.id, count(movie_crew.person_id) as crew_match from top_match, movie_crew where top_match.id = movie_crew.id, movie_crew.person_id in (SELECT person_id from movie_crew) group by movies_shows.id),
-        // top_match_final as (
-        //   select id from top_match, top_match_cast, top_match_crew where top_match.id = top_match_cast.id and top_match.id = top_match_crew.id order by (cast_match/5 + crew_match + genre_match+ 1/(year_diff))*preference desc limit 20
-      console.log("Received movie details: " + JSON.stringify(movieOrShowQuery.rows[0].isWatchList));
+      const recommendationQuery = await pool.query(baseRecommendationQuery
+        ,[id, "movie"]
+      );
+      // console.log("Recommendation Query: ", recommendationQuery.rows);
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
         rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
@@ -628,6 +598,7 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
         favourite: favouriteQuery.rows.length > 0,
         user_rating: ratingQuery.rows.length > 0 ? ratingQuery.rows[0].rating : null,
         reviews: reviews,
+        recommendations: recommendationQuery.rows,
       });
     }
     else {
@@ -639,6 +610,10 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
         "SELECT * FROM seasons WHERE show_id = $1",
         [id]
       );
+      const recommendationQuery = await pool.query(baseRecommendationQuery
+        ,[id, "tv"]
+      );
+      // console.log("Recommendation Query: ", recommendationQuery.rows);
       res.status(200).json({
         id: movieOrShowQuery.rows[0].id,
         rotten_mangoes: movieOrShowQuery.rows[0].rotten_mangoes,
@@ -668,7 +643,8 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
         backdrop: movieOrShowQuery.rows[0].backdrop,
         favourite: favouriteQuery.rows.length > 0,
         user_rating: ratingQuery.rows.length > 0 ? ratingQuery.rows[0].rating : null,
-        reviews: reviews
+        reviews: reviews,
+        recommendations: recommendationQuery.rows,
       });
     }
   } catch (error) {
@@ -1752,6 +1728,71 @@ app.get("/getBooksDetails",heartBeats, async (req, res) => {
       "SELECT genres.name FROM books_genres JOIN genres ON genres.id = books_genres.genre_id WHERE books_genres.id = $1",
       [id]
     );
+
+    const baseRecommendationQuery = `
+        WITH movie_cast AS (
+            SELECT author_id
+            FROM authors_books
+            WHERE id = $1
+        ),
+        cur_book AS (
+            SELECT *
+            FROM books
+            WHERE id = $1
+        ),
+        genre AS (
+            SELECT genre_id
+            FROM books_genres
+            WHERE id = $1
+        ),
+        top_match AS (
+            SELECT * FROM (
+                SELECT 
+                    ms.id,
+                    ms.popularity * ms.average_rating AS preference,
+                    FLOOR(
+                        ABS(
+                            COALESCE(NULLIF(LEFT(ms.published_date, 4), '')::INTEGER, 9999) - 
+                            COALESCE(NULLIF(LEFT(cm.published_date, 4), '')::INTEGER, 9999)
+                        ) / 10
+                    ) AS year_diff,
+                    POWER(3, COUNT(msg.genre_id)) / POWER(3, (SELECT COUNT(*) FROM genre)) AS genre_match
+                FROM books ms
+                JOIN books_genres msg ON ms.id = msg.id
+                JOIN cur_book cm ON TRUE
+                WHERE ms.id != $1
+                  AND msg.genre_id IN (SELECT genre_id FROM genre)
+                GROUP BY ms.id, ms.popularity, ms.average_rating, ms.published_date, cm.published_date
+            ) AS t
+            ORDER BY t.preference * t.genre_match DESC
+            LIMIT 100
+        ),
+        top_match_cast AS (
+            SELECT 
+                tm.id,
+                COUNT(*) AS cast_match
+            FROM top_match tm
+            JOIN authors_books cms ON tm.id = cms.id
+            WHERE cms.author_id IN (SELECT author_id FROM movie_cast)
+            GROUP BY tm.id
+        ),
+        top_match_final AS (
+            SELECT 
+                tm.id as id
+            FROM top_match tm
+            LEFT JOIN top_match_cast tmc ON tm.id = tmc.id
+            ORDER BY 
+                (COALESCE(tmc.cast_match, 0) * 3 + tm.genre_match + 2 /(1+ tm.year_diff)) * tm.preference DESC
+            LIMIT 20
+        )
+        SELECT * FROM top_match_final natural join books;
+        `
+
+    const recommendationQuery = await pool.query(
+      baseRecommendationQuery,
+      [id]
+    );
+    console.log("recommendationQuery", recommendationQuery.rows);
     const reviewQuery = await pool.query(
       "SELECT username, rating, review as text, review_time FROM books_reviews_ratings WHERE id = $1",
       [id]
@@ -1796,6 +1837,7 @@ app.get("/getBooksDetails",heartBeats, async (req, res) => {
       preview_link : bookQuery.rows[0].preview_link,
       review_summary : bookQuery.rows[0].review_summary,
       reviews : reviews,
+      recommendations : recommendationQuery.rows,
     });
   } catch (error) {
     console.error("Error fetching book:", error);
