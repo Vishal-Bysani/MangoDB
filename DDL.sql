@@ -6,7 +6,6 @@ DROP TABLE IF EXISTS wanttoreadlist CASCADE;
 DROP TABLE IF EXISTS books_reviews_ratings CASCADE;
 DROP TABLE IF EXISTS books_genres CASCADE;
 DROP TABLE IF EXISTS authors_books CASCADE;
-DROP TABLE IF EXISTS authors CASCADE;
 DROP TABLE IF EXISTS books_categories CASCADE;
 DROP TABLE IF EXISTS books CASCADE;
 
@@ -38,6 +37,7 @@ DROP TABLE IF EXISTS watchlist CASCADE;
 DROP TABLE IF EXISTS watchedlist CASCADE;
 DROP TABLE IF EXISTS favourites CASCADE;
 DROP TABLE IF EXISTS following CASCADE;
+DROP TABLE IF EXISTS user_data CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -46,10 +46,13 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     is_critic BOOLEAN DEFAULT FALSE,
     is_authenticated BOOLEAN DEFAULT FALSE,
-    registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_data (
+    username TEXT PRIMARY KEY REFERENCES users(username) ON DELETE CASCADE,
     profile_picture BYTEA,
-    mime_type TEXT,
-    last_login TIMESTAMP DEFAULT NULL
+    last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE TABLE IF NOT EXISTS countries (
@@ -304,10 +307,6 @@ CREATE TABLE IF NOT EXISTS books (
     review_summary TEXT
 );
 
-CREATE TABLE IF NOT EXISTS authors(
-    author_id SERIAL PRIMARY KEY,
-    name TEXT
-);
 CREATE TABLE IF NOT EXISTS authors_books (
     id INTEGER,
     author_id INTEGER,
