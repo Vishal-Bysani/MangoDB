@@ -484,11 +484,7 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
     }));
 
     const baseRecommendationQuery = `
-        WITH movie_cast AS (
-            SELECT person_id
-            FROM cast_movies_shows
-            WHERE id = $1
-        ),
+        WITH movie_cast AS ( SELECT person_id FROM cast_movies_shows WHERE id = $1 ),
         movie_crew AS (
             SELECT 
                 person_id,
@@ -502,16 +498,8 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
             WHERE id = $1
               AND job_title IN ('Director', 'Co-Director', 'Writer')
         ),
-        cur_movie AS (
-            SELECT *
-            FROM movies_shows
-            WHERE id = $1
-        ),
-        genre AS (
-            SELECT genre_id
-            FROM movies_shows_genres
-            WHERE id = $1
-        ),
+        cur_movie AS ( SELECT * FROM movies_shows WHERE id = $1 ),
+        genre AS ( SELECT genre_id FROM movies_shows_genres WHERE id = $1 ),
         top_match AS (
             SELECT * FROM (SELECT 
                 ms.id,
@@ -1689,7 +1677,8 @@ app.get("/getUserDetails", heartBeats,async (req, res) => {
     );
     if(joinDateQuery.rows.length > 0){
     joinDateQuery.rows[0].last_login = lastSeen(joinDateQuery.rows[0].last_login);
-    console.log("joinDateQuery", joinDateQuery.rows[0].last_login);}
+    // console.log("joinDateQuery", joinDateQuery.rows[0].last_login);
+    }
     res.status(200).json({
       joinDate: joinDateQuery.rows[0].joinDate.toISOString().split('T')[0],
       lastSeen: joinDateQuery.rows[0].last_login,
@@ -1730,21 +1719,10 @@ app.get("/getBooksDetails",heartBeats, async (req, res) => {
     );
 
     const baseRecommendationQuery = `
-        WITH movie_cast AS (
-            SELECT author_id
-            FROM authors_books
-            WHERE id = $1
-        ),
-        cur_book AS (
-            SELECT *
-            FROM books
-            WHERE id = $1
-        ),
-        genre AS (
-            SELECT genre_id
-            FROM books_genres
-            WHERE id = $1
-        ),
+        WITH 
+        movie_cast AS ( SELECT author_id FROM authors_books WHERE id = $1 ),
+        cur_book AS ( SELECT * FROM books WHERE id = $1 ),
+        genre AS ( SELECT genre_id FROM books_genres WHERE id = $1 ),
         top_match AS (
             SELECT * FROM (
                 SELECT 
@@ -1878,14 +1856,13 @@ app.get("/getBooksByAuthorId",heartBeats, async (req, res) => {
 
 app.post("/uploadProfilePicture", heartBeats,isAuthenticated, upload.single('profileImage'), async (req, res) => {
   try {
-    const image = req.file.buffer; // multer gives you the binary buffer
+    const image = req.file.buffer;
     const mime_type = req.file.mimetype;
     console.log("Uploading profile picture");
     console.log(image);
     if (!image) {
       return res.status(400).json({ message: "No image provided" });
     }
-
     await pool.query(
       "UPDATE user_data SET profile_picture = $1 WHERE username = $2",
       [image, req.session.username]
