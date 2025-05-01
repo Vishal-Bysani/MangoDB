@@ -9,6 +9,7 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
     const [watchListed, setWatchListed] = useState(isWatchListed);
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
+    const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0 });
     
     return (
         <>
@@ -27,7 +28,32 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
                             e.target.src = "/item-backdrop.svg";
                         }}
                     />
-                    <button className="ItemThumbnail-plus-button" onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn && forBook) { setWatchListed(!watchListed); toggleWantToReadListed(itemId, !watchListed); } else if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login"); } }} aria-label="Add to list">
+                    <button
+                        className="ItemThumbnail-plus-button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (loggedInData.loggedIn && forBook) {
+                                setWatchListed(!watchListed);
+                                toggleWantToReadListed(itemId, !watchListed);
+                            } else if (loggedInData.loggedIn) {
+                                setWatchListed(!watchListed);
+                                toggleWatchListed(itemId, !watchListed);
+                            } else {
+                                navigate("/login");
+                            }
+                        }}
+                        aria-label="Add to list"
+                        onMouseEnter={() => setTooltip(t => ({ ...t, visible: true }))}
+                        onMouseMove={e => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setTooltip(t => ({
+                                ...t,
+                                x: e.clientX - rect.left,
+                                y: e.clientY - rect.top
+                            }));
+                        }}
+                        onMouseLeave={() => setTooltip(t => ({ ...t, visible: false }))}
+                    >
                         { !watchListed ? 
                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                         :
@@ -49,6 +75,11 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
                                 </svg>
                             </div>
                         }
+                        {tooltip.visible && (
+                            <div className="itemThumbnail-tooltip" style={{ left: tooltip.x + 10, top: tooltip.y + 10 }}>
+                                {forBook ? "Add To Readlist" : "Add To Watchlist"}
+                            </div>
+                        )}
                     </button>
                 </div>
                 <div className="ItemThumbnail-rating-container">

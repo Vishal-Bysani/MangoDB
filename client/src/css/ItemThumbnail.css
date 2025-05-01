@@ -70,3 +70,15 @@
     background-color: rgba(0, 0, 0, 0.8);
     opacity: 1;
 }
+
+.itemThumbnail-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.73);
+    color: #00e6c3;
+    padding: 6px 12px;
+    border-radius: 6px;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 1000;
+    font-size: 14px;
+}

@@ -20,6 +20,7 @@ const Search = () => {
         searchParams.get(key) ?? fallback;
 
     const [searchQuery, setSearchQuery] = useState(getFromParams("q", ""));
+    const intialSearchQuery = searchQuery;
     const [genreId, setGenreId] = useState(getFromParams("genre") || null);
     const [personId, setPersonId] = useState(getFromParams("person") || null);
     const [year, setYear] = useState(getFromParams("year") || null);
@@ -67,7 +68,7 @@ const Search = () => {
         };
         // Clean undefined/nulls
         Object.keys(newParams).forEach(
-        (key) => (newParams[key] == null || newParams[key] === "") && delete newParams[key]
+            (key) => (newParams[key] == null || newParams[key] === "") && delete newParams[key]
         );
         setSearchParams(newParams);
     };
@@ -100,7 +101,9 @@ const Search = () => {
             forBook,
             pageNo,
             pageLimit,
-        }).then(setMatchingItems);
+        }).then(data => {
+            setMatchingItems(data);
+        });
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
@@ -131,12 +134,12 @@ const Search = () => {
             <div className="search-page-header">
                 <SearchBar handleSearch={(searchText) => {
                         setSearchQuery(searchText);
-                        setPageNo(1);
+                        if (pageNo !== 1) setPageNo(1);
                         setTotalPages(null);
                         handleFilterSubmit();
                     }}
                     setParentSearchText={setSearchQuery}
-                    initialSearchText={searchQuery}
+                    initialSearchText={intialSearchQuery}
                 />
             </div>
             <div className="search-page-container">

@@ -21,6 +21,7 @@ const Book = () => {
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const [authors, setAuthors] = useState([]);
     const [readListed, setReadListed] = useState(false);
+    const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0 });
 
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -37,10 +38,10 @@ const Book = () => {
         const fetchBookDetails = async () => {
             const data = await getBookDetails(bookId);
             setBook(data);
-            console.log(data);
             if (data) {
                 setAuthors(data.authors);
                 setReadListed(data.isReadList);
+                if (data.reviews && data.reviews.find(review => review.username === loggedInData.username)) setRating(data.reviews.find(review => review.username === loggedInData.username).rating);
                 document.title = `${data.title}`;
             }
             setLoading(false);
@@ -92,9 +93,16 @@ const Book = () => {
                         )}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(bookId, rating, true);}}>
-                            Rate
-                        </button>
+                    <button className="submit-rate-button"
+                            onClick={() => {
+                                if (rating > 0) {
+                                    setIsRatingPopupOpen(false);
+                                    submitRating(bookId, rating, true);
+                                } else {
+                                    alert("Please give a rating");
+                                }
+                            }}
+                        > Rate </button>
                     </div>
                 </div>
             </Popup>
@@ -131,7 +139,7 @@ const Book = () => {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <button className="submit-rate-button" onClick={() => {
-                            if (userReviewText.length > 0) {
+                            if (userReviewText.length > 0 && rating > 0) {
                                 setIsReviewPopupOpen(false);
                                 submitReview(bookId, rating, userReviewText, true);
                                 setBook(prevBook => ({
@@ -143,7 +151,10 @@ const Book = () => {
                                         time_ago: "Just now"
                                     }]
                                 }));
-                            } else {
+                            } else if (rating <= 0) {
+                                alert("Please give a rating");
+                            }
+                            else {
                                 alert("Review cannot be empty");
                             }
                         }}>
@@ -174,26 +185,26 @@ const Book = () => {
                                 > ❤ </button>
                             </div>
                             <div className="item-metadata">
-                                { book.page_count &&
+                                { parseInt(book.page_count) > 0 &&
                                     <>
-                                        <span>{book.page_count} Pages</span>
+                                        <span>{book.page_count + " Pages"}</span>
                                     </>
                                 }
                                 { book.published_date &&
                                     <>
-                                        <span>&nbsp;·&nbsp;</span> 
+                                        { parseInt(book.page_count) > 0 && <span>&nbsp;·&nbsp;</span>  }
                                         <span>{book.published_date}</span>
                                     </>
                                 }
                                 { book.maturity_rating && 
                                     <>
-                                        <span>&nbsp;·&nbsp;</span> 
+                                        { book.published_date && <span>&nbsp;·&nbsp;</span> }
                                         <span>{book.maturity_rating}</span> 
                                     </>
                                 }
                                 { book.country && 
                                     <>
-                                        <span>&nbsp;·&nbsp;</span> 
+                                        { book.country && <span>&nbsp;·&nbsp;</span> }
                                         <span>{book.country}</span>
                                     </>
                                 }
@@ -262,8 +273,27 @@ const Book = () => {
                                         }}
                                         className="item-image"
                                     />
-                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setReadListed(!readListed); toggleWantToReadListed(bookId, !readListed, true); } else { navigate("/login", { state: { parentLink : `/book/${bookId}` }}); } }} aria-label="Add to list">
-                                        { !readListed ? 
+                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (loggedInData.loggedIn) {
+                                                setReadListed(!readListed);
+                                                toggleWantToReadListed(bookId, !readListed, true);
+                                            } else { navigate("/login", { state: { parentLink : `/book/${bookId}` }}); }
+                                        }}
+                                        aria-label="Add to list"
+                                        onMouseEnter={() => setTooltip(t => ({ ...t, visible: true }))}
+                                        onMouseMove={e => {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            setTooltip(t => ({
+                                                ...t,
+                                                x: e.clientX - rect.left,
+                                                y: e.clientY - rect.top
+                                            }));
+                                        }}
+                                        onMouseLeave={() => setTooltip(t => ({ ...t, visible: false }))}
+                                    >
+                                    { !readListed ? 
                                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                                         :
                                             <div className="ItemThumbnail-tick-icon">
@@ -285,17 +315,11 @@ const Book = () => {
                                             </div>
                                         }
                                     </button>
-                                {/* <div className="item-trailer">
-                                    <iframe 
-                                        width="100%" 
-                                        height="100%" 
-                                        src={book.video && book.video.find(v => v.type === "Trailer") ? book.video.find(v => v.type === "Trailer").video.replace('watch?v=', 'embed/') : "https://www.youtube.com/embed/dQw4w9WgXcQ"} 
-                                        title="YouTube video player"
-                                        frameBorder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                        allowFullScreen
-                                    ></iframe>
-                                </div> */}
+                                    {tooltip.visible && (
+                                        <div className="itemThumbnail-tooltip" style={{ left: tooltip.x + 10, top: tooltip.y + 10 }}>
+                                            { readListed ? "Remove From ReadList" : "Add To Readlist" }
+                                        </div>
+                                    )}
                             </div>
 
                             { book.genres && <div className="item-genres">
@@ -358,9 +382,16 @@ const Book = () => {
                     </div>
                     {book.reviews && book.reviews.length > 0 && <div>
                         <div className="review-container">
-                            {book.reviews.slice(0,3).map(review => (
+                            {book.reviews
+                                .sort((a, b) => {
+                                    if (a.username === loggedInData.username) return -1;
+                                    if (b.username === loggedInData.username) return 1;
+                                    return 0;
+                                })
+                                .slice(0, 3)
+                                .map((review, index) => (
                                 <>
-                                    { review.text && <div key={review.id} className="review">
+                                    { review.text && <div key={index} className="review">
                                             <div className="review-content">
                                                 <div className="review-rating">
                                                     <span className="star-outline" style={{marginRight: '8px'}}>★</span>
@@ -368,6 +399,15 @@ const Book = () => {
                                                 </div>
                                                 <div className="review-text">
                                                     {review.text}
+                                                </div>
+                                            </div>
+                                            <div className="review-footer">
+                                                <div className="review-name" onClick={() => navigate(`/profile/${review.username}`)}>
+                                                    {review.username}
+                                                </div>
+                                                    ·
+                                                <div className="review-time">
+                                                    {review.time_ago}
                                                 </div>
                                             </div>
                                         </div>

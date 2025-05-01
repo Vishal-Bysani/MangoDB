@@ -193,8 +193,9 @@ const Profile = () => {
                         { user.favouriteMovies && user.favouriteMovies.length > 0 && <ListItemThumbnail title="Favourite Movies/Shows" itemThumbnails={user.favouriteMovies} titleFontSize="36px" ref={favouriteRef}/> }
                         { user.favouriteBooks && user.favouriteBooks.length > 0 && <ListItemThumbnail title="Favourite Books" itemThumbnails={user.favouriteBooks} titleFontSize="36px" forBook={true} ref={favouriteRef}/> }
                         { user.watchlist && user.watchlist.length > 0 && <ListItemThumbnail title="Watchlist" itemThumbnails={user.watchlist} titleFontSize="36px" ref={watchlistRef} isWatchOrReadList={true}/> }
-                        { user.wantToReadList && user.wantToReadList.length > 0 && <ListItemThumbnail title="Read List" itemThumbnails={user.wantToReadList} titleFontSize="36px" forBook={true} ref={favouriteRef} isWatchOrReadList={true}/> }
+                        { user.wantToReadList && user.wantToReadList.length > 0 && <ListItemThumbnail title="To-Read List" itemThumbnails={user.wantToReadList} titleFontSize="36px" forBook={true} ref={favouriteRef} isWatchOrReadList={true}/> }
                         { user.watchedList && user.watchedList.length > 0 && <ListItemThumbnail title="Watched List" itemThumbnails={user.watchedList} titleFontSize="36px"/> }
+                        { user.readList && user.readList.length > 0 && <ListItemThumbnail title="Books Read" itemThumbnails={user.readList} titleFontSize="36px" forBook={true}/> }
                     </div>
                 </div>
             )}

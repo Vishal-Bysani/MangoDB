@@ -117,7 +117,7 @@ const Navbar = () => {
               <button className="nav-button" onClick={() => navigate(`/profile/${loggedInData.username}`)}> {loggedInData.username} </button>
             </div>
             <div className="nav-button-div">
-              <button className="nav-button" onClick={() => { logoutUser(); setLoggedInData({loggedIn: false, username: ""}); if(currentLink) navigate(currentLink); else navigate("/"); }}>Logout</button>
+              <button className="nav-button" onClick={() => { logoutUser(); setLoggedInData({loggedIn: false, username: ""}); if(currentLink) window.location.reload(); else navigate("/"); }}>Logout</button>
             </div>
           </>
         ) : (

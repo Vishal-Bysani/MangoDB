@@ -14,6 +14,7 @@ import ListProfileOverview from "./pages/ListProfileOverview";
 import ItemSeasons from "./pages/ItemSeasons";
 import Collection from "./pages/Collection";
 import Book from "./pages/Book"
+import NetworkError from "./pages/NetworkError";
 import { loggedInDataContext, currentLinkContext } from "./Context";
 import { useState } from "react";
 
@@ -42,6 +43,7 @@ function App() {
             <Route path="/search/:query?" element={<Search />} />
             <Route path="/profile/:username/followers" element={<ListProfileOverview title="Followers" />} />
             <Route path="/profile/:username/following" element={<ListProfileOverview title="Following" />} />
+            <Route path="/network-error" element={<NetworkError />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </loggedInDataContext.Provider>

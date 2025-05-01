@@ -16,24 +16,10 @@ const Home = () => {
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
 
     useEffect(() => {
-        // const fetchTrendingMovies = async () => {
-        //     const trendingMovies = await getTrendingMovies();
-        //     setTrendingMovies(trendingMovies);
-        // };
-        // const fetchTrendingShows = async () => {
-        //     const trendingShows = await getTrendingShows();
-        //     setTrendingShows(trendingShows);
-        // };
-        // fetchTrendingMovies();
-        // fetchTrendingShows();
         getTrendingMovies().then(setTrendingMovies);
         getTrendingShows().then(setTrendingShows);
         getTrendingBooks().then(setTrendingBooks);
     }, []);
-
-    useEffect(() => {
-        console.log(trendingMovies);
-    }, [trendingMovies])
 
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -53,7 +39,7 @@ const Home = () => {
                 <div className="home-explore-container" style={{backgroundImage: "url(./home-explore-background.jpeg)"}}>
                     <div className="home-explore-container-text">
                         <span className="home-explore-container-text-title">Welcome</span>
-                        <span className="home-explore-container-text-subtitle">Millions of movies, TV shows and people to discover. Explore now.</span>
+                        <span className="home-explore-container-text-subtitle">Millions of movies, TV shows, books and people to discover. Explore now.</span>
                     </div>
                     <SearchBar handleSearch={(searchText) => {
                         navigate(`/search/${searchText}`);

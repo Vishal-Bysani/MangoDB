@@ -77,7 +77,7 @@ const Person = () => {
 
                 <div className="person-content">
                     <div className="person-main">
-                        <div style={{display: 'flex', gap: '50px'}}>
+                        <div style={{display: 'flex', gap: '50px', width: "100%"}}>
                             <img 
                                 src={person.image ? person.image : "/person-backdrop.svg"} 
                                 alt={person.name} 

@@ -1,158 +1,225 @@
 import { cache } from "react";
 import { apiUrl } from "./config/config.js";
 
+const handleApiError = (error) => {
+    if (error.message === 'Failed to fetch') {
+        window.location.href = '/network-error';
+        return null;
+    }
+    throw error;
+};
+
 const getLoggedIn = async () => {
-    return fetch(`${apiUrl}/isLoggedIn`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-    });
+    try {
+        const response = await fetch(`${apiUrl}/isLoggedIn`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+        });
+        return response;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const logoutUser = async () => {
-    fetch(`${apiUrl}/logout`, {
-        method: "POST",
-        credentials: "include",
-    }).then(response => {
+    try {
+        const response = await fetch(`${apiUrl}/logout`, {
+            method: "POST",
+            credentials: "include",
+        });
         if (response.status !== 200) {
             throw new Error("Failed to log out");
         }
-    }).catch(err => {
-        console.error("Error logging out:", err);
-    });
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const loginUser = async (user, password) => {
-    return fetch(`${apiUrl}/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user, password }),
-    });
+    try {
+        const response = await fetch(`${apiUrl}/login`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ user, password }),
+        });
+        return response;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const signupUser = async (username, password, email) => {
-    return fetch(`${apiUrl}/signup`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password, email }),
-    });
+    try {
+        const response = await fetch(`${apiUrl}/signup`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password, email }),
+        });
+        return response;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getItemDetails = async (itemId) => {
-    // await new Promise(resolve => setTimeout(resolve, 2000));
-    const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`, {
-        credentials: "include",
-    });
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`, {
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getMatchingItems = async (text) => {
-    const response = await fetch(`${apiUrl}/getMatchingItem?text=${text}`);
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/getMatchingItem?text=${text}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const submitRating = async (itemId, rating, forBook = false) => {
-    if (forBook) {
-        fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&forBook=${forBook}`, {
-            method: "POST",
-            credentials: "include",
-        });
-    } else {
-        fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}`, {
-            method: "POST",
-            credentials: "include",
-        });
+    try {
+        if (forBook) {
+            await fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&forBook=${forBook}`, {
+                method: "POST",
+                credentials: "include",
+            });
+            await fetch(`${apiUrl}/addToReadList?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        } else {
+            await fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}`, {
+                method: "POST",
+                credentials: "include",
+            });
+            await fetch(`${apiUrl}/addToWatchedList?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        }
+    } catch (error) {
+        return handleApiError(error);
     }
-    fetch(`${apiUrl}/addToWatchedList?id=${itemId}`, {
-        method: "POST",
-        credentials: "include",
-    });
 }
 
 const submitReview = async (itemId, rating, review, forBook = false) => {
-    if (forBook) {
-        fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}&forBook=${forBook}`, {
-            method: "POST",
-            credentials: "include",
-        });
-    } else {
-        fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}`, {
-            method: "POST",
-            credentials: "include",
-        });
+    try {
+        if (forBook) {
+            await fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}&forBook=${forBook}`, {
+                method: "POST",
+                credentials: "include",
+            });
+            await fetch(`${apiUrl}/addToReadList?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        } else {
+            await fetch(`${apiUrl}/submitRatingReview?id=${itemId}&rating=${rating}&review=${review}`, {
+                method: "POST",
+                credentials: "include",
+            });
+            await fetch(`${apiUrl}/addToWatchedList?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        }
+    } catch (error) {
+        return handleApiError(error);
     }
-    fetch(`${apiUrl}/addToWatchedList?id=${itemId}`, {
-        method: "POST",
-        credentials: "include",
-    });
 }
 
 const getPersonDetails = async (personId) => {
-    const response = await fetch(`${apiUrl}/getPersonDetails?id=${personId}`);
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/getPersonDetails?id=${personId}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const setFavourite = async (itemId, favourite, forBook = false) => {
-    if (favourite) {
-        if (forBook) {
-            fetch(`${apiUrl}/addToFavourites?id=${itemId}&forBook=${forBook}`, {
-                method: "POST",
-                credentials: "include",
-            });
+    try {
+        if (favourite) {
+            if (forBook) {
+                await fetch(`${apiUrl}/addToFavourites?id=${itemId}&forBook=${forBook}`, {
+                    method: "POST",
+                    credentials: "include",
+                });
+            } else {
+                await fetch(`${apiUrl}/addToFavourites?id=${itemId}`, {
+                    method: "POST",
+                    credentials: "include",
+                });
+            }
         } else {
-            fetch(`${apiUrl}/addToFavourites?id=${itemId}`, {
-                method: "POST",
-                credentials: "include",
-            });
+            if (forBook) {
+                await fetch(`${apiUrl}/removeFromFavourites?id=${itemId}&forBook=${forBook}`, {
+                    method: "POST",
+                    credentials: "include",
+                });
+            } else {
+                await fetch(`${apiUrl}/removeFromFavourites?id=${itemId}`, {
+                    method: "POST",
+                    credentials: "include",
+                });
+            }
         }
-    } else {
-        if (forBook) {
-            fetch(`${apiUrl}/removeFromFavourites?id=${itemId}&forBook=${forBook}`, {
-                method: "POST",
-                credentials: "include",
-            });
-        } else {
-            fetch(`${apiUrl}/removeFromFavourites?id=${itemId}`, {
-                method: "POST",
-                credentials: "include",
-            });
-        }
+    } catch (error) {
+        return handleApiError(error);
     }
 }
 
 const getTrendingMovies = async (pageNo = 1, pageLimit = 25) => {
-    const response = await fetch(`${apiUrl}/getMoviesByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
-        credentials: "include",
-    });
-    const data = await response.json();
-    return data.movies;
+    try {
+        const response = await fetch(`${apiUrl}/getMoviesByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data.movies;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getTrendingShows = async (pageNo = 1, pageLimit = 25) => {
-    const response = await fetch(`${apiUrl}/getShowsByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
-        credentials: "include",
-    });
-    const data = await response.json();
-    return data.shows;
+    try {
+        const response = await fetch(`${apiUrl}/getShowsByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data.shows;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 export const getTrendingBooks = async (pageNo = 1, pageLimit = 25) => {
-    const response = await fetch(`${apiUrl}/getBooksByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
-        credentials: "include",
-    });
-    const data = await response.json();
-    return data.books;
+    try {
+        const response = await fetch(`${apiUrl}/getBooksByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data.books;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getFilteredItems = async ({searchText = null,
@@ -167,108 +234,148 @@ const getFilteredItems = async ({searchText = null,
                                 forShow = true,
                                 pageNo = 1,
                                 pageLimit = 10 }) => {
-    let baseUrl = `${apiUrl}/filterItems?`;
-    if (searchText) baseUrl += `searchText=${searchText}&`;
-    if (personId) baseUrl += `personId=${personId}&`;
-    if (genreId) baseUrl += `genreId=${genreId}&`;
-    if (year) baseUrl += `year=${year}&`;
-    if (minRating) baseUrl += `minRating=${minRating}&`;
-    if (orderByRating) baseUrl += `orderByRating=${orderByRating}&`;
-    if (orderByPopularity) baseUrl += `orderByPopularity=${orderByPopularity}&`;
-    if (forBook) baseUrl += `forBook=${forBook}&`;
-    if (forMovie) baseUrl += `forMovie=${forMovie}&`;
-    if (forShow) baseUrl += `forShow=${forShow}&`;
-    if (pageNo) baseUrl += `pageNo=${pageNo}&`;
-    if (pageLimit) baseUrl += `pageLimit=${pageLimit}&`;
-    console.log(baseUrl)
-    const response = await fetch(baseUrl, {
-        credentials: "include",
-    });
-    const data = await response.json();
-    if (data.moviesOrShows) return data.moviesOrShows.concat(data.books);
-    else return data.books;
+    try {
+        let baseUrl = `${apiUrl}/filterItems?`;
+        if (searchText) baseUrl += `searchText=${searchText}&`;
+        if (personId) baseUrl += `personId=${personId}&`;
+        if (genreId) baseUrl += `genreId=${genreId}&`;
+        if (year) baseUrl += `year=${year}&`;
+        if (minRating) baseUrl += `minRating=${minRating}&`;
+        if (orderByRating) baseUrl += `orderByRating=${orderByRating}&`;
+        if (orderByPopularity) baseUrl += `orderByPopularity=${orderByPopularity}&`;
+        if (forBook) baseUrl += `forBook=${forBook}&`;
+        if (forMovie) baseUrl += `forMovie=${forMovie}&`;
+        if (forShow) baseUrl += `forShow=${forShow}&`;
+        if (pageNo) baseUrl += `pageNo=${pageNo}&`;
+        if (pageLimit) baseUrl += `pageLimit=${pageLimit}&`;
+        
+        const response = await fetch(baseUrl, {
+            credentials: "include",
+        });
+        const data = await response.json();
+        if (data.moviesOrShows) return data.moviesOrShows.concat(data.books);
+        else return data.books;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getUserDetails = async (username) => {
-    const userDetails = await fetch(`${apiUrl}/getUserDetails?username=${username}`, {
-        method: "GET",
-        credentials: "include",
-    });
-    if (userDetails.status != 200) return null;
-    const userDetailsData = await userDetails.json();
-    return userDetailsData;
+    try {
+        const userDetails = await fetch(`${apiUrl}/getUserDetails?username=${username}`, {
+            method: "GET",
+            credentials: "include",
+        });
+        if (userDetails.status != 200) return null;
+        const userDetailsData = await userDetails.json();
+        return userDetailsData;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getGenreList = async () => {
-    const response = await fetch(`${apiUrl}/listGenres`);
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/listGenres`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getMatchingPersons = async (searchText, searchLimit = 100) => {
-    const response = await fetch(`${apiUrl}/matchingPersons?searchText=${searchText}&searchLimit=${searchLimit}`);
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/matchingPersons?searchText=${searchText}&searchLimit=${searchLimit}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const followUser = async (followedUsername) => {
-    const response = await fetch(`${apiUrl}/followUser?followed_username=${followedUsername}`, {
-        method: "POST",
-        credentials: "include",
-    });
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/followUser?followed_username=${followedUsername}`, {
+            method: "POST",
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const toggleWatchListed = async (itemId, watchListed) => {
-    if (watchListed) {
-        fetch(`${apiUrl}/addToWatchlist?id=${itemId}`, {
-            method: "POST",
-            credentials: "include",
-        });
-    } else {
-        fetch(`${apiUrl}/removeFromWatchlist?id=${itemId}`, {
-            method: "POST",
-            credentials: "include",
-        });
+    try {
+        if (watchListed) {
+            await fetch(`${apiUrl}/addToWatchlist?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        } else {
+            await fetch(`${apiUrl}/removeFromWatchlist?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        }
+    } catch (error) {
+        return handleApiError(error);
     }
 }
 
 const getSeasonDetails = async (showId, seasonId) => {
-    const response = await fetch(`${apiUrl}/getSeasonDetails?show_id=${showId}&season_id=${seasonId}`, {
-        credentials: "include",
-    });
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/getSeasonDetails?show_id=${showId}&season_id=${seasonId}`, {
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getCollectionDetails = async (collectionId, pageNo = 1, pageLimit = 1000) => {
-    const response = await fetch(`${apiUrl}/getMovieShowByCollectionId?collection_id=${collectionId}&pageNo=${pageNo}&pageLimit=${pageLimit}`, {
-        credentials: "include",
-    });
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/getMovieShowByCollectionId?collection_id=${collectionId}&pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const getBookDetails = async (bookId) => {
-    const response = await fetch(`${apiUrl}/getBooksDetails?id=${bookId}`, {
-        credentials: "include",
-    });
-    const data = await response.json();
-    return data;
+    try {
+        const response = await fetch(`${apiUrl}/getBooksDetails?id=${bookId}`, {
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
 }
 
 const toggleWantToReadListed = async (itemId, readListed) => {
-    if (readListed) {
-        fetch(`${apiUrl}/addToWantToReadList?id=${itemId}`, {
-            method: "POST",
-            credentials: "include",
-        });
-    } else {
-        fetch(`${apiUrl}/removeFromWantToReadList?id=${itemId}`, {
-            method: "POST",
-            credentials: "include",
-        });
+    try {
+        if (readListed) {
+            await fetch(`${apiUrl}/addToWantToReadList?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        } else {
+            await fetch(`${apiUrl}/removeFromWantToReadList?id=${itemId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+        }
+    } catch (error) {
+        return handleApiError(error);
     }
 }
 
@@ -294,8 +401,7 @@ export const uploadProfileImage = async (imageFile, username) => {
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error('Error uploading image:', error);
-        throw error;
+        return handleApiError(error);
     }
 };
 

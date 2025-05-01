@@ -23,6 +23,7 @@ const Item = () => {
     const [directors, setDirectors] = useState([]);
     const [writers, setWriters] = useState([]);
     const [watchListed, setWatchListed] = useState(false);
+    const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0 });
 
     useEffect(() => {
         getLoggedIn().then(response => {
@@ -101,9 +102,16 @@ const Item = () => {
                         )}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <button className="submit-rate-button" onClick={() => {setIsRatingPopupOpen(false); submitRating(item.id, rating);}}>
-                            Rate
-                        </button>
+                        <button className="submit-rate-button"
+                            onClick={() => {
+                                if (rating > 0) {
+                                    setIsRatingPopupOpen(false);
+                                    submitRating(item.id, rating);
+                                } else {
+                                    alert("Please give a rating");
+                                }
+                            }}
+                        > Rate </button>
                     </div>
                 </div>
             </Popup>
@@ -140,7 +148,7 @@ const Item = () => {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <button className="submit-rate-button" onClick={() => {
-                            if (userReviewText.length > 0) {
+                            if (userReviewText.length > 0 && rating > 0) {
                                 setIsReviewPopupOpen(false);
                                 submitReview(item.id, rating, userReviewText);
                                 setItem(prevItem => ({
@@ -152,7 +160,10 @@ const Item = () => {
                                         time_ago: "Just now"
                                     }]
                                 }));
-                            } else {
+                            } else if (rating <= 0) {
+                                alert("Please give a rating");
+                            }
+                            else {
                                 alert("Review cannot be empty");
                             }
                         }}>
@@ -301,7 +312,30 @@ const Item = () => {
                                         }}
                                         className="item-image"
                                     />
-                                    <button className="ItemThumbnail-plus-button" style={{width: '60px', height: '60px'}} onClick={(e) => { e.stopPropagation(); if (loggedInData.loggedIn) { setWatchListed(!watchListed); toggleWatchListed(itemId, !watchListed); } else { navigate("/login", { state: { parentLink : `/item/${itemId}` }}); } }} aria-label="Add to list">
+                                    <button 
+                                        className="ItemThumbnail-plus-button" 
+                                        style={{width: '60px', height: '60px'}} 
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            if (loggedInData.loggedIn) { 
+                                                setWatchListed(!watchListed); 
+                                                toggleWatchListed(itemId, !watchListed); 
+                                            } else { 
+                                                navigate("/login", { state: { parentLink : `/item/${itemId}` }}); 
+                                            } 
+                                        }} 
+                                        aria-label="Add to list"
+                                        onMouseEnter={() => setTooltip(t => ({ ...t, visible: true }))}
+                                        onMouseMove={e => {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            setTooltip(t => ({
+                                                ...t,
+                                                x: e.clientX - rect.left,
+                                                y: e.clientY - rect.top
+                                            }));
+                                        }}
+                                        onMouseLeave={() => setTooltip(t => ({ ...t, visible: false }))}
+                                    >
                                         { !watchListed ? 
                                             <p style={{fontSize: '20px', color: 'white'}}>+</p>
                                         :
@@ -323,6 +357,11 @@ const Item = () => {
                                                 </svg>
                                             </div>
                                         }
+                                        {tooltip.visible && (
+                                            <div className="itemThumbnail-tooltip" style={{ left: tooltip.x + 10, top: tooltip.y + 10 }}>
+                                                { watchListed ? "Remove From WatchList" : "Add To Watchlist" }
+                                            </div>
+                                        )}
                                     </button>
                                 <div className="item-trailer">
                                     <iframe 
@@ -449,7 +488,14 @@ const Item = () => {
                     </div>
                     {item.reviews && item.reviews.length > 0 && <div>
                         <div className="review-container">
-                            {item.reviews.slice(0,3).map((review, index) => (
+                            {item.reviews
+                                .sort((a, b) => {
+                                    if (a.username === loggedInData.username) return -1;
+                                    if (b.username === loggedInData.username) return 1;
+                                    return 0;
+                                })
+                                .slice(0, 3)
+                                .map((review, index) => (
                                 <>
                                     { review.text && <div key={index} className="review">
                                             <div className="review-content">
