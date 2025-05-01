@@ -87,8 +87,8 @@ async function heartBeats(req, res, next) {
   if(req.session.username){
     const currentTime = new Date();
     await pool.query("UPDATE user_data SET last_login = $1 WHERE username = $2", [currentTime, req.session.username]);
-    const ch = await pool.query("SELECT last_login FROM user_data WHERE username = $1", [req.session.username]);
-    console.log("Last login time:", ch.rows[0].last_login);
+    // const ch = await pool.query("SELECT last_login FROM user_data WHERE username = $1", [req.session.username]);
+    // console.log("Last login time:", ch.rows[0].last_login);
   }
   next(); // Also adding this as you likely need to continue to the next middleware
 }
@@ -222,6 +222,7 @@ app.get("/verify-email", async (req, res) => {
     }
 
     const user = await pool.query("SELECT username FROM users WHERE email = $1", [email]);
+    await pool.query("INSERT INTO user_data (username, last_login) VALUES ($1, $2)", [user.rows[0].username, Date.now()]);
     req.session.username = user.rows[0].username;
     req.session.email = email;
 
