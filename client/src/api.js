@@ -18,7 +18,8 @@ const getLoggedIn = async () => {
             },
             credentials: "include",
         });
-        return response;
+        const data = await response.json();
+        return data;
     } catch (error) {
         return handleApiError(error);
     }

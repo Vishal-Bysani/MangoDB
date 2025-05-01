@@ -64,7 +64,7 @@ const Navbar = () => {
             onChange={handleSearchChange}
             onKeyDown={(e) => {
               if (e.key === "Enter" && searchText.length > 0) {
-                navigate(`/search/${searchText}`);
+                navigate(`/search?q=${searchText}`);
               }
             }}
           />

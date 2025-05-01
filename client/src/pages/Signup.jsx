@@ -7,7 +7,7 @@ import { currentLinkContext } from "../Context";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const {currentLink, setCurrentLink} = useContext(currentLinkContext);
+  const { currentLink, setCurrentLink } = useContext(currentLinkContext);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -22,16 +22,11 @@ const Signup = () => {
   };
 
   useEffect(() => {
-    getLoggedIn().then(response => {
-        if (response.status === 200) {
-            response.json().then(data => {
-                if (data.loggedIn && currentLink) navigate(currentLink);
-                else if (data.loggedIn) navigate(`/`)
-            });
-        }
-    });
+    const data = getLoggedIn();
+    if (data.loggedIn && currentLink) navigate(currentLink);
+    else if (data.loggedIn) navigate(`/`);
     document.title = "Sign Up";
-}, []);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

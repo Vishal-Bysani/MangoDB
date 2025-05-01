@@ -57,13 +57,7 @@ const ItemSeasons = () => {
     const [seasonVideos, setSeasonVideos] = useState([]);
 
     useEffect(() => {
-        getLoggedIn().then(response => {
-            if (response.status === 200) {
-                response.json().then(data => {
-                    setLoggedInData(data);
-                });
-            }
-        });
+        setLoggedInData(getLoggedIn());
         setCurrentLink(`/item/${itemId}/seasons`);
         if (location.state) {
             setTitle(location.state.title);

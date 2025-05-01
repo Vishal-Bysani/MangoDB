@@ -24,13 +24,7 @@ const Book = () => {
     const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0 });
 
     useEffect(() => {
-        getLoggedIn().then(response => {
-            if (response.status === 200) {
-                response.json().then(data => {
-                    setLoggedInData(data);
-                });
-            }
-        });
+        setLoggedInData(getLoggedIn());
         setCurrentLink(`/book/${bookId}`);
     }, []);
     
@@ -186,9 +180,9 @@ const Book = () => {
                             </div>
                             <div className="item-metadata">
                                 { parseInt(book.page_count) > 0 &&
-                                    <>
+                                    (
                                         <span>{book.page_count + " Pages"}</span>
-                                    </>
+                                    )
                                 }
                                 { book.published_date &&
                                     <>
@@ -340,11 +334,9 @@ const Book = () => {
                                 { authors.length > 0 && 
                                     <div className="crew-section">
                                         <h3>Authors</h3>
-                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${authors[0].id}`)}>{authors[0].name}</p>
-                                        { authors.slice(1, 5).map(author => (
-                                            <>
-                                                <p className="crew-name" onClick={() => navigate(`/person/${author.id}`)}>&nbsp;·&nbsp;{author.name}</p>
-                                            </>
+                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${authors[0].id}`)} key={0}>{authors[0].name}</p>
+                                        { authors.slice(1, 5).map((author, index) => (
+                                            <p className="crew-name" onClick={() => navigate(`/person/${author.id}`)} key={index + 1}>&nbsp;·&nbsp;{author.name}</p>
                                         ))}
                                         <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${bookId}/list-persons/writers`, {state: {personHeaders: book.writers, title: book.title}})}></p>
                                     </div>

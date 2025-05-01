@@ -22,13 +22,7 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        getLoggedIn().then(response => {
-            if (response.status === 200) {
-                response.json().then(data => {
-                    setLoggedInData(data);
-                });
-            }
-        });
+        setLoggedInData(getLoggedIn());
         setCurrentLink(`/`);
         document.title = "Mangodb";
     }, []);
@@ -42,7 +36,7 @@ const Home = () => {
                         <span className="home-explore-container-text-subtitle">Millions of movies, TV shows, books and people to discover. Explore now.</span>
                     </div>
                     <SearchBar handleSearch={(searchText) => {
-                        navigate(`/search/${searchText}`);
+                        navigate(`/search?q=${searchText}`);
                     }} />
                 </div>
             <div className="home-container">

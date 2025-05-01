@@ -119,11 +119,7 @@ const Search = () => {
     }, [matchingItems]);
 
     useEffect(() => {
-        getLoggedIn().then(response => {
-            if (response.status === 200) {
-                response.json().then(setLoggedInData);
-            }
-        });
+        setLoggedInData(getLoggedIn());
         setCurrentLink(`/search?q=${searchQuery}`);
         document.title = `Search: ${searchQuery}`;
     }, [])

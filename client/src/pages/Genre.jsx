@@ -18,13 +18,7 @@ const Genre = () => {
     const location = useLocation();
 
     useEffect(() => {
-        getLoggedIn().then(response => {
-            if (response.status === 200) {
-                response.json().then(data => {
-                    setLoggedInData(data);
-                });
-            }
-        });
+        setLoggedInData(getLoggedIn());
         setCurrentLink(`/genre/${genreId}`);
     }, []);
 

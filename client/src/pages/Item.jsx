@@ -26,13 +26,7 @@ const Item = () => {
     const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0 });
 
     useEffect(() => {
-        getLoggedIn().then(response => {
-            if (response.status === 200) {
-                response.json().then(data => {
-                    setLoggedInData(data);
-                });
-            }
-        });
+        setLoggedInData(getLoggedIn());
         setCurrentLink(`/item/${itemId}`);
     }, []);
 
@@ -177,12 +171,10 @@ const Item = () => {
             <div className="item-page-container">
                 <div className="item-page">
                     {item.type === "tv" && (
-                        <>
-                            <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/seasons`, {state: {title: item.title, seasons: item.seasons}})}>
-                                <p style={{textDecoration: 'none', fontSize: '20px'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>{item.seasons.length} { item.seasons.length === 1 ? "Season" : "Seasons"} </p>
-                                <p className="forward-arrow" style={{marginLeft: '10px', marginTop: '25px'}}></p>
-                            </div>
-                        </>
+                        <div className="item-header" style={{display: 'flex', cursor: 'pointer'}} onClick={()=> navigate(`/item/${item.id}/seasons`, {state: {title: item.title, seasons: item.seasons}})}>
+                            <p style={{textDecoration: 'none', fontSize: '20px'}} onMouseEnter={(e) => e.target.style.textDecoration = 'underline'} onMouseLeave={(e) => e.target.style.textDecoration = 'none'}>{item.seasons.length} { item.seasons.length === 1 ? "Season" : "Seasons"} </p>
+                            <p className="forward-arrow" style={{marginLeft: '10px', marginTop: '25px'}}></p>
+                        </div>
                     )}
                     <div className="item-header-container">
                         <div className="item-header">
@@ -392,9 +384,7 @@ const Item = () => {
                                         <h3>Directors</h3>
                                         <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${directors[0].id}`)}>{directors[0].name}</p>
                                         { directors.slice(1, 5).map(director => (
-                                            <>
-                                                <p className="crew-name" onClick={() => navigate(`/person/${director.id}`)}>&nbsp;·&nbsp;{director.name}</p>
-                                            </>
+                                            <p className="crew-name" onClick={() => navigate(`/person/${director.id}`)}>&nbsp;·&nbsp;{director.name}</p>
                                         ))}
                                         <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
                                     </div>
@@ -405,9 +395,7 @@ const Item = () => {
                                         <h3>Writers</h3>
                                         <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${writers[0].id}`)}>{writers[0].name}</p>
                                         { writers.slice(1, 5).map(writer => (
-                                            <>
-                                                <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
-                                            </>
+                                            <p className="crew-name" onClick={() => navigate(`/person/${writer.id}`)}>&nbsp;·&nbsp;{writer.name}</p>
                                         ))}
                                         <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/writers`, {state: {personHeaders: item.writers, title: item.title}})}></p>
                                     </div>
@@ -416,11 +404,9 @@ const Item = () => {
                                 { item.cast && item.cast.length > 0 && (
                                     <div className="crew-section">
                                         <h3>Stars</h3>
-                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.cast[0].id}`)}>{item.cast[0].name}</p>
-                                        { item.cast.slice(1, 5).map(actor => (
-                                            <>
-                                                <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)}>&nbsp;·&nbsp;{actor.name}</p>
-                                            </>
+                                        <p className="crew-name" style={{marginLeft: '16px'}} onClick={() => navigate(`/person/${item.cast[0].id}`)} key={0}>{item.cast[0].name}</p>
+                                        { item.cast.slice(1, 5).map((actor, index) => (
+                                            <p className="crew-name" onClick={() => navigate(`/person/${actor.id}`)} key={index+1}>&nbsp;·&nbsp;{actor.name}</p>
                                         ))}
                                         <p className="forward-arrow" style={{marginLeft: 'auto', marginRight: '16px', marginTop: '5px'}} onClick={() => navigate(`/items/${item.id}/list-persons/actors`, {state: {personHeaders: item.cast, title: item.title}})}></p>
                                     </div>
@@ -460,7 +446,8 @@ const Item = () => {
                         <ListPersonThumbnail title="Cast" titleFontSize="32px" personThumbnails={item.cast} />
                     )}
 
-                    { item.review_summary && <>
+                    { item.review_summary &&
+                        <>
                             <div style={{display: 'flex'}}>
                                 <h2 className="review-container-title" style={{marginRight: '25px'}}>AI Generated Sumamry</h2>
                             </div>
