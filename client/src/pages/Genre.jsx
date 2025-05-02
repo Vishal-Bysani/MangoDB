@@ -15,6 +15,7 @@ const Genre = () => {
     const [genreName, setGenreName] = useState(null);
     const [genreMovies, setGenreMovies] = useState([]);
     const [genreShows, setGenreShows] = useState([]);
+    const [genreBooks, setGenreBooks] = useState([]);
     const location = useLocation();
 
     useEffect(() => {
@@ -24,10 +25,12 @@ const Genre = () => {
 
     useEffect(() => {
         const fetchGenre = async () => {
-            const movies = await getFilteredItems({genreId: genreId, forMovie: true, forShow: false});
+            const movies = await getFilteredItems({genreId: genreId, forMovie: true, forShow: false, forBook: false});
             setGenreMovies(movies);
-            const shows = await getFilteredItems({genreId: genreId, forMovie: false, forShow: true});
+            const shows = await getFilteredItems({genreId: genreId, forMovie: false, forShow: true, forBook: false});
             setGenreShows(shows);
+            const books = await getFilteredItems({genreId: genreId, forMovie: false, forShow: false, forBook: true});
+            setGenreBooks(books);
             setLoading(false);
             setGenreName(location.state.name);
             document.title = `${location.state.name} | Genre`;
@@ -51,6 +54,7 @@ const Genre = () => {
                 <h1 className="genre-title">{genreName}</h1>
                 { genreMovies && genreMovies.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Movies`} titleFontSize="44px" itemThumbnails={genreMovies}/> }
                 { genreShows && genreShows.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Shows`} titleFontSize="44px" itemThumbnails={genreShows}/> }
+                { genreBooks && genreBooks.length > 0 && <ListItemThumbnail title={`Popular ${genreName} Books`} titleFontSize="44px" itemThumbnails={genreBooks}/> }
             </div>
         </>
     );

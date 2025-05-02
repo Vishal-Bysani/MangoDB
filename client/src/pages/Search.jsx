@@ -108,13 +108,15 @@ const Search = () => {
     };
 
     useEffect(() => {
-        handleFilterSubmit();
+        if (pageNo > 0) handleFilterSubmit();
     }, [pageNo]);
 
     useEffect(() => {
         if (pageNo > 1 && matchingItems.length === 0) {
             setTotalPages(Math.max(pageNo - 1, 1));
             if (pageNo > 1) setPageNo(pageNo);
+        } else if (pageNo > 0 && matchingItems.length > 0 && pageNo > totalPages) {
+            setTotalPages(null);
         }
     }, [matchingItems]);
 
@@ -285,9 +287,8 @@ const Search = () => {
             </div>
             <div className="search-page-pagination-container">
                     <button className="search-page-pagination-button" onClick={() => setPageNo(Math.max(pageNo - 1, 1))} disabled={pageNo === 1}>Previous</button>
-                    <span className="search-page-pagination-info">{pageNo} { pageNo <= totalPages && totalPages && `of ${totalPages}`}</span>
-                <button className="search-page-pagination-button" onClick={() => setPageNo(Math.min(pageNo + 1, totalPages ? totalPages : pageNo + 1))} disabled={matchingItems.length<pageLimit ||matchingItems.length <= 0 || (totalPages && pageNo >= totalPages)}
-                >Next</button>
+                    <span className="search-page-pagination-info">{pageNo} { totalPages && `of ${totalPages}`}</span>
+                <button className="search-page-pagination-button" onClick={() => setPageNo(Math.min(pageNo + 1, totalPages ? totalPages : pageNo + 1))} disabled={matchingItems.length === 0 || (totalPages && pageNo >= totalPages)}>Next</button>
             </div>
         </div>
     )

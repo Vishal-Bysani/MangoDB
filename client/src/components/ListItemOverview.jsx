@@ -7,7 +7,7 @@ const ListItemOverview = ( { title, itemOverviewList, ref = null, forBook = fals
         <div className="list-item-overview-container" ref={ref}>
             { title && <h1 className="list-item-overview-container-title">{title}</h1> }
             {itemOverviewList && itemOverviewList.map((itemOverview) => (
-                <ItemOverview key={forBook ? 2 * itemOverview.id : 2 * itemOverview.id + 1} 
+                <ItemOverview key={itemOverview.forBook ? 2 * itemOverview.id : 2 * itemOverview.id + 1} 
                     itemId={itemOverview.id}
                     title={itemOverview.title}
                     image={itemOverview.image || itemOverview.poster_path}
@@ -22,6 +22,7 @@ const ListItemOverview = ( { title, itemOverviewList, ref = null, forBook = fals
                     forBook={itemOverview.forBook}
                     author={itemOverview.author}
                     isWatchOrReadList={itemOverview.isWatchList || itemOverview.isWantToReadList}
+                    type={itemOverview.category || itemOverview.type}
                 />
             ))}
         </div>

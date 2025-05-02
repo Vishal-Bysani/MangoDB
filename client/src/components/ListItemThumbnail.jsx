@@ -84,13 +84,13 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, forBook = fal
                                 <ItemThumbnail 
                                     itemId={itemThumbnail.id}
                                     title={itemThumbnail.title}
-                                    image={itemThumbnail.image}
-                                    year={itemThumbnail.year}
+                                    image={itemThumbnail.image || itemThumbnail.poster_path || itemThumbnail.cover_url}
+                                    year={itemThumbnail.year || (itemThumbnail.published_date && itemThumbnail.published_date.slice(0, 4))}
                                     rating={itemThumbnail.rating}
                                     userRating={itemThumbnail.userRating}
                                     startYear={itemThumbnail.startYear}
                                     endYear={itemThumbnail.endYear}
-                                    cast={itemThumbnail.cast}
+                                    cast={itemThumbnail.cast || itemThumbnail.authors}
                                     crew={itemThumbnail.crew}
                                     isWatchListed={isWatchOrReadList || itemThumbnail.isWatchList || itemThumbnail.isWantToReadList}
                                     forBook={forBook}

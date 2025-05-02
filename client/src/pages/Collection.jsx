@@ -21,7 +21,6 @@ const Collection = () => {
     useEffect(() => {
         getCollectionDetails(collectionId).then(data => {
             setCollectionItems(data.moviesOrShow);
-            console.log(data.moviesOrShow);
             setCollectionDetails(data.collection);
         });
     }, [collectionId])

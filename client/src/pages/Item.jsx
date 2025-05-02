@@ -473,42 +473,51 @@ const Item = () => {
                             }
                         }}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
                     </div>
-                    {item.reviews && item.reviews.length > 0 && <div>
-                        <div className="review-container">
-                            {item.reviews
-                                .sort((a, b) => {
-                                    if (a.username === loggedInData.username) return -1;
-                                    if (b.username === loggedInData.username) return 1;
-                                    return 0;
-                                })
-                                .slice(0, 3)
-                                .map((review, index) => (
-                                <>
-                                    { review.text && <div key={index} className="review">
-                                            <div className="review-content">
-                                                <div className="review-rating">
-                                                    <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                                    {parseFloat(review.rating).toFixed(1)}/10
+                    {item.reviews && item.reviews.length > 0 ? (
+                        <div>
+                            <div className="review-container">
+                                {item.reviews
+                                    .sort((a, b) => {
+                                        if (a.username === loggedInData.username) return -1;
+                                        if (b.username === loggedInData.username) return 1;
+                                        return 0;
+                                    })
+                                    .slice(0, 3)
+                                    .map((review, index) => (
+                                    <>
+                                        { review.text && <div key={index} className="review">
+                                                <div className="review-content">
+                                                    <div className="review-rating">
+                                                        <span className="star-outline" style={{marginRight: '8px'}}>★</span>
+                                                        {parseFloat(review.rating).toFixed(1)}/10
+                                                    </div>
+                                                    <div className="review-text">
+                                                        {review.text}
+                                                    </div>
                                                 </div>
-                                                <div className="review-text">
-                                                    {review.text}
+                                                <div className="review-footer">
+                                                    <div className="review-name" onClick={() => navigate(`/profile/${review.username}`)}>
+                                                        {review.username}
+                                                    </div>
+                                                        ·
+                                                    <div className="review-time">
+                                                        {review.time_ago}
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="review-footer">
-                                                <div className="review-name" onClick={() => navigate(`/profile/${review.username}`)}>
-                                                    {review.username}
-                                                </div>
-                                                    ·
-                                                <div className="review-time">
-                                                    {review.time_ago}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                </>
-                            ))}
+                                        }
+                                    </>
+                                ))}
+                            </div>
                         </div>
-                    </div>}
+                    ) : (
+                        <div className="no-reviews-container">
+                            <div className="no-reviews-message">
+                                <p>No Reviews Available</p>
+                                <p className="no-reviews-subtext">{item.type === "tv" ? "Be the first to review this TV Show!" : "Be the first to review this Movie!" }</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </>

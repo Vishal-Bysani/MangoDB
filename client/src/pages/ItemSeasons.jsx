@@ -71,7 +71,6 @@ const ItemSeasons = () => {
             getSeasonDetails(itemId, seasons[seasonIndex].id).then(response => {
                 setEpisodes(response.episodes);
                 setSeasonVideos(response.season_videos);
-                console.log(response);
             });
         }
     }, [seasonIndex]);

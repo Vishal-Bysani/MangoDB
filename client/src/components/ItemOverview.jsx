@@ -4,13 +4,13 @@ import { toggleWatchListed, toggleWantToReadListed } from "../api";
 import "../css/ItemOverview.css";
 import { loggedInDataContext, currentLinkContext } from "../Context";
 
-const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, author, description, key, forBook = false, isWatchOrReadList = false }, ref) => {
+const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, author, description, forBook = false, isWatchOrReadList = false, type }, ref) => {
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const navigate = useNavigate();
     const [watchListed, setWatchListed] = useState(isWatchOrReadList);
     return (
-        <div className="item-overview-container" ref={ref} key={key}>
+        <div className="item-overview-container" ref={ref}>
             <div className="item-overview-content">
                 <div className="item-overview-image-container">
                     <img
@@ -52,6 +52,9 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                     <div className="item-overview-rating-container">
                         <p style={{fontWeight: 'bold'}}><span className="item-overview-yellow-star">★</span> {parseFloat(rating).toFixed(1)}/10</p>
                         { userRating > 0 && <p style={{fontWeight: 'bold'}}><span className="item-overview-blue-star">★</span> {parseFloat(userRating).toFixed(1)}/10</p> }
+                        <span className="item-overview-type" style={{
+                            backgroundColor: forBook ? '#ff4d4d' : (type === 'tv' ? '#4d94ff' : '#9933ff')
+                        }}>{forBook ? "Book" : (type === "tv" ? "TV Show" : "Movie")}</span>
                     </div>
                     { year && <p>{year}</p> }
                     { startYear && endYear && <p>{startYear} - {endYear}</p> }

@@ -61,3 +61,11 @@
     gap: 20px;
     margin-bottom: -20px;
 }
+
+.item-overview-type {
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-left: 10px;
+}

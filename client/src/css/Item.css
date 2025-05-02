@@ -555,3 +555,29 @@ body {
 .favourite-button.favourite-active {
     color: #ff4444;
 }
+
+.no-reviews-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    margin: 2rem 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+.no-reviews-message {
+    text-align: center;
+}
+
+.no-reviews-message p {
+    color: #ffffff;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.no-reviews-subtext {
+    color: #888888;
+    font-size: 1rem;
+    margin-top: 0.5rem !important;
+}

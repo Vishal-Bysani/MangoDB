@@ -6,6 +6,7 @@ import "../css/Book.css";
 import Popup from "../components/Popup"
 import Loading from "../components/Loading"
 import { loggedInDataContext, currentLinkContext } from "../Context";
+import ListItemThumbnail from "../components/ListItemThumbnail"
 
 const Book = () => {
     const navigate = useNavigate();
@@ -318,7 +319,7 @@ const Book = () => {
 
                             { book.genres && <div className="item-genres">
                                 {book.genres.map((genre, index) => (
-                                    <span key={index} className="genre-tag">{genre.name}</span>
+                                    <span key={index} className="genre-tag" onClick={() => navigate(`/genre/${genre.genre_id}`, {state: {name: genre.name}})}>{genre.name}</span>
                                 ))}
                             </div> }
 
@@ -361,6 +362,21 @@ const Book = () => {
                         
                     </div>
 
+                    { book.review_summary &&
+                        <>
+                            <div style={{display: 'flex'}}>
+                                <h2 className="review-container-title" style={{marginRight: '25px'}}>AI Generated Sumamry</h2>
+                            </div>
+                            <div className="review">
+                                <div className="review-content">
+                                    <div className="review-text">
+                                        {book.review_summary || "Not Enoguh Reviews to Generate a Summary"}
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    }
+
                     <div style={{display: 'flex'}}>
                         <h2 className="review-container-title" style={{marginRight: '25px'}}>User Reviews</h2>
                         <p className="forward-arrow" style={{marginTop: '50px'}} onClick={() => navigate(`/book/${bookId}/reviews`, {state: {title: book.title, reviews: book.reviews}})}></p>
@@ -372,42 +388,52 @@ const Book = () => {
                             }
                         }}><span style={{fontSize: '24px', fontWeight: '600', marginRight: '5px'}}>+</span> Review</p>
                     </div>
-                    {book.reviews && book.reviews.length > 0 && <div>
-                        <div className="review-container">
-                            {book.reviews
-                                .sort((a, b) => {
-                                    if (a.username === loggedInData.username) return -1;
-                                    if (b.username === loggedInData.username) return 1;
-                                    return 0;
-                                })
-                                .slice(0, 3)
-                                .map((review, index) => (
-                                <>
-                                    { review.text && <div key={index} className="review">
-                                            <div className="review-content">
-                                                <div className="review-rating">
-                                                    <span className="star-outline" style={{marginRight: '8px'}}>★</span>
-                                                    {parseFloat(review.rating).toFixed(1)}/10
+                    {book.reviews && book.reviews.length > 0 ?
+                        <div>
+                            <div className="review-container">
+                                {book.reviews
+                                    .sort((a, b) => {
+                                        if (a.username === loggedInData.username) return -1;
+                                        if (b.username === loggedInData.username) return 1;
+                                        return 0;
+                                    })
+                                    .slice(0, 3)
+                                    .map((review, index) => (
+                                        <>
+                                        { review.text && <div key={index} className="review">
+                                                <div className="review-content">
+                                                    <div className="review-rating">
+                                                        <span className="star-outline" style={{marginRight: '8px'}}>★</span>
+                                                        {parseFloat(review.rating).toFixed(1)}/10
+                                                    </div>
+                                                    <div className="review-text">
+                                                        {review.text}
+                                                    </div>
                                                 </div>
-                                                <div className="review-text">
-                                                    {review.text}
+                                                <div className="review-footer">
+                                                    <div className="review-name" onClick={() => navigate(`/profile/${review.username}`)}>
+                                                        {review.username}
+                                                    </div>
+                                                        ·
+                                                    <div className="review-time">
+                                                        {review.time_ago}
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="review-footer">
-                                                <div className="review-name" onClick={() => navigate(`/profile/${review.username}`)}>
-                                                    {review.username}
-                                                </div>
-                                                    ·
-                                                <div className="review-time">
-                                                    {review.time_ago}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                </>
-                            ))}
+                                        }
+                                    </>
+                                ))}
+                            </div>
+                        </div> :
+                        <div className="no-reviews-container">
+                            <div className="no-reviews-message">
+                                <p>No Reviews Available</p>
+                                <p className="no-reviews-subtext">Be the first to review this book!</p>
+                            </div>
                         </div>
-                    </div>}
+                    }
+
+                    { book.recommendations && <ListItemThumbnail title="Similar Books" fontSize="30px" itemThumbnails={book.recommendations} forBook={true}/>}
                 </div>
             </div>
         </>
