@@ -67,7 +67,7 @@ body {
 }
 
 .person-image {
-    width: 30%;
+    width: 100%;
     height: auto;
     object-fit: contain;
     border-radius: 8px;
@@ -80,6 +80,7 @@ body {
     margin-bottom: 30px;
     line-height: 1.6;
     font-size: 20px;
+    width: 250%;
 }
 
 .awards-container {
