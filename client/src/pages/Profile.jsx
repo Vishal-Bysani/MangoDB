@@ -26,6 +26,7 @@ const Profile = () => {
             const user = await getUserDetails(username);
             if (user) {
                 setUser(user);
+                console.log(user);
                 document.title = `${username} | Profile`;
             }
             if (user.profilePicture && user.mime_type) {
@@ -34,7 +35,7 @@ const Profile = () => {
             }
         };
         fetchUser();
-    }, []);
+    }, [username]);
 
     useEffect(() => {
         const fetchLoggedInData = async () => {
@@ -144,6 +145,20 @@ const Profile = () => {
                                 )}
                             </div>
                             { user.joinDate && <p style={{ fontSize: "20px", marginTop: "0px" }}> Joined {moment(user.joinDate).format("MMM YYYY")} </p> }
+                            { user.lastSeen === "Online" ? (
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "20px" }}>
+                                    <div style={{ 
+                                        width: "12px", 
+                                        height: "12px", 
+                                        backgroundColor: "#2ecc71",
+                                        borderRadius: "50%",
+                                        boxShadow: "0 0 8px rgba(46, 204, 113, 0.5)"
+                                    }}></div>
+                                    <span>Online</span>
+                                </div>
+                            ) : (
+                                <p style={{ fontSize: "20px" }}>Last Seen: {user.lastSeen}</p>
+                            )}
                         </div>
                         
                         <div className="profile-stats-grid">
