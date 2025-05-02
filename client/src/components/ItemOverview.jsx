@@ -4,13 +4,13 @@ import { toggleWatchListed, toggleWantToReadListed } from "../api";
 import "../css/ItemOverview.css";
 import { loggedInDataContext, currentLinkContext } from "../Context";
 
-const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, author, description, forBook = false, isWatchOrReadList = false }, ref) => {
+const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRating, startYear, endYear, cast, author, description, key, forBook = false, isWatchOrReadList = false }, ref) => {
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     const navigate = useNavigate();
     const [watchListed, setWatchListed] = useState(isWatchOrReadList);
     return (
-        <div className="item-overview-container" ref={ref}>
+        <div className="item-overview-container" ref={ref} key={key}>
             <div className="item-overview-content">
                 <div className="item-overview-image-container">
                     <img
