@@ -689,6 +689,9 @@ app.get("/getSeasonDetails",heartBeats, async (req, res) => {
         review_summary : ep.review_summary,
       }));
     }
+    if(! response.episodes){
+      response.episodes = []; 
+    }
     res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching season details:", error);
