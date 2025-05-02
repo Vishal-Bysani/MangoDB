@@ -62,7 +62,7 @@ const ItemOverview = forwardRef(({ itemId, title, image, year, rating, userRatin
                     { author && <p>{author}</p> }
                     { description && description.length < 500 && <p style={{marginTop: "10px", fontSize: "18px", fontWeight: "normal"}}>{description}</p>}
                     { description && description.length >= 500 && 
-                        <p style={{marginTop: "10px", fontSize: "18px", fontWeight: "normal"}}>{description.slice(0, 500)} <span style={{color: "#00e6c3", fontWeight: "bold", cursor: "pointer"}} onClick={() => { if (forBook) navigate(`/book/${itemId}`); else navigate(`/item/${itemId}`); }}>. . .</span></p>
+                        <p style={{marginTop: "10px", fontSize: "18px", fontWeight: "normal"}}>{description.slice(0, 500)} <span style={{color: "#00e6c3", fontWeight: "bold", cursor: "pointer"}} onClick={() => { if (forBook) navigate(`/book/${itemId}`); else navigate(`/item/${itemId}`); }}>More</span></p>
                     }
                 </div>
             </div>
