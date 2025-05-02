@@ -309,7 +309,7 @@ CREATE TABLE IF NOT EXISTS books (
 
 CREATE TABLE IF NOT EXISTS authors_books (
     id INTEGER,
-    author_id INTEGER,
+    author_id INTEGER REFERENCES person(id) ON DELETE CASCADE,  -- Author ID
     PRIMARY KEY (id,author_id)
 );
 

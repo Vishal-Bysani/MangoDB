@@ -904,6 +904,7 @@ app.get("/filterItems",heartBeats, async (req, res) => {
     const page = parseInt(pageNo);
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
+    console.log("Limit: ", limit, " Page: ", pageNo, " Offset: ", offset);
 
     let conditions = [];
     let values = [];
@@ -912,7 +913,7 @@ app.get("/filterItems",heartBeats, async (req, res) => {
     let movieItems = [];
 
     if (forBook){
-      let bookQuery = "SELECT books.id, books.title, SUBSTRING(books.published_date, 1, 4) as year, books.cover_url AS image, books.average_rating AS rating, books.popularity, books.overview as description, 'true' as \"forBook\" FROM books";
+      let bookQuery = "SELECT DISTINCT books.id, books.title, SUBSTRING(books.published_date, 1, 4) as year, books.cover_url AS image, books.average_rating AS rating, books.popularity, books.overview as description, 'true' as \"forBook\" FROM books";
 
       if (genreId) {
         let genreName = await pool.query(
@@ -957,6 +958,7 @@ app.get("/filterItems",heartBeats, async (req, res) => {
       values.push(limit, offset);
       
       const books = await pool.query(bookQuery, values);
+      console.log("Books Query: ", books.rows);
       bookItems = await Promise.all(books.rows.map(async (book) => {
         const authorQuery = await pool.query(
           "SELECT person.name FROM person JOIN authors_books ON person.id = authors_books.author_id WHERE authors_books.id = $1", [book.id]
