@@ -222,7 +222,7 @@ app.get("/verify-email", async (req, res) => {
     }
 
     const user = await pool.query("SELECT username FROM users WHERE email = $1", [email]);
-    await pool.query("INSERT INTO user_data (username, last_login) VALUES ($1, $2)", [user.rows[0].username, Date.now()]);
+    await pool.query("INSERT INTO user_data (username, last_login) VALUES ($1, $2)", [user.rows[0].username, new Date()]);
     req.session.username = user.rows[0].username;
     req.session.email = email;
 
@@ -1688,6 +1688,21 @@ app.post("/followUser", heartBeats,isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error("Error following user:", error);
     res.status(500).json({ message: "Error following user" });
+  }
+});
+
+app.post("/unfollowUser", heartBeats,isAuthenticated, async (req, res) => {
+  try {
+    const { followed_username } = req.query;
+    const username = req.session.username;
+    const unfollowUserQuery = await pool.query(
+      "DELETE FROM following WHERE username = $1 AND followed_username = $2",
+      [username, followed_username]
+    );
+    res.status(200).json({message: "Unfollowed user"});
+  } catch (error) {
+    console.error("Error unfollowing user:", error);
+    res.status(500).json({ message: "Error unfollowing user" });
   }
 });
 
