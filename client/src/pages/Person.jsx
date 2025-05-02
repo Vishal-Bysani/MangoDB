@@ -13,6 +13,7 @@ const Person = () => {
     const navigate = useNavigate();
     const [person, setPerson] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [limitDescription, setLimitDescription] = useState(true);
     const {loggedInData, setLoggedInData} = useContext(loggedInDataContext);
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
 
@@ -82,7 +83,10 @@ const Person = () => {
                                 }}
                             />
                             <div className="person-description">
-                                <p>{person.description}</p>
+                                { (!limitDescription || (person.description && person.description.length < 500)) && <p>{person.description} <span style={{color: "#00e6c3", fontWeight: "bold", cursor: "pointer"}} onClick={() => setLimitDescription(!limitDescription)}>---</span></p> }
+                                { limitDescription && person.description && person.description.length >= 500 && 
+                                    <p>{person.description.slice(0, 500)} <span style={{color: "#00e6c3", fontWeight: "bold", cursor: "pointer"}} onClick={() => setLimitDescription(!limitDescription)}>. . .</span></p>
+                                }
                                 <div style={{display: "flex", gap: '10px'}}>
                                     { person.birthday && <span style={{display: 'flex'}}>
                                         <p style={{fontWeight: 'bolder'}}>Born:&nbsp;</p>
