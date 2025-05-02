@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
-import { getUserDetails, getLoggedIn, followUser, uploadProfileImage } from "../api";
+import { getUserDetails, getLoggedIn, followUser, uploadProfileImage, unfollowUser } from "../api";
 import Navbar from "../components/Navbar";
 import "../css/Profile.css";
 import moment from "moment";
@@ -26,7 +26,6 @@ const Profile = () => {
             const user = await getUserDetails(username);
             if (user) {
                 setUser(user);
-                console.log(user);
                 document.title = `${username} | Profile`;
             }
             if (user.profilePicture && user.mime_type) {
@@ -129,19 +128,40 @@ const Profile = () => {
                         <div>
                             <div style={{ display: "flex", alignItems: "center", gap: "50px" }}>
                                 <p style={{ fontSize: "50px", fontWeight: "bold", marginBottom: "10px" }}>{username}</p>
-                                {loggedInData && loggedInData.username !== username && (
-                                    <button 
-                                        className="follow-button"
-                                        onClick={() => {
-                                            if (loggedInData.loggedIn) {
-                                                followUser(username);
-                                            } else {
-                                                navigate("/login", { state: { parentLink : `/profile/${username}` }});
-                                            }
-                                        }}
-                                    >
-                                        Follow
-                                    </button>
+                                { ! isOwnProfile && (
+                                    <>
+                                        { !loggedInData.loggedIn || user.followers.filter(follower => follower.username === loggedInData.username).length === 0 ? (
+                                            <button 
+                                                className="follow-button"
+                                                onClick={() => {
+                                                    if (loggedInData.loggedIn) {
+                                                        followUser(username);
+                                                    } else {
+                                                        navigate("/login", { state: { parentLink : `/profile/${username}` }});
+                                                    }
+                                                }}
+                                                >
+                                                Follow
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                className="follow-button"
+                                                onClick={() => {
+                                                    if (loggedInData.loggedIn) {
+                                                        unfollowUser(username);
+                                                        setUser(prevUser => ({
+                                                            ...prevUser,
+                                                            followers: prevUser.followers.filter(follower => follower.username !== loggedInData.username)
+                                                        }));
+                                                    } else {
+                                                        navigate("/login", { state: { parentLink : `/profile/${username}` }});
+                                                    }
+                                                }}
+                                                >
+                                                Following
+                                            </button>
+                                        )}
+                                    </>
                                 )}
                             </div>
                             { user.joinDate && <p style={{ fontSize: "20px", marginTop: "0px" }}> Joined {moment(user.joinDate).format("MMM YYYY")} </p> }

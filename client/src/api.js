@@ -333,6 +333,19 @@ const followUser = async (followedUsername) => {
     }
 }
 
+export const unfollowUser = async (followedUsername) => {
+    try {
+        const response = await fetch(`${apiUrl}/unfollowUser?followed_username=${followedUsername}`, {
+            method: "POST",
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        return handleApiError(error);
+    }
+}
+
 const toggleWatchListed = async (itemId, watchListed) => {
     try {
         if (watchListed) {

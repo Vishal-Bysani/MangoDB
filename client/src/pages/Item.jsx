@@ -36,21 +36,31 @@ const Item = () => {
             setLoading(true);
             const data = await getItemDetails(itemId);
             setItem(data);
-            console.log(data);
-            if (data && data.user_rating) setRating(data.user_rating);
-            if (data && data.crew) {
-                setDirectors(data.crew.filter(crew => crew.job_title === "Director"));
-                setWriters(data.crew.filter(crew => crew.department_name === "Writing"));
+            console.log("INVOKED", data);
+            if (data) {
+                setRating(data.user_rating);
+                if (data.crew) {
+                    setDirectors(data.crew.filter(crew => crew.job_title === "Director"));
+                    setWriters(data.crew.filter(crew => crew.department_name === "Writing"));
+                } else {
+                    setDirectors([]);
+                    setWriters([]);
+                }
+                if (data.title) document.title = `${data.title}`;
+                else document.title = "Item Page";
+                setWatchListed(data.isWatchList);
             }
-            if (data && data.title) document.title = `${data.title}`;
-            if (data) setWatchListed(data.isWatchList);
+            setUserReviewText(null);
             setLoading(false);
         };
         fetchItemDetails();
     }, [itemId]);
 
     useEffect(() => {
-        if (item && item.reviews.filter(review => review.username === loggedInData.username).length > 0) setUserReviewText(item.reviews.filter(review => review.username === loggedInData.username)[0].text);
+        if (item && item.reviews.filter(review => review.username === loggedInData.username).length > 0) {
+            setUserReviewText(item.reviews.filter(review => review.username === loggedInData.username)[0].text);
+            setRating(item.reviews.filter(review => review.username === loggedInData.username)[0].rating);
+        }
     }, [item, loggedInData])
     
     if (loading) {

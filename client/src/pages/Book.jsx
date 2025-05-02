@@ -36,13 +36,20 @@ const Book = () => {
             if (data) {
                 setAuthors(data.authors);
                 setReadListed(data.isReadList);
-                if (data.reviews && data.reviews.find(review => review.username === loggedInData.username)) setRating(data.reviews.find(review => review.username === loggedInData.username).rating);
                 document.title = `${data.title}`;
             }
+            setUserReviewText(null);
             setLoading(false);
         }
         fetchBookDetails();
     }, [bookId])
+    
+    useEffect(() => {
+        if (book.reviews && book.reviews.find(review => review.username === loggedInData.username)) {
+            setUserReviewText(book.reviews.find(review => review.username === loggedInData.username).text);
+            setRating(book.reviews.find(review => review.username === loggedInData.username).rating);
+        }
+    }, [book, loggedInData])
 
     if (loading) {
         return (
