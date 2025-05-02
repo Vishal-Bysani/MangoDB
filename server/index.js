@@ -1715,7 +1715,7 @@ app.get("/getBooksDetails",heartBeats, async (req, res) => {
       [id]
     );
     const genreQuery = await pool.query(
-      "SELECT genres.name FROM books_genres JOIN genres ON genres.id = books_genres.genre_id WHERE books_genres.id = $1",
+      "SELECT genres.id, genres.name FROM books_genres JOIN genres ON genres.id = books_genres.genre_id WHERE books_genres.id = $1",
       [id]
     );
 
