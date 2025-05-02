@@ -85,10 +85,14 @@ function isAuthenticated(req, res, next) {
 }
 async function heartBeats(req, res, next) {
   if(req.session.username){
+    try {
     const currentTime = new Date();
     await pool.query("UPDATE user_data SET last_login = $1 WHERE username = $2", [currentTime, req.session.username]);
-    // const ch = await pool.query("SELECT last_login FROM user_data WHERE username = $1", [req.session.username]);
-    // console.log("Last login time:", ch.rows[0].last_login);
+    }
+    catch (error) {
+      console.error("Error updating last login time:", error);
+      res.status(500).json({message: "Error updating last login time"});
+    }
   }
   next(); // Also adding this as you likely need to continue to the next middleware
 }
@@ -160,6 +164,7 @@ function lastSeen(timestamp) {
 // return JSON object with the following fields: {username, email, password}
 app.post('/signup', async (req, res) => {
   try{
+    await pool.query("BEGIN");
     const {username, password, email} = req.body;
     console.log("Received signup request:", req.body);
     const user_rows = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
@@ -178,8 +183,10 @@ app.post('/signup', async (req, res) => {
     
     console.log("Email sent successfully:", result.rows[0]);
     res.status(200).json({message: "Email sent successfully", mail_sent : true});
+    await pool.query("COMMIT");
   }
   catch (error){
+    await pool.query("ROLLBACK");
     console.error("Error signing up:", error);
     res.status(500).json({message: "Error signing up", mail_sent : false});
   }
@@ -201,6 +208,7 @@ cron.schedule('*/1 * * * *', async () => {
 app.get("/verify-email", async (req, res) => {
   console.log("Received email verification request:", req.query);
   try {
+    await pool.query("BEGIN");
     const {token} = req.query;
     if (!token) {
       return res.status(400).json({ message: "Token is required" });
@@ -237,7 +245,9 @@ app.get("/verify-email", async (req, res) => {
         </body>
       </html>`
     )
+    await pool.query("COMMIT");
   } catch (error) {
+    await pool.query("ROLLBACK");
     console.error("Error verifying email:", error);
     res.status(400).send(
       `<html>
@@ -1119,6 +1129,7 @@ app.get("/matchingPersons",heartBeats, async (req, res) => {
 
 app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => {
   try {
+    await pool.query("BEGIN");
     const { id, rating, review , forBook} = req.query;
     const username = req.session.username;
 
@@ -1294,7 +1305,9 @@ app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => 
     res.status(200).json({
       message: "Review submitted successfully"
     });
+    await pool.query("COMMIT");
   } catch (error) {
+    await pool.query("ROLLBACK");
     console.error("Error submitting review:", error);
     res.status(500).json({ message: "Error submitting review" });
   }
@@ -1302,6 +1315,7 @@ app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => 
 
 app.post("/submitEpisodeRatingReview",heartBeats, isAuthenticated, async (req, res) => {
   try {
+    await pool.query("BEGIN");
     const { id, rating, review } = req.query;
     const username = req.session.username;
     const ratingOrReviewExists = await pool.query(
@@ -1371,7 +1385,9 @@ app.post("/submitEpisodeRatingReview",heartBeats, isAuthenticated, async (req, r
     res.status(200).json({
       message: "Review submitted successfully"
     });
+    await pool.query("COMMIT");
   } catch (error) {
+    await pool.query("ROLLBACK");
     console.error("Error submitting review:", error);
     res.status(500).json({ message: "Error submitting review" });
   }
@@ -1926,6 +1942,11 @@ app.get("/getBooksByAuthorId",heartBeats, async (req, res) => {
 
 app.post("/uploadProfilePicture", heartBeats,isAuthenticated, upload.single('profileImage'), async (req, res) => {
   try {
+    await pool.query("BEGIN");
+    if (!req.file) {
+      return res.status(400).json({ message: "No image provided" });
+    }
+    // Check if the file is an image
     const image = req.file.buffer;
     const mime_type = req.file.mimetype;
     console.log("Uploading profile picture");
@@ -1941,9 +1962,11 @@ app.post("/uploadProfilePicture", heartBeats,isAuthenticated, upload.single('pro
       "UPDATE users SET mime_type = $1 WHERE username = $2",
       [mime_type, req.session.username]
     );
-
+    await pool.query("COMMIT");
     res.status(200).json({ message: "Profile picture updated successfully" });
+
   } catch (error) {
+    await pool.query("ROLLBACK");
     console.error("Error uploading profile picture:", error);
     res.status(500).json({ message: "Error uploading profile picture" });
   }
