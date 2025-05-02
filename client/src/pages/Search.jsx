@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
+import { replace, useSearchParams } from "react-router";
 import Navbar from "../components/Navbar";
 import "../css/Search.css";
 import { getGenreList, getFilteredItems, getMatchingPersons, getLoggedIn } from "../api";
@@ -10,6 +10,7 @@ import { loggedInDataContext, currentLinkContext } from "../Context";
 
 const Search = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParamInit, setSearchParamInit] = useState(true);
 
     // Global context
     const { loggedInData, setLoggedInData } = useContext(loggedInDataContext);
@@ -128,7 +129,8 @@ const Search = () => {
             }
         }
         if (hasChanges) {
-            setSearchParams(newParams);
+            setSearchParams(newParams, { replace: searchParamInit});
+            setSearchParamInit(false);
         }
     };
 

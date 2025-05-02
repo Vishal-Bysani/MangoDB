@@ -85,7 +85,7 @@ const Person = () => {
                             <div className="person-description">
                                 { (!limitDescription || (person.description && person.description.length < 500)) && <p>{person.description} <span style={{color: "#00e6c3", fontWeight: "bold", cursor: "pointer"}} onClick={() => setLimitDescription(!limitDescription)}>Less</span></p> }
                                 { limitDescription && person.description && person.description.length >= 500 && 
-                                    <p>{person.description.slice(0, 500)} <span style={{color: "#00e6c3", fontWeight: "bold", cursor: "pointer"}} onClick={() => setLimitDescription(!limitDescription)}>More</span></p>
+                                    <p>{person.description.slice(0, 500)} <span style={{color: "#00e6c3", fontWeight: "bold", cursor: "pointer"}} onClick={() => setLimitDescription(!limitDescription)}>. . . More</span></p>
                                 }
                                 <div style={{display: "flex", gap: '10px'}}>
                                     { person.birthday && <span style={{display: 'flex'}}>
