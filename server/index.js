@@ -1293,7 +1293,7 @@ app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => 
               'UPDATE movies_shows SET review_summary = $1 WHERE id = $2',
               [summary.trim(), id]
             );
-            console.log("Summary updated successfully",summary);
+            console.log("Summary updated successfully");
           }
           else {
             console.error("Error", error);
