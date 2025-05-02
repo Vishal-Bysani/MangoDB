@@ -313,14 +313,10 @@ CREATE TABLE IF NOT EXISTS authors_books (
     PRIMARY KEY (id,author_id)
 );
 
-CREATE TABLE IF NOT EXISTS books_categories(
-    id SERIAL PRIMARY KEY,
-    name TEXT
-);
 
 CREATE TABLE IF NOT EXISTS books_genres (
     id INTEGER REFERENCES books(id),
-    genre_id INTEGER REFERENCES books_categories(id),
+    genre_id INTEGER REFERENCES genres(id),
     PRIMARY KEY (id, genre_id)
 );
 
