@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS person (
 CREATE TABLE IF NOT EXISTS movies_shows (
     tmdb_id INTEGER,
     id SERIAL PRIMARY KEY,                   -- Unique ID from TMDb
-    title TEXT NOT NULL,                      -- Movie or TV Show Title
+    title TEXT NOT NULL,                      -- Movie or TV Show Title --TODO: make index on this
     original_title TEXT,                      -- Original Title
     original_language TEXT REFERENCES languages(iso_639_1) ON DELETE SET NULL,   -- Language Code (e.g., "en")
     overview TEXT,                             -- Description/Synopsis
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS movies_shows_reviews_ratings (
     review TEXT,
     rating INTEGER NOT NULL,
     review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (username, id) --TODO: swap the order of the primary key to make it more efficient
+    PRIMARY KEY (username, id) --TODO: swap the order of the primary key to make it more efficient, can make index on user also but negligible gain
 );
 
 
@@ -271,7 +271,7 @@ CREATE TABLE IF NOT EXISTS watchlist (
 CREATE TABLE IF NOT EXISTS watchedlist (
     username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
     id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
-    PRIMARY KEY (username, id)  -- Composite Primary Key
+    PRIMARY KEY (username, id)  -- Composite Primary Key --TOD_can: make index on id for fetching watched movies
 );
 
 CREATE TABLE IF NOT EXISTS following(
@@ -283,7 +283,7 @@ CREATE TABLE IF NOT EXISTS following(
 
 CREATE TABLE IF NOT EXISTS books (
     id SERIAL PRIMARY KEY,
-    title TEXT,
+    title TEXT, --TODO: make index on this
     publisher TEXT,
     published_date TEXT,
     page_count INT,
@@ -300,14 +300,14 @@ CREATE TABLE IF NOT EXISTS books (
 CREATE TABLE IF NOT EXISTS authors_books (
     id INTEGER,
     author_id INTEGER REFERENCES person(id) ON DELETE CASCADE,  -- Author ID
-    PRIMARY KEY (id,author_id)
+    PRIMARY KEY (id,author_id) --TODO_can: index on author_id
 );
 
 
 CREATE TABLE IF NOT EXISTS books_genres (
     id INTEGER REFERENCES books(id),
     genre_id INTEGER REFERENCES genres(id),
-    PRIMARY KEY (id, genre_id)
+PRIMARY KEY (id, genre_id) --TODO_can: index on genre_id
 );
 
 CREATE TABLE IF NOT EXISTS books_reviews_ratings(
@@ -316,7 +316,7 @@ CREATE TABLE IF NOT EXISTS books_reviews_ratings(
     review TEXT,
     rating INTEGER NOT NULL,
     review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (username, id)
+    PRIMARY KEY (username, id) --TODO: swap the order of the primary key to make it more efficient, can make index on user also but negligible gain
 );
 
 CREATE TABLE IF NOT EXISTS wanttoreadlist (
@@ -328,7 +328,7 @@ CREATE TABLE IF NOT EXISTS wanttoreadlist (
 CREATE TABLE IF NOT EXISTS readlist (
     username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,  -- User ID
     id INTEGER REFERENCES books(id) ON DELETE CASCADE,  -- Movie ID
-    PRIMARY KEY (username, id)  -- Composite Primary Key
+    PRIMARY KEY (username, id)  -- Composite Primary Key --TODO_can: make index on id for fetching watched movies
 );
 
 CREATE TABLE IF NOT EXISTS books_favourites (
