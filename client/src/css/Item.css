@@ -581,3 +581,12 @@ body {
     font-size: 1rem;
     margin-top: 0.5rem !important;
 }
+
+.item-tagline {
+    font-size: 24px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 20px 0;
+    text-align: center;
+    line-height: 1.4;
+}

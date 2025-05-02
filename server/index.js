@@ -422,7 +422,7 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
       "SELECT m.id, m.title, m.rotten_mangoes, m.rotten_mangoes_votes, m.category as type, m.poster_path as image, " +
       "m.backdrop_path as backdrop, EXTRACT(YEAR FROM m.release_date) as \"startYear\", " +
       "EXTRACT(YEAR FROM m.end_date) as \"endYear\", m.vote_average as rating, m.vote_count as \"numRating\", " +
-      "m.popularity, m.overview as description, m.origin_country, m.review_summary, m.tagline " +
+      "m.popularity, m.overview as description, m.origin_country, m.review_summary, m.tagline, " +
       (req.session.username ?
         "(CASE WHEN w.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :
         "false as \"isWatchList\" ") +

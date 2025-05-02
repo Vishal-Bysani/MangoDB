@@ -51,6 +51,45 @@ const Search = () => {
 
     const pageLimit = 10;
 
+    useEffect(() => {
+        const currentPage = parseInt(getFromParams("page") || 1);
+        const currentQuery = getFromParams("q", "");
+        const currentGenreId = getFromParams("genre") || null;
+        const currentPersonId = getFromParams("person") || null;
+        const currentYear = getFromParams("year") || null;
+        const currentMinRating = parseFloat(getFromParams("minRating")) || null;
+        const currentOrderByRating = getFromParams("order") === "rating";
+        const currentOrderByPopularity = getFromParams("order") !== "rating";
+        const currentForMovie = searchParams.get("movie") !== "0";
+        const currentForShow = searchParams.get("show") !== "0";
+        const currentForBook = searchParams.get("book") !== "0";
+        
+        // Update state from URL params when they change
+        if (currentQuery !== searchQuery) setSearchQuery(currentQuery);
+        if (currentGenreId !== genreId) setGenreId(currentGenreId);
+        if (currentPersonId !== personId) setPersonId(currentPersonId);
+        if (currentYear !== year) {
+            setYear(currentYear);
+            setYearText(currentYear || "");
+        }
+        if (currentMinRating !== minRating) {
+            setMinRating(currentMinRating);
+            setMinRatingText(currentMinRating?.toString() || "");
+        }
+        if (currentOrderByRating !== orderByRating) setOrderByRating(currentOrderByRating);
+        if (currentOrderByPopularity !== orderByPopularity) setOrderByPopularity(currentOrderByPopularity);
+        if (currentForMovie !== forMovie) setForMovie(currentForMovie);
+        if (currentForShow !== forShow) setForShow(currentForShow);
+        if (currentForBook !== forBook) setForBook(currentForBook);
+        
+        // Only update person text if it exists in the URL
+        const personNameFromUrl = getFromParams("personName");
+        if (personNameFromUrl) setPersonText(personNameFromUrl);
+        if (currentPage !== pageNo) setPageNo(currentPage);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        
+    }, [searchParams]);
+
     const updateSearchParams = (overrides = {}) => {
         const newParams = {
             q: searchQuery || undefined,
@@ -66,17 +105,37 @@ const Search = () => {
             page: pageNo || 1,
             ...overrides,
         };
-        // Clean undefined/nulls
         Object.keys(newParams).forEach(
             (key) => (newParams[key] == null || newParams[key] === "") && delete newParams[key]
         );
-        setSearchParams(newParams);
+        let hasChanges = false;
+        const currentParams = {};
+        for (const [key, value] of searchParams.entries()) {
+            currentParams[key] = value;
+        }
+        for (const key in newParams) {
+            if (currentParams[key] !== String(newParams[key])) {
+                hasChanges = true;
+                break;
+            }
+        }
+        if (!hasChanges) {
+            for (const key in currentParams) {
+                if (newParams[key] === undefined) {
+                    hasChanges = true;
+                    break;
+                }
+            }
+        }
+        if (hasChanges) {
+            setSearchParams(newParams);
+        }
     };
 
     useEffect(() => {
         getGenreList().then((data) => {
             setGenreList(data);
-            if (genreId) setGenreText(data.find(genre => genre.id == genreId).name);
+            if (genreId) setGenreText(data.find(genre => genre.id == genreId)?.name || "");
         });
         setPersonText(getFromParams("personName"));
     }, []);
@@ -102,6 +161,7 @@ const Search = () => {
             pageNo,
             pageLimit,
         }).then(data => {
+            console.log(data);
             setMatchingItems(data);
         });
         window.scrollTo({ top: 0, behavior: "smooth" });

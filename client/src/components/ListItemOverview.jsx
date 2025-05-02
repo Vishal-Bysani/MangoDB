@@ -15,7 +15,7 @@ const ListItemOverview = ( { title, itemOverviewList, ref = null, forBook = fals
                     startYear={itemOverview.startYear}
                     endYear={itemOverview.endYear}
                     rating={itemOverview.rating || itemOverview.vote_average}
-                    userRating={itemOverview.userRating}
+                    userRating={itemOverview.userRating || itemOverview.user_rating}
                     cast={itemOverview.cast}
                     crew={itemOverview.crew}
                     description={itemOverview.description}

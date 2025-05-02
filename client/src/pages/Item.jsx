@@ -7,6 +7,7 @@ import ListPersonThumbnail from "../components/ListPersonThumbnail";
 import Loading from "../components/Loading";
 import Popup from "../components/Popup";
 import { loggedInDataContext, currentLinkContext } from "../Context";
+import ListItemThumbnail from "../components/ListItemThumbnail";
 
 const Item = () => {
     const navigate = useNavigate();
@@ -35,6 +36,7 @@ const Item = () => {
             setLoading(true);
             const data = await getItemDetails(itemId);
             setItem(data);
+            console.log(data);
             if (data && data.user_rating) setRating(data.user_rating);
             if (data && data.crew) {
                 setDirectors(data.crew.filter(crew => crew.job_title === "Director"));
@@ -374,6 +376,12 @@ const Item = () => {
                                 ))}
                             </div> }
 
+                            { item.tagline && 
+                                <p className="item-tagline">
+                                    {item.tagline || "NO TAGLINE FOUND"}
+                                </p>
+                            }
+
                             { item.description && <div className="item-description">
                                 <p>{item.description}</p>
                             </div> }
@@ -518,6 +526,9 @@ const Item = () => {
                             </div>
                         </div>
                     )}
+
+
+                { item.recommendations && <ListItemThumbnail title={item.type === "tv" ? "Similar Shows" : "Similar Movies"} fontSize="30px" itemThumbnails={item.recommendations}/>}
                 </div>
             </div>
         </>

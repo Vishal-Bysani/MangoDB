@@ -85,8 +85,8 @@ const ListItemThumbnail = ({ title, titleFontSize, itemThumbnails, forBook = fal
                                     itemId={itemThumbnail.id}
                                     title={itemThumbnail.title}
                                     image={itemThumbnail.image || itemThumbnail.poster_path || itemThumbnail.cover_url}
-                                    year={itemThumbnail.year || (itemThumbnail.published_date && itemThumbnail.published_date.slice(0, 4))}
-                                    rating={itemThumbnail.rating}
+                                    year={itemThumbnail.year || (itemThumbnail.published_date && itemThumbnail.published_date.slice(0, 4)) || (itemThumbnail.release_date && itemThumbnail.release_date.slice(0, 4))}
+                                    rating={itemThumbnail.rating || itemThumbnail.vote_average}
                                     userRating={itemThumbnail.userRating}
                                     startYear={itemThumbnail.startYear}
                                     endYear={itemThumbnail.endYear}

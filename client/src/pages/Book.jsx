@@ -323,6 +323,12 @@ const Book = () => {
                                 ))}
                             </div> }
 
+                            { book.tagline && 
+                                <p className="item-tagline">
+                                    {book.tagline || "NO TAGLINE FOUND"}
+                                </p>
+                            }
+
                             { book.overview && <div className="item-description">
                                 <p>{book.overview}</p>
                             </div> }
