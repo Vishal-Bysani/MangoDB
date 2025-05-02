@@ -539,7 +539,7 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
                 (COALESCE(tmc.cast_match, 0) / 5.0 + COALESCE(tmr.crew_match, 0)/10 + tm.genre_match + 2 /(1+ tm.year_diff)) * tm.preference DESC
             LIMIT 20
         )
-        SELECT * FROM top_match_final natural join movies_shows;
+        SELECT DISTINCT * FROM top_match_final natural join movies_shows;
         `
     
     if(movieOrShowQuery.rows[0].type === "movie"){
@@ -1818,7 +1818,7 @@ app.get("/getBooksDetails",heartBeats, async (req, res) => {
                 (COALESCE(tmc.cast_match, 0) * 3 + tm.genre_match + 2 /(1+ tm.year_diff)) * tm.preference DESC
             LIMIT 20
         )
-        SELECT * FROM top_match_final natural join books;
+        SELECT DISTINCT * FROM top_match_final natural join books;
         `
 
     const recommendationQuery = await pool.query(
