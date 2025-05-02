@@ -22,9 +22,12 @@ const Signup = () => {
   };
 
   useEffect(() => {
-    const data = getLoggedIn();
-    if (data.loggedIn && currentLink) navigate(currentLink);
-    else if (data.loggedIn) navigate(`/`);
+    const fetchLoginStatus = async () => {
+      const data = await getLoggedIn();
+      if (data.loggedIn && currentLink) navigate(currentLink);
+      else if (data.loggedIn) navigate(`/`);
+    }
+    fetchLoginStatus();
     document.title = "Sign Up";
   }, []);
 

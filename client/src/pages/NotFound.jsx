@@ -12,6 +12,10 @@ const NotFound = () => {
     const handleGoHome = () => {
         navigate('/');
     };
+
+    const handleRetry = () => {
+        navigate(-1);
+    };
     
     return (
         <div className="notfound-container">
@@ -33,8 +37,17 @@ const NotFound = () => {
                         <button 
                             onClick={handleGoHome}
                             className="notfound-button"
+                            style={{marginRight: "20px"}}
                         >
                             Back to Home
+                        </button>
+
+                        <button 
+                            onClick={handleRetry}
+                            className="notfound-button"
+                            style={{backgroundColor: "#4CAF50"}}
+                        >
+                            Retry
                         </button>
                     </div>
                 </div>

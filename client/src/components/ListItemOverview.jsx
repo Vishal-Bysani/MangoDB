@@ -10,11 +10,11 @@ const ListItemOverview = ( { title, itemOverviewList, ref = null, forBook = fals
                 <ItemOverview key={forBook ? 2 * itemOverview.id : 2 * itemOverview.id + 1} 
                     itemId={itemOverview.id}
                     title={itemOverview.title}
-                    image={itemOverview.image}
-                    year={itemOverview.year}
+                    image={itemOverview.image || itemOverview.poster_path}
+                    year={itemOverview.year || (itemOverview.release_date && itemOverview.release_date.slice(0,4))}
                     startYear={itemOverview.startYear}
                     endYear={itemOverview.endYear}
-                    rating={itemOverview.rating}
+                    rating={itemOverview.rating || itemOverview.vote_average}
                     userRating={itemOverview.userRating}
                     cast={itemOverview.cast}
                     crew={itemOverview.crew}

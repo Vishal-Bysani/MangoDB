@@ -17,7 +17,7 @@ const ItemReviews = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         if (location.state) {
             setItemReviews(location.state.reviews);
             setTitle(location.state.title);

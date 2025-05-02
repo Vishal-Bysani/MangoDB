@@ -22,7 +22,7 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         setCurrentLink(`/`);
         document.title = "Mangodb";
     }, []);

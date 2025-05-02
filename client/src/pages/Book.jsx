@@ -24,7 +24,7 @@ const Book = () => {
     const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0 });
 
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         setCurrentLink(`/book/${bookId}`);
     }, []);
     

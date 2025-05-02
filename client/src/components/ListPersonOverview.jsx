@@ -12,7 +12,7 @@ const ListPersonOverview = ({ title, ref }) => {
     const [profileList, setProfileList] = useState([]);
 
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         setProfileList(location.state.profileList);
     }, []);
 

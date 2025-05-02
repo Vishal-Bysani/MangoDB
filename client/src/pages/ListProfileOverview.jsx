@@ -14,7 +14,7 @@ const ListProfileOverview = ({ title }) => {
     const [profileList, setProfileList] = useState([]);
 
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         setProfileList(location.state.profileList);
         setCurrentLink(`/profile/${username}/${title}`);
     }, []);

@@ -38,7 +38,7 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchLoggedInData = async () => {
-            setLoggedInData(getLoggedIn());
+            getLoggedIn().then(setLoggedInData);
         };
         fetchLoggedInData();
         setCurrentLink(`/profile/${username}`);

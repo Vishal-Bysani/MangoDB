@@ -119,7 +119,7 @@ const Search = () => {
     }, [matchingItems]);
 
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         setCurrentLink(`/search?q=${searchQuery}`);
         document.title = `Search: ${searchQuery}`;
     }, [])

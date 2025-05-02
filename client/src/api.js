@@ -9,6 +9,14 @@ const handleApiError = (error) => {
     throw error;
 };
 
+const handleResponse = async (response) => {
+    if (response.status === 400) {
+        window.location.href = '/not-found';
+        return null;
+    }
+    return response;
+};
+
 const getLoggedIn = async () => {
     try {
         const response = await fetch(`${apiUrl}/isLoggedIn`, {
@@ -76,7 +84,9 @@ const getItemDetails = async (itemId) => {
         const response = await fetch(`${apiUrl}/getMovieShowDetails?id=${itemId}`, {
             credentials: "include",
         });
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data;
     } catch (error) {
         return handleApiError(error);
@@ -86,7 +96,9 @@ const getItemDetails = async (itemId) => {
 const getMatchingItems = async (text) => {
     try {
         const response = await fetch(`${apiUrl}/getMatchingItem?text=${text}`);
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data;
     } catch (error) {
         return handleApiError(error);
@@ -148,7 +160,9 @@ const submitReview = async (itemId, rating, review, forBook = false) => {
 const getPersonDetails = async (personId) => {
     try {
         const response = await fetch(`${apiUrl}/getPersonDetails?id=${personId}`);
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data;
     } catch (error) {
         return handleApiError(error);
@@ -192,7 +206,9 @@ const getTrendingMovies = async (pageNo = 1, pageLimit = 25) => {
         const response = await fetch(`${apiUrl}/getMoviesByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
             credentials: "include",
         });
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data.movies;
     } catch (error) {
         return handleApiError(error);
@@ -204,7 +220,9 @@ const getTrendingShows = async (pageNo = 1, pageLimit = 25) => {
         const response = await fetch(`${apiUrl}/getShowsByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
             credentials: "include",
         });
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data.shows;
     } catch (error) {
         return handleApiError(error);
@@ -216,7 +234,9 @@ export const getTrendingBooks = async (pageNo = 1, pageLimit = 25) => {
         const response = await fetch(`${apiUrl}/getBooksByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
             credentials: "include",
         });
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data.books;
     } catch (error) {
         return handleApiError(error);
@@ -267,8 +287,9 @@ const getUserDetails = async (username) => {
             method: "GET",
             credentials: "include",
         });
-        if (userDetails.status != 200) return null;
-        const userDetailsData = await userDetails.json();
+        const checkedResponse = await handleResponse(userDetails);
+        if (!checkedResponse) return null;
+        const userDetailsData = await checkedResponse.json();
         return userDetailsData;
     } catch (error) {
         return handleApiError(error);
@@ -278,7 +299,9 @@ const getUserDetails = async (username) => {
 const getGenreList = async () => {
     try {
         const response = await fetch(`${apiUrl}/listGenres`);
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data;
     } catch (error) {
         return handleApiError(error);
@@ -288,7 +311,9 @@ const getGenreList = async () => {
 const getMatchingPersons = async (searchText, searchLimit = 100) => {
     try {
         const response = await fetch(`${apiUrl}/matchingPersons?searchText=${searchText}&searchLimit=${searchLimit}`);
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data;
     } catch (error) {
         return handleApiError(error);
@@ -331,7 +356,9 @@ const getSeasonDetails = async (showId, seasonId) => {
         const response = await fetch(`${apiUrl}/getSeasonDetails?show_id=${showId}&season_id=${seasonId}`, {
             credentials: "include",
         });
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data;
     } catch (error) {
         return handleApiError(error);
@@ -343,7 +370,9 @@ const getCollectionDetails = async (collectionId, pageNo = 1, pageLimit = 1000) 
         const response = await fetch(`${apiUrl}/getMovieShowByCollectionId?collection_id=${collectionId}&pageNo=${pageNo}&pageLimit=${pageLimit}`, {
             credentials: "include",
         });
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data;
     } catch (error) {
         return handleApiError(error);
@@ -355,7 +384,9 @@ const getBookDetails = async (bookId) => {
         const response = await fetch(`${apiUrl}/getBooksDetails?id=${bookId}`, {
             credentials: "include",
         });
-        const data = await response.json();
+        const checkedResponse = await handleResponse(response);
+        if (!checkedResponse) return null;
+        const data = await checkedResponse.json();
         return data;
     } catch (error) {
         return handleApiError(error);

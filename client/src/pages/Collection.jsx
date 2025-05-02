@@ -14,13 +14,14 @@ const Collection = () => {
     const [collectionDetails, setCollectionDetails] = useState({});
 
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         setCurrentLink(`/collection/${collectionId}`);
     }, []);
 
     useEffect(() => {
         getCollectionDetails(collectionId).then(data => {
             setCollectionItems(data.moviesOrShow);
+            console.log(data.moviesOrShow);
             setCollectionDetails(data.collection);
         });
     }, [collectionId])
@@ -33,7 +34,8 @@ const Collection = () => {
                 <div className="collection-page-content">
                     <img 
                         src={collectionDetails.image ? collectionDetails.image : "/item-backdrop.svg"}
-                        alt={collectionDetails.title} 
+                        alt={collectionDetails.title}
+                        style={{width:"20%", height:"auto"}}
                         onError={(e) => {
                             e.target.onerror = null;
                             e.target.src = "/item-backdrop.svg"; // Fallback image

@@ -17,7 +17,7 @@ const ListPersons = () => {
     const {currentLink, setCurrentLink} = useContext(currentLinkContext);
     
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         setCurrentLink(`/items/${itemId}/list-persons/${role}/`);
     }, []);
 

@@ -7,7 +7,7 @@ const NetworkError = () => {
     const navigate = useNavigate();
     
     const handleRetry = () => {
-        navigate(-1); // Go back to previous page
+        navigate(-1);
     };
     
     return (

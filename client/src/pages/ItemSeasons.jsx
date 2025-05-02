@@ -57,7 +57,7 @@ const ItemSeasons = () => {
     const [seasonVideos, setSeasonVideos] = useState([]);
 
     useEffect(() => {
-        setLoggedInData(getLoggedIn());
+        getLoggedIn().then(setLoggedInData);
         setCurrentLink(`/item/${itemId}/seasons`);
         if (location.state) {
             setTitle(location.state.title);
@@ -81,9 +81,9 @@ const ItemSeasons = () => {
             <Navbar />
             <div className="item-seasons-page">
                 <div className="item-seasons-page-container">
-                    <h1 style={{fontSize: "50px", fontWeight: "bold", marginBottom: "40px", marginLeft: "10%"}}>
-                        {title}
-                        { seasons.length > seasonIndex && seasons[seasonIndex].name && " | " + seasons[seasonIndex].name }
+                    <h1 style={{fontSize: "50px", fontWeight: "bold", marginLeft: "10%", display: "flex"}}>
+                        <p style={{cursor: "pointer"}} onClick={() => navigate(`/item/${itemId}`)}>{title}&nbsp;</p>
+                        <p>{ seasons.length > seasonIndex && seasons[seasonIndex].name && "| " + seasons[seasonIndex].name }</p>
                     </h1>
                     <div className="item-seasons-content">
                         <div className="item-seasons-image-container">

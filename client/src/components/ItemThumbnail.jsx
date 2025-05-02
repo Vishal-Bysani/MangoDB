@@ -77,7 +77,7 @@ const ItemThumbnail = forwardRef(({ itemId, title, image, year, rating, userRati
                         }
                         {tooltip.visible && (
                             <div className="itemThumbnail-tooltip" style={{ left: tooltip.x + 10, top: tooltip.y + 10 }}>
-                                {forBook ? "Add To Readlist" : "Add To Watchlist"}
+                                {watchListed ? (forBook ? "Remove From Readlist" : "Remove From WatchList") : (forBook ? "Add To Readlist" : "Add To Watchlist")}
                             </div>
                         )}
                     </button>
