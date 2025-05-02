@@ -42,7 +42,7 @@ DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
     username TEXT PRIMARY KEY,
-    email TEXT NOT NULL UNIQUE,
+    email TEXT NOT NULL UNIQUE, --TODO: make index
     password_hash TEXT NOT NULL,
     is_critic BOOLEAN DEFAULT FALSE,
     is_authenticated BOOLEAN DEFAULT FALSE,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS departments (
 CREATE TABLE IF NOT EXISTS jobs (
     department_name TEXT REFERENCES departments(name) ON DELETE CASCADE,
     title TEXT NOT NULL,
-    PRIMARY KEY (department_name, title)  -- Correct way to define a composite primary key
+    PRIMARY KEY (department_name, title)  -- TODO: make the index title, dept instead for effciency
 );
 
 CREATE TABLE IF NOT EXISTS genres (
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS person (
     birthday DATE,                             -- Date of Birth (YYYY-MM-DD)
     deathday DATE,                             -- Date of Death (YYYY-MM-DD)
     id SERIAL PRIMARY KEY,                   -- Unique ID from TMDb
-    name TEXT NOT NULL,
+    name TEXT NOT NULL,                     --TODO: make index on this
     place_of_birth TEXT,                      -- Place of Birth
     original_name TEXT,                      -- Original Name
     popularity NUMERIC,                        -- Popularity Score
@@ -150,7 +150,7 @@ CREATE TABLE IF NOT EXISTS movies_shows (
 
 CREATE TABLE IF NOT EXISTS movies_details (
     id INTEGER PRIMARY KEY REFERENCES movies_shows(id) ON DELETE CASCADE,                   -- Unique ID from TMDb
-    belongs_to_collection INTEGER REFERENCES collections(id) ON DELETE SET NULL,  -- Collection ID
+    belongs_to_collection INTEGER REFERENCES collections(id) ON DELETE SET NULL,  -- Collection ID  --TODO: make index for fetching collection
     budget BIGINT DEFAULT 0,                           -- Budget
     revenue BIGINT DEFAULT 0,                           -- Revenue
     runtime INTEGER                          -- Runtime in minutes
@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS movies_shows_genres (
     genre_id INTEGER REFERENCES genres(id) ON DELETE CASCADE,  -- Genre ID
 
     PRIMARY KEY (id, genre_id)  -- Composite Primary Key
-);
+); --TODO_Can: make index on genre_id for fetching movies by genre
 
 CREATE TABLE IF NOT EXISTS movies_shows_spoken_languages (
     id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
@@ -219,7 +219,7 @@ CREATE TABLE IF NOT EXISTS crew_movies_shows (
     -- department_name TEXT REFERENCES departments(name) ON DELETE CASCADE,  -- Department Name
     department_name TEXT ,  -- Department Name
     job_title TEXT ,  -- Job Title
-    PRIMARY KEY (id, person_id, department_name, job_title)
+    PRIMARY KEY (id, person_id, department_name, job_title) --TODO_can: index on person id
     -- FOREIGN KEY (department_name, job_title) REFERENCES jobs(department_name, title) ON DELETE CASCADE
 );
 
@@ -228,7 +228,7 @@ CREATE TABLE IF NOT EXISTS cast_movies_shows (
     person_id INTEGER REFERENCES person(id) ON DELETE CASCADE,  -- Person ID
       -- Department Name -- known_for_department TEXT REFERENCES departments(name) ON DELETE SET NULL,  -- Department Name
     character TEXT NOT NULL,                      -- Character Name
-    PRIMARY KEY (id, person_id, character)
+    PRIMARY KEY (id, person_id, character) --todo_can: index on person id
 );
 
 CREATE TABLE IF NOT EXISTS movies_shows_reviews_ratings (
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS movies_shows_reviews_ratings (
     review TEXT,
     rating INTEGER NOT NULL,
     review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (username, id)
+    PRIMARY KEY (username, id) --TODO: swap the order of the primary key to make it more efficient
 );
 
 
@@ -245,7 +245,7 @@ CREATE TABLE IF NOT EXISTS movies_shows_videos (
     id INTEGER REFERENCES movies_shows(id) ON DELETE CASCADE,  -- Movie ID
     video_path TEXT NOT NULL,  -- Video URL Path
     type TEXT,
-    PRIMARY KEY (id, video_path)  -- Composite Primary Key
+    PRIMARY KEY (id, video_path)  -- Composite Primary Key 
 );
 
 CREATE TABLE IF NOT EXISTS seasons_videos (
@@ -254,16 +254,6 @@ CREATE TABLE IF NOT EXISTS seasons_videos (
     type TEXT,
     PRIMARY KEY (id, video_path)  -- Composite Primary Key
 );
-
-CREATE TABLE IF NOT EXISTS episodes_shows_reviews_ratings (
-    username TEXT REFERENCES users(username),
-    id INTEGER REFERENCES episodes(id),
-    review TEXT,
-    rating INTEGER NOT NULL,
-    review_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (username, id)
-);
-
 -------------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS favourites (

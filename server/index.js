@@ -473,7 +473,7 @@ app.get("/getMovieShowDetails",heartBeats, async (req, res) => {
       [req.session.username, id]
     );
     const reviewQuery = await pool.query(
-      "SELECT username, rating, review as text, review_time FROM movies_shows_reviews_ratings WHERE id = $1",
+      "SELECT username, rating, review as text, review_time FROM movies_shows_reviews_ratings WHERE id = $1 AND review IS NOT NULL",
       [id]
     );
     const reviews = reviewQuery.rows.map(r => ({
@@ -904,7 +904,6 @@ app.get("/filterItems",heartBeats, async (req, res) => {
     const page = parseInt(pageNo);
     const limit = parseInt(pageLimit);
     const offset = (page - 1) * limit;
-    console.log("Limit: ", limit, " Page: ", pageNo, " Offset: ", offset);
 
     let conditions = [];
     let values = [];
@@ -958,7 +957,6 @@ app.get("/filterItems",heartBeats, async (req, res) => {
       values.push(limit, offset);
       
       const books = await pool.query(bookQuery, values);
-      console.log("Books Query: ", books.rows);
       bookItems = await Promise.all(books.rows.map(async (book) => {
         const authorQuery = await pool.query(
           "SELECT person.name FROM person JOIN authors_books ON person.id = authors_books.author_id WHERE authors_books.id = $1", [book.id]
@@ -1137,10 +1135,18 @@ app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => 
             WHERE id = $3`,
             [ratingOrReviewExists.rows[0].rating, rating, id]
           );
-          await pool.query(
-              "UPDATE books_reviews_ratings SET rating = $1, review = $2 WHERE username = $3 AND id = $4",
-              [rating, review, username, id]
-          );
+          if(review){
+            await pool.query(
+                "UPDATE books_reviews_ratings SET rating = $1, review = $2 WHERE username = $3 AND id = $4",
+                [rating, review, username, id]
+            );
+          }
+          else{
+            await pool.query(
+              "UPDATE books_reviews_ratings SET rating = $1 WHERE username = $2 AND id = $3",
+              [rating, username, id]
+            );
+          }
       }
       else{
           await pool.query(
@@ -1150,16 +1156,24 @@ app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => 
             WHERE id = $2`,
             [rating, id]
           );
-        await pool.query(
-            "INSERT INTO books_reviews_ratings (username, id, rating, review) VALUES ($1, $2, $3, $4)",
-            [username, id, rating, review]
-          );
+          if(review){
+            await pool.query(
+              "INSERT INTO books_reviews_ratings (username, id, rating, review) VALUES ($1, $2, $3, $4)",
+              [username, id, rating, review]
+            );
+          }
+          else{
+            await pool.query(
+              "INSERT INTO books_reviews_ratings (username, id, rating) VALUES ($1, $2, $3)",
+              [username, id, rating]
+            );
+          }
       }
       const reviewsQuery = await pool.query(
         "SELECT review FROM books_reviews_ratings WHERE id = $1 ORDER BY review_time DESC",
         [id]
       );
-      if(reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0){
+      if((reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0) && review){
         const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review.replace(/\s+/g, ' ')) .join(' ');
 
         const { rows: summaryRows } = await pool.query(
@@ -1206,10 +1220,18 @@ app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => 
             WHERE id = $3`,
             [ratingOrReviewExists.rows[0].rating, rating, id]
           );
-          await pool.query(
-              "UPDATE movies_shows_reviews_ratings SET rating = $1, review = $2 WHERE username = $3 AND id = $4",
-              [rating, review, username, id]
-          );
+          if(review){
+            await pool.query(
+                "UPDATE movies_shows_reviews_ratings SET rating = $1, review = $2 WHERE username = $3 AND id = $4",
+                [rating, review, username, id]
+            );
+          }
+          else{
+            await pool.query(
+              "UPDATE movies_shows_reviews_ratings SET rating = $1 WHERE username = $2 AND id = $3",
+              [rating, username, id]
+            );
+          }
       }
       else{
           await pool.query(
@@ -1219,16 +1241,24 @@ app.post("/submitRatingReview",heartBeats, isAuthenticated, async (req, res) => 
             WHERE id = $2`,
             [rating, id]
           );
-        await pool.query(
-            "INSERT INTO movies_shows_reviews_ratings (username, id, rating, review) VALUES ($1, $2, $3, $4)",
-            [username, id, rating, review]
-          );
+          if(review){   
+            await pool.query(
+              "INSERT INTO movies_shows_reviews_ratings (username, id, rating, review) VALUES ($1, $2, $3, $4)",
+              [username, id, rating, review]
+            );
+          }
+          else{
+            await pool.query(
+              "INSERT INTO movies_shows_reviews_ratings (username, id, rating) VALUES ($1, $2, $3)",
+              [username, id, rating]
+            );
+          }
       }
       const reviewsQuery = await pool.query(
         "SELECT review FROM movies_shows_reviews_ratings WHERE id = $1 ORDER BY review_time DESC",
         [id]
       );
-      if(reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0){
+      if((reviewsQuery.rows.length < config.REVIEW_STEP || reviewsQuery.rows.length % config.REVIEW_STEP === 0) && review){
         const latestReviews = reviewsQuery.rows.slice(0, 10).map(r => r.review.replace(/\s+/g, ' ')) .join(' ');
 
         const { rows: summaryRows } = await pool.query(
