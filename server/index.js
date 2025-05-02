@@ -1598,7 +1598,7 @@ app.get("/getFollowers", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const followersQuery = await pool.query(
-      "SELECT * FROM following WHERE followed_username = $1",
+      "SELECT following.username, user_data.profile_picture as image FROM following JOIN user_data ON following.username = user_data.username WHERE following.followed_username = $1",
       [username]
     );
     res.status(200).json(followersQuery.rows);
@@ -1612,7 +1612,7 @@ app.get("/getFollowing", heartBeats,isAuthenticated, async (req, res) => {
   try {
     const username = req.session.username;
     const followingQuery = await pool.query(
-      "SELECT * FROM following WHERE username = $1",
+      "SELECT following.followed_username, user_data.profile_picture as image FROM following JOIN user_data ON following.followed_username = user_data.username WHERE username = $1",
       [username]
     );
     res.status(200).json(followingQuery.rows);
