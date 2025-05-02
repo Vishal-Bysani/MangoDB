@@ -967,7 +967,18 @@ app.get("/filterItems",heartBeats, async (req, res) => {
         const isWantToReadList = await pool.query(
           "SELECT " + ((req.session.username) ? " (CASE WHEN wtr.id IS NOT NULL THEN true ELSE false END) AS \"isWantToReadList\" " :   " false AS \"isWantToReadList\" ") + " FROM books m " + ((req.session.username) ? " LEFT JOIN wanttoreadlist wtr ON m.id = wtr.id AND wtr.username = $2 " : " ") + " WHERE m.id = $1", (req.session.username) ? [book.id, req.session.username] : [book.id]
         )
+        let user_rating = null;
+        if (req.session.username) {
+          const ratingQuery = await pool.query(
+            "SELECT rating FROM books_reviews_ratings WHERE username = $1 AND id = $2",
+            [req.session.username, book.id]
+          );
+          if (ratingQuery.rows.length > 0) {
+            user_rating = ratingQuery.rows[0].rating;
+          }
+        }
         book.isWantToReadList = isWantToReadList.rows[0].isWantToReadList ;
+        book.user_rating = user_rating;
         return book;
       }));
     }
@@ -1052,6 +1063,17 @@ app.get("/filterItems",heartBeats, async (req, res) => {
         const isWatchList = await pool.query(
           "SELECT " + ((req.session.username) ? " (CASE WHEN wl.id IS NOT NULL THEN true ELSE false END) as \"isWatchList\" " :   " false as \"isWatchList\" ") + " FROM movies_shows m " + ((req.session.username) ? " LEFT JOIN watchlist wl ON m.id = wl.id AND wl.username = $2 " : " ") + " WHERE m.id = $1 ", (req.session.username) ? [movie.id, req.session.username] : [movie.id]
         );
+        let user_rating = null;
+        if (req.session.username) {
+          const ratingQuery = await pool.query(
+            "SELECT rating FROM movies_shows_reviews_ratings WHERE username = $1 AND id = $2",
+            [req.session.username, movie.id]
+          );
+          if (ratingQuery.rows.length > 0) {
+            user_rating = ratingQuery.rows[0].rating;
+          }
+        }
+        movie.user_rating = user_rating;
         movie.isWatchList = isWatchList.rows[0].isWatchList;
         return {
           ...movie,
