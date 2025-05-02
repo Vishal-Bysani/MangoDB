@@ -203,13 +203,13 @@ const setFavourite = async (itemId, favourite, forBook = false) => {
 
 const getTrendingMovies = async (pageNo = 1, pageLimit = 25) => {
     try {
-        const response = await fetch(`${apiUrl}/getMoviesByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+        const response = await fetch(`${apiUrl}/filterItems?pageNo=${pageNo}&pageLimit=${pageLimit}&forMovie=${true}&orderByPopularity=${true}`, {
             credentials: "include",
         });
         const checkedResponse = await handleResponse(response);
         if (!checkedResponse) return null;
         const data = await checkedResponse.json();
-        return data.movies;
+        return data.moviesOrShows;
     } catch (error) {
         return handleApiError(error);
     }
@@ -217,13 +217,13 @@ const getTrendingMovies = async (pageNo = 1, pageLimit = 25) => {
 
 const getTrendingShows = async (pageNo = 1, pageLimit = 25) => {
     try {
-        const response = await fetch(`${apiUrl}/getShowsByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+        const response = await fetch(`${apiUrl}/filterItems?pageNo=${pageNo}&pageLimit=${pageLimit}&forShow=${true}&orderByPopularity=${true}`, {
             credentials: "include",
         });
         const checkedResponse = await handleResponse(response);
         if (!checkedResponse) return null;
         const data = await checkedResponse.json();
-        return data.shows;
+        return data.moviesOrShows;
     } catch (error) {
         return handleApiError(error);
     }
@@ -231,7 +231,7 @@ const getTrendingShows = async (pageNo = 1, pageLimit = 25) => {
 
 export const getTrendingBooks = async (pageNo = 1, pageLimit = 25) => {
     try {
-        const response = await fetch(`${apiUrl}/getBooksByPopularity?pageNo=${pageNo}&pageLimit=${pageLimit}`, {
+        const response = await fetch(`${apiUrl}/filterItems?pageNo=${pageNo}&pageLimit=${pageLimit}&forBook=${true}&orderByPopularity=${true}`, {
             credentials: "include",
         });
         const checkedResponse = await handleResponse(response);
