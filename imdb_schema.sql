@@ -2,12 +2,13 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.8 (Ubuntu 16.8-0ubuntu0.24.04.1)
--- Dumped by pg_dump version 16.8 (Ubuntu 16.8-0ubuntu0.24.04.1)
+-- Dumped from database version 17.2 (Ubuntu 17.2-1.pgdg22.04+1)
+-- Dumped by pg_dump version 17.2 (Ubuntu 17.2-1.pgdg22.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -216,17 +217,6 @@ CREATE TABLE public.crew_movies_shows (
 ALTER TABLE public.crew_movies_shows OWNER TO imdbuser;
 
 --
--- Name: departments; Type: TABLE; Schema: public; Owner: imdbuser
---
-
-CREATE TABLE public.departments (
-    name text NOT NULL
-);
-
-
-ALTER TABLE public.departments OWNER TO imdbuser;
-
---
 -- Name: episodes; Type: TABLE; Schema: public; Owner: imdbuser
 --
 
@@ -321,18 +311,6 @@ CREATE TABLE public.genres (
 
 
 ALTER TABLE public.genres OWNER TO imdbuser;
-
---
--- Name: jobs; Type: TABLE; Schema: public; Owner: imdbuser
---
-
-CREATE TABLE public.jobs (
-    department_name text NOT NULL,
-    title text NOT NULL
-);
-
-
-ALTER TABLE public.jobs OWNER TO imdbuser;
 
 --
 -- Name: languages; Type: TABLE; Schema: public; Owner: imdbuser
@@ -644,20 +622,6 @@ CREATE TABLE public.shows_details (
 ALTER TABLE public.shows_details OWNER TO imdbuser;
 
 --
--- Name: tv_details; Type: TABLE; Schema: public; Owner: imdbuser
---
-
-CREATE TABLE public.tv_details (
-    id integer NOT NULL,
-    last_air_date date,
-    number_of_episodes integer DEFAULT 0,
-    number_of_seasons integer DEFAULT 0
-);
-
-
-ALTER TABLE public.tv_details OWNER TO imdbuser;
-
---
 -- Name: user_data; Type: TABLE; Schema: public; Owner: imdbuser
 --
 
@@ -809,7 +773,7 @@ ALTER TABLE ONLY public.books
 --
 
 ALTER TABLE ONLY public.books_reviews_ratings
-    ADD CONSTRAINT books_reviews_ratings_pkey PRIMARY KEY (username, id);
+    ADD CONSTRAINT books_reviews_ratings_pkey PRIMARY KEY (id, username);
 
 
 --
@@ -853,14 +817,6 @@ ALTER TABLE ONLY public.crew_movies_shows
 
 
 --
--- Name: departments departments_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
---
-
-ALTER TABLE ONLY public.departments
-    ADD CONSTRAINT departments_pkey PRIMARY KEY (name);
-
-
---
 -- Name: episodes episodes_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
 --
 
@@ -898,14 +854,6 @@ ALTER TABLE ONLY public.following
 
 ALTER TABLE ONLY public.genres
     ADD CONSTRAINT genres_pkey PRIMARY KEY (id);
-
-
---
--- Name: jobs jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
---
-
-ALTER TABLE ONLY public.jobs
-    ADD CONSTRAINT jobs_pkey PRIMARY KEY (department_name, title);
 
 
 --
@@ -953,7 +901,7 @@ ALTER TABLE ONLY public.movies_shows_production_company
 --
 
 ALTER TABLE ONLY public.movies_shows_reviews_ratings
-    ADD CONSTRAINT movies_shows_reviews_ratings_pkey PRIMARY KEY (username, id);
+    ADD CONSTRAINT movies_shows_reviews_ratings_pkey PRIMARY KEY (id, username);
 
 
 --
@@ -1029,14 +977,6 @@ ALTER TABLE ONLY public.shows_details
 
 
 --
--- Name: tv_details tv_details_pkey; Type: CONSTRAINT; Schema: public; Owner: imdbuser
---
-
-ALTER TABLE ONLY public.tv_details
-    ADD CONSTRAINT tv_details_pkey PRIMARY KEY (id);
-
-
---
 -- Name: movies_shows unique_cert_per_region; Type: CONSTRAINT; Schema: public; Owner: imdbuser
 --
 
@@ -1074,6 +1014,90 @@ ALTER TABLE ONLY public.watchedlist
 
 ALTER TABLE ONLY public.watchlist
     ADD CONSTRAINT watchlist_pkey PRIMARY KEY (username, id);
+
+
+--
+-- Name: authors_books_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX authors_books_index ON public.authors_books USING btree (author_id);
+
+
+--
+-- Name: belongs_to_collection_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX belongs_to_collection_index ON public.movies_details USING btree (belongs_to_collection);
+
+
+--
+-- Name: books_genres_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX books_genres_index ON public.books_genres USING btree (genre_id);
+
+
+--
+-- Name: books_title_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX books_title_index ON public.books USING btree (title);
+
+
+--
+-- Name: cast_person_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX cast_person_index ON public.cast_movies_shows USING btree (person_id);
+
+
+--
+-- Name: crew_person_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX crew_person_index ON public.crew_movies_shows USING btree (person_id);
+
+
+--
+-- Name: movie_title_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX movie_title_index ON public.movies_shows USING btree (title);
+
+
+--
+-- Name: movies_genre_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX movies_genre_index ON public.movies_shows_genres USING btree (genre_id);
+
+
+--
+-- Name: person_name_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX person_name_index ON public.person USING btree (name);
+
+
+--
+-- Name: read_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX read_index ON public.readlist USING btree (id);
+
+
+--
+-- Name: user_email_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE UNIQUE INDEX user_email_index ON public.users USING btree (email);
+
+
+--
+-- Name: user_watch_index; Type: INDEX; Schema: public; Owner: imdbuser
+--
+
+CREATE INDEX user_watch_index ON public.watchlist USING btree (id);
 
 
 --
@@ -1205,11 +1229,27 @@ ALTER TABLE ONLY public.favourites
 
 
 --
+-- Name: books_genres fk_books_genres_genres; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.books_genres
+    ADD CONSTRAINT fk_books_genres_genres FOREIGN KEY (genre_id) REFERENCES public.genres(id);
+
+
+--
 -- Name: movies_shows fk_movies_shows_certificates; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
 --
 
 ALTER TABLE ONLY public.movies_shows
     ADD CONSTRAINT fk_movies_shows_certificates FOREIGN KEY (iso_3166_1, certificate) REFERENCES public.certifications(iso_3166_1, certificate);
+
+
+--
+-- Name: user_data fk_user_data_users; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
+--
+
+ALTER TABLE ONLY public.user_data
+    ADD CONSTRAINT fk_user_data_users FOREIGN KEY (username) REFERENCES public.users(username);
 
 
 --
@@ -1226,14 +1266,6 @@ ALTER TABLE ONLY public.following
 
 ALTER TABLE ONLY public.following
     ADD CONSTRAINT following_username_fkey FOREIGN KEY (username) REFERENCES public.users(username) ON DELETE CASCADE;
-
-
---
--- Name: jobs jobs_department_name_fkey; Type: FK CONSTRAINT; Schema: public; Owner: imdbuser
---
-
-ALTER TABLE ONLY public.jobs
-    ADD CONSTRAINT jobs_department_name_fkey FOREIGN KEY (department_name) REFERENCES public.departments(name) ON DELETE CASCADE;
 
 
 --
